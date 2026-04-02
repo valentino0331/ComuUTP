@@ -8,10 +8,12 @@ import 'providers/comment_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/like_provider.dart';
 import 'providers/report_provider.dart';
+import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/main_scaffold.dart';
 import 'screens/create_post_screen.dart';
+import 'theme/app_theme.dart';
 
 
 void main() {
@@ -37,14 +39,12 @@ class UtpComunidadesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'UTP Comunidades',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Roboto',
-      ),
-      initialRoute: '/login',
+      theme: AppTheme.temaClaro(),
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const PantallaInicio(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/main': (context) => const MainScaffold(),
