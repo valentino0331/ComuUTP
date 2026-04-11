@@ -17,9 +17,27 @@ exports.create = async (req, res) => {
 exports.listByCommunity = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query('SELECT * FROM publicaciones WHERE comunidad_id = $1', [id]);
+    const result = await pool.query(
+      `SELECT 
+        p.id,
+        p.usuario_id,
+        p.comunidad_id,
+        p.contenido,
+        p.fecha,
+        u.nombre as nombre_usuario,
+        c.nombre as nombre_comunidad,
+        (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
+        (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
+      FROM publicaciones p
+      JOIN usuarios u ON p.usuario_id = u.id
+      JOIN comunidades c ON p.comunidad_id = c.id
+      WHERE p.comunidad_id = $1
+      ORDER BY p.fecha DESC`,
+      [id]
+    );
     res.json({ publicaciones: result.rows });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error al listar publicaciones' });
   }
 };
