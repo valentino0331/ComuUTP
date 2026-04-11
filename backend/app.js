@@ -10,35 +10,11 @@ dotenv.config();
 
 const app = express();
 
-// Configuración de CORS segura
+// Configuración de CORS - Permitir cualquier origen para app Flutter
 const corsOptions = {
   origin: function (origin, callback) {
-    const NODE_ENV = process.env.NODE_ENV || 'development';
-    const FRONTEND_URL = process.env.FRONTEND_URL;
-    
-    // En desarrollo, permitir localhost en cualquier puerto
-    if (NODE_ENV === 'development') {
-      if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-        return callback(null, true);
-      }
-    }
-    
-    // En producción, usar URL específica
-    if (FRONTEND_URL && origin === FRONTEND_URL) {
-      return callback(null, true);
-    }
-    
-    // Si origin no es permitido
-    if (FRONTEND_URL && origin !== FRONTEND_URL && NODE_ENV === 'production') {
-      return callback(new Error('CORS not allowed'));
-    }
-    
-    // Permitir en desarrollo si no hay origin (como en herramientas de testing)
-    if (!origin && NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    
-    callback(null, false);
+    // Permitir cualquier origen (localhost, app móvil, web, etc.)
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
