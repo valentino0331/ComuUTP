@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'UTP Comunidades';
-  static const String apiBaseUrl = 'http://10.0.2.2:3000/api'; // Cambiar por IP real si usas dispositivo físico
+  static const String apiBaseUrl = 'https://comuutp-production.up.railway.app/api'; // Producción Railway
   
   // Mensajes comunes
   static const String errorGeneral = 'Ocurrió un error. Intenta de nuevo.';
