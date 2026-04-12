@@ -1,7 +1,27 @@
-const app = require('./app');
+// CORS FIX v3 - Force redeploy
+const express = require('express');
+const cors = require('cors');
+
+const app = express();
+
+// CORS global - permitir TODOS los orígenes
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 const initDatabase = require('./src/config/db-init');
 const { logger } = require('./src/utils/logger');
 const { LOG_MESSAGES } = require('./src/utils/constants');
+const routes = require('./src/routes');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+// Cargar rutas después del CORS
+app.use('/api', routes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
