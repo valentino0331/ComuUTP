@@ -42,7 +42,7 @@ class _PantallaFeedState extends State<PantallaFeed> {
             return const Center(
               child: CircularProgressIndicator(
                 valueColor:
-                    AlwaysStoppedAnimation<Color>(AppTheme.colorRojoUTP),
+                    AlwaysStoppedAnimation<Color>(AppTheme.colorPrimary),
               ),
             );
           }
@@ -104,7 +104,7 @@ class _PantallaFeedState extends State<PantallaFeed> {
 
           return RefreshIndicator(
             onRefresh: () => proveedorPosts.obtenerPosts(),
-            color: AppTheme.colorRojoUTP,
+            color: AppTheme.colorPrimary,
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: proveedorPosts.posts.length,
@@ -151,9 +151,9 @@ class TarjetaPost extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppTheme.colorRojoUTP,
+                      color: AppTheme.colorPrimary,
                       borderRadius:
-                          BorderRadius.circular(AppTheme.borderRadiusEstándar),
+                          BorderRadius.circular(AppTheme.borderRadiusStandard),
                     ),
                     child: const Icon(
                       Icons.person,
@@ -205,7 +205,7 @@ class TarjetaPost extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Post reportado'),
-                            backgroundColor: AppTheme.colorRojoUTP,
+                            backgroundColor: AppTheme.colorPrimary,
                           ),
                         );
                       }

@@ -7,10 +7,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Firebase
+  firebase_core: ^2.27.0
+  firebase_auth: ^4.17.8
+  cloud_firestore: ^4.15.8
+  # HTTP y providers
   http: ^1.2.1
   provider: ^6.1.2
   flutter_secure_storage: ^9.0.0
   cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  phosphor_flutter: ^2.1.0
+  qr_flutter: ^4.1.0
+  image_picker: ^1.0.7
 dev_dependencies:
   flutter_test:
     sdk: flutter

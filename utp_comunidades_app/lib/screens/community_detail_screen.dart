@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../models/community.dart';
 import '../models/message.dart';
 
@@ -19,7 +20,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     setState(() {
       _messages.add(Message(
         id: _messages.length + 1,
-        usuarioId: 1, // Demo user
+        usuarioId: 1,
         comunidadId: widget.community.id,
         contenido: _messageController.text,
         fecha: DateTime.now(),
@@ -31,65 +32,236 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.community.nombre),
-        subtitle: Text(widget.community.descripcion, maxLines: 1, overflow: TextOverflow.ellipsis),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _messages.isEmpty
-                ? const Center(child: Text('Inicia la conversación'))
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(),
+            // Messages
+            Expanded(
+              child: _messages.isEmpty
+                ? _buildEmptyState()
                 : ListView.builder(
+                    padding: const EdgeInsets.all(16),
                     itemCount: _messages.length,
-                    itemBuilder: (context, i) {
-                      final msg = _messages[i];
-                      return Padding(
-                        padding: const EdgeInsets.symetric(vertical: 8, horizontal: 16),
-                        child: Column(
-                          crossAxisAlignment: msg.usuarioId == 1 ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                          children: [
-                            Text('Usuario ${msg.usuarioId}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: msg.usuarioId == 1 ? Colors.deepPurple : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              child: Text(
-                                msg.contenido,
-                                style: TextStyle(color: msg.usuarioId == 1 ? Colors.white : Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                    itemBuilder: (context, i) => _buildMessageBubble(_messages[i]),
                   ),
+            ),
+            // Input
+            _buildInputArea(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFB21132),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(PhosphorIcons.arrowLeft, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+          const SizedBox(width: 8),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Escribe un mensaje...',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                Text(
+                  widget.community.nombre,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Colors.deepPurple,
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
+                Text(
+                  '${_messages.length} mensajes',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
               ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(PhosphorIcons.dotsThreeVertical, color: Colors.white70),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            PhosphorIcons.chatCircleText(PhosphorIconsStyle.fill),
+            size: 80,
+            color: Colors.grey[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Inicia la conversación',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[500],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Sé el primero en enviar un mensaje',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 14,
+              color: Colors.grey[400],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageBubble(Message msg) {
+    final isMe = msg.usuarioId == 1;
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isMe ? const Color(0xFFB21132) : Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isMe ? 16 : 4),
+            bottomRight: Radius.circular(isMe ? 4 : 16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Usuario ${msg.usuarioId}',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isMe ? Colors.white70 : Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              msg.contenido,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 14,
+                color: isMe ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${msg.fecha.hour}:${msg.fecha.minute.toString().padLeft(2, '0')}',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 10,
+                color: isMe ? Colors.white54 : Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputArea() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: TextField(
+                controller: _messageController,
+                style: const TextStyle(fontFamily: 'Montserrat'),
+                decoration: InputDecoration(
+                  hintText: 'Escribe un mensaje...',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Montserrat',
+                    color: Colors.grey[400],
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: _sendMessage,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFFB21132),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.paperPlaneRight(PhosphorIconsStyle.fill),
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ],

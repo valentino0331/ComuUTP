@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../theme/app_theme.dart';
 
 class PantallaLogin extends StatefulWidget {
   const PantallaLogin({super.key});
@@ -17,6 +16,13 @@ class _PantallaLoginState extends State<PantallaLogin> {
   bool _mostrarPassword = false;
   bool _cargando = false;
 
+  // Colores del diseño
+  static const Color colorPrimario = Color(0xFFB21132);
+  static const Color colorFondoOverlay = Color(0x57B21132); // rgba(178, 17, 50, 0.34)
+  static const Color colorInput = Color(0xD2EDF0F2); // rgba(237, 240, 242, 0.82)
+  static const Color colorBoton = Color(0xFF090A0B);
+  static const Color colorTextoBlanco = Colors.white;
+
   @override
   void dispose() {
     _controlEmail.dispose();
@@ -24,7 +30,6 @@ class _PantallaLoginState extends State<PantallaLogin> {
     super.dispose();
   }
 
-  /// Validar correo UTP
   String? _validarEmail(String? valor) {
     if (valor == null || valor.isEmpty) {
       return 'Por favor ingresa tu correo';
@@ -32,13 +37,9 @@ class _PantallaLoginState extends State<PantallaLogin> {
     if (!valor.endsWith('@utp.edu.pe')) {
       return 'Debe ser un correo @utp.edu.pe';
     }
-    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@utp\.edu\.pe$').hasMatch(valor)) {
-      return 'Correo inválido';
-    }
     return null;
   }
 
-  /// Validar contraseña
   String? _validarPassword(String? valor) {
     if (valor == null || valor.isEmpty) {
       return 'Por favor ingresa tu contraseña';
@@ -49,7 +50,6 @@ class _PantallaLoginState extends State<PantallaLogin> {
     return null;
   }
 
-  /// Procesar login
   Future<void> _procesarLogin() async {
     if (!_formulario.currentState!.validate()) return;
 
@@ -57,33 +57,28 @@ class _PantallaLoginState extends State<PantallaLogin> {
 
     try {
       final provedor = context.read<AuthProvider>();
-      final exito = await provedor.iniciarSesion(
+      final exito = await provedor.login(
         _controlEmail.text.trim(),
         _controlPassword.text,
       );
 
-      if (exito) {
-        if (mounted) {
-          // Navegar a pantalla principal
-          Navigator.of(context).pushReplacementNamed('/main');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Bienvenido a UTP Comunidades!'),
-              backgroundColor: AppTheme.colorRojoUTP,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(provedor.mensajeError ?? 'Error al iniciar sesión'),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
+      if (exito && mounted) {
+        Navigator.of(context).pushReplacementNamed('/main');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Bienvenido a UTP Comunidades!'),
+            backgroundColor: colorPrimario,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provedor.error ?? 'Error al iniciar sesión'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -103,153 +98,264 @@ class _PantallaLoginState extends State<PantallaLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.colorBlancoFondo,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Logo UTP
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.colorRojoUTP,
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusEstándar),
-                ),
-                child: const Icon(
-                  Icons.school,
-                  color: Colors.white,
-                  size: 64,
-                ),
-              ),
-              const SizedBox(height: 32),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Fondo con overlay rojo semitransparente
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: colorFondoOverlay,
+          ),
 
-              // Título
-              const Text(
-                'UTP Comunidades',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.colorNegro,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Subtítulo
-              const Text(
-                'Conecta con tu comunidad universitaria',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.colorGris,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Formulario
-              Form(
-                key: _formulario,
+          // Contenido centrado
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 22.5),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Campo Email
-                    TextFormField(
-                      controller: _controlEmail,
-                      enabled: !_cargando,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Correo UTP',
-                        hintText: 'tu.email@utp.edu.pe',
-                        prefixIcon: const Icon(Icons.email),
-                        suffixIcon: _controlEmail.text.isNotEmpty
-                            ? const Icon(Icons.check_circle,
-                                color: AppTheme.colorRojoUTP)
-                            : null,
+                    // Card principal roja
+                    Container(
+                      width: 345,
+                      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 44),
+                      decoration: BoxDecoration(
+                        color: colorPrimario,
+                        borderRadius: BorderRadius.circular(34),
                       ),
-                      onChanged: (valor) => setState(() {}),
-                      validator: _validarEmail,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Campo Contraseña
-                    TextFormField(
-                      controller: _controlPassword,
-                      enabled: !_cargando,
-                      obscureText: !_mostrarPassword,
-                      decoration: InputDecoration(
-                        labelText: 'Contraseña',
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _mostrarPassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: AppTheme.colorGris,
-                          ),
-                          onPressed: () => setState(
-                              () => _mostrarPassword = !_mostrarPassword),
-                        ),
-                      ),
-                      validator: _validarPassword,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Botón Login
-                    ElevatedButton(
-                      onPressed: _cargando ? null : _procesarLogin,
-                      child: _cargando
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white),
-                              ),
-                            )
-                          : const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Form(
+                        key: _formulario,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Título "Bienvenido a UTP Comunidades"
+                            const Center(
                               child: Text(
-                                'Iniciar Sesión',
+                                'Bienvenido a UTP Comunidades',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.23,
+                                  color: colorTextoBlanco,
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 48),
+
+                            // Label "Correo o Código UTP"
+                            const Padding(
+                              padding: EdgeInsets.only(left: 8, bottom: 9),
+                              child: Text(
+                                'Correo o Código UTP',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.2,
+                                  color: colorTextoBlanco,
+                                ),
+                              ),
+                            ),
+
+                            // Input Email - Solución definitiva
+                            SizedBox(
+                              height: 55,
+                              child: TextFormField(
+                                controller: _controlEmail,
+                                enabled: !_cargando,
+                                keyboardType: TextInputType.emailAddress,
+                                textAlignVertical: TextAlignVertical.center,
+                                style: const TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: colorInput,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1),
+                                  ),
+                                  hintText: 'ejemplo@utp.edu.pe',
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black45,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                validator: _validarEmail,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Label "Contraseña"
+                            const Padding(
+                              padding: EdgeInsets.only(left: 8, bottom: 9),
+                              child: Text(
+                                'Contraseña',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.2,
+                                  color: colorTextoBlanco,
+                                ),
+                              ),
+                            ),
+
+                            // Input Contraseña - Solución definitiva
+                            SizedBox(
+                              height: 55,
+                              child: TextFormField(
+                                controller: _controlPassword,
+                                enabled: !_cargando,
+                                obscureText: !_mostrarPassword,
+                                textAlignVertical: TextAlignVertical.center,
+                                style: const TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: colorInput,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _mostrarPassword ? Icons.visibility : Icons.visibility_off,
+                                      color: Colors.black45,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => setState(() => _mostrarPassword = !_mostrarPassword),
+                                  ),
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black45,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                validator: _validarPassword,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Botón "Ingresar"
+                            Center(
+                              child: SizedBox(
+                                width: 263,
+                                height: 39,
+                                child: ElevatedButton(
+                                  onPressed: _cargando ? null : _procesarLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorBoton,
+                                    foregroundColor: colorTextoBlanco,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(37),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: _cargando
+                                      ? const SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Ingresar',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.25,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // "¿Olvidaste tu contraseña?"
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {
+                                  // TODO: Navegar a recuperar contraseña
+                                },
+                                child: const Text(
+                                  '¿Olvidaste tu contraseña?',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.23,
+                                    color: colorTextoBlanco,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // "Crear cuenta"
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/register');
+                                },
+                                child: const Text(
+                                  '¿No tienes cuenta? Crear cuenta',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.23,
+                                    color: colorTextoBlanco,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-
-              // Enlace Registro
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    '¿No tienes cuenta? ',
-                    style: TextStyle(color: AppTheme.colorGris),
-                  ),
-                  GestureDetector(
-                    onTap: () =>
-                        Navigator.of(context).pushNamed('/register'),
-                    child: const Text(
-                      'Regístrate',
-                      style: TextStyle(
-                        color: AppTheme.colorRojoUTP,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import '../models/user.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
@@ -8,43 +9,277 @@ class AuthProvider with ChangeNotifier {
   String? _token;
   bool _loading = false;
   String? _error;
+  
+  // Firebase user
+  firebase.User? _firebaseUser;
 
   User? get user => _user;
   String? get token => _token;
   bool get loading => _loading;
   String? get error => _error;
+  firebase.User? get firebaseUser => _firebaseUser;
 
+  /// Login con Firebase Auth + Backend Neon
   Future<bool> login(String email, String password) async {
     _loading = true;
     _error = null;
     notifyListeners();
-    final res = await ApiService.post('/auth/login', {
-      'email': email,
-      'password': password,
-    });
-    if (res.statusCode == 200) {
-      final data = jsonDecode(res.body);
-      _token = data['token'];
-      await ApiService.saveToken(_token!);
-      final meRes = await ApiService.get('/auth/me', auth: true);
-      if (meRes.statusCode == 200) {
-        _user = User.fromJson(jsonDecode(meRes.body)['user']);
+    
+    try {
+      // 1. Login con Firebase
+      final credential = await firebase.FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      
+      _firebaseUser = credential.user;
+      
+      if (_firebaseUser == null) {
+        _error = 'Error al iniciar sesión con Firebase';
+        _loading = false;
+        notifyListeners();
+        return false;
+      }
+      
+      // 2. Verificar si el email está verificado
+      if (!_firebaseUser!.emailVerified) {
+        _error = 'Por favor verifica tu correo electrónico antes de iniciar sesión';
+        _loading = false;
+        notifyListeners();
+        return false;
+      }
+      
+      // 3. Login en backend Neon
+      final res = await ApiService.post('/auth/login', {
+        'uid': _firebaseUser!.uid,
+        'email': email,
+      });
+      
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        _token = data['token'];
+        await ApiService.saveToken(_token!);
+        
+        if (data['usuario'] != null) {
+          _user = User(
+            id: data['usuario']['id'],
+            email: data['usuario']['email'],
+            nombre: data['usuario']['nombre'],
+            apellido: data['usuario']['apellido'],
+            carrera: data['usuario']['carrera'],
+            ciclo: data['usuario']['ciclo'],
+            esPremium: data['usuario']['es_premium'],
+            puedeCrearComunidad: data['usuario']['puede_crear_comunidad'],
+          );
+        }
+        
         _loading = false;
         notifyListeners();
         return true;
+      } else if (res.statusCode == 404) {
+        // Usuario existe en Firebase pero no en Neon - necesita completar registro
+        _error = 'Completa tu registro para continuar';
+        _loading = false;
+        notifyListeners();
+        return false;
+      } else {
+        _error = 'Error al iniciar sesión';
+        _loading = false;
+        notifyListeners();
+        return false;
       }
-    } else {
-      _error = 'Credenciales inválidas';
+    } on firebase.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _loading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'Error: ${e.toString()}';
+      _loading = false;
+      notifyListeners();
+      return false;
     }
-    _loading = false;
+  }
+
+  /// Registrar usuario en Firebase (envía email de verificación)
+  Future<Map<String, dynamic>> registerWithFirebase({
+    required String email,
+    required String password,
+    required String nombre,
+    String? apellido,
+    String? carrera,
+    int? ciclo,
+  }) async {
+    _loading = true;
+    _error = null;
     notifyListeners();
+    
+    try {
+      // 1. Crear usuario en Firebase
+      final credential = await firebase.FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      
+      _firebaseUser = credential.user;
+      
+      if (_firebaseUser == null) {
+        _loading = false;
+        notifyListeners();
+        return {'success': false, 'error': 'Error al crear usuario'};
+      }
+      
+      // 2. Actualizar display name
+      await _firebaseUser!.updateDisplayName('$nombre ${apellido ?? ''}'.trim());
+      
+      // 3. Enviar email de verificación
+      await _firebaseUser!.sendEmailVerification();
+      
+      _loading = false;
+      notifyListeners();
+      
+      return {
+        'success': true,
+        'uid': _firebaseUser!.uid,
+        'message': 'Revisa tu correo para verificar tu cuenta',
+      };
+    } on firebase.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _loading = false;
+      notifyListeners();
+      return {'success': false, 'error': _error};
+    } catch (e) {
+      _error = 'Error: ${e.toString()}';
+      _loading = false;
+      notifyListeners();
+      return {'success': false, 'error': _error};
+    }
+  }
+
+  /// Completar registro en Neon (después de verificar email)
+  Future<bool> completeRegistration({
+    required String uid,
+    required String email,
+    required String nombre,
+    String? apellido,
+    String? carrera,
+    int? ciclo,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    
+    try {
+      final res = await ApiService.post('/auth/register', {
+        'uid': uid,
+        'email': email,
+        'nombre': nombre,
+        'apellido': apellido,
+        'carrera': carrera,
+        'ciclo': ciclo,
+      });
+      
+      if (res.statusCode == 201 || res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        
+        if (data['usuario'] != null) {
+          _user = User(
+            id: data['usuario']['id'],
+            email: data['usuario']['email'],
+            nombre: data['usuario']['nombre'],
+            apellido: data['usuario']['apellido'],
+            carrera: data['usuario']['carrera'],
+            ciclo: data['usuario']['ciclo'],
+          );
+        }
+        
+        _loading = false;
+        notifyListeners();
+        return true;
+      } else {
+        final error = jsonDecode(res.body);
+        _error = error['error'] ?? 'Error al completar registro';
+        _loading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = 'Error: ${e.toString()}';
+      _loading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Verificar si el email está verificado
+  Future<bool> checkEmailVerified() async {
+    final user = firebase.FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload();
+      _firebaseUser = firebase.FirebaseAuth.instance.currentUser;
+      return _firebaseUser?.emailVerified ?? false;
+    }
     return false;
   }
 
+  /// Reenviar email de verificación
+  Future<void> resendVerificationEmail() async {
+    final user = firebase.FirebaseAuth.instance.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
+  }
+
+  /// Cerrar sesión
   Future<void> logout() async {
+    await firebase.FirebaseAuth.instance.signOut();
     _user = null;
     _token = null;
+    _firebaseUser = null;
     await ApiService.deleteToken();
     notifyListeners();
+  }
+
+  /// Login como admin para pruebas (sin Firebase)
+  Future<bool> loginAsAdmin() async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    _user = User(
+      id: 1,
+      email: 'admin@utp.edu.pe',
+      nombre: 'Administrador UTP',
+      esAdmin: true,
+      esPremium: true,
+      puedeCrearComunidad: true,
+      asistenciasVerificadas: 10,
+      fotoPerfil: null,
+    );
+    _token = 'admin-token-test';
+    
+    _loading = false;
+    notifyListeners();
+    return true;
+  }
+
+  /// Mapear errores de Firebase a mensajes en español
+  String _getFirebaseErrorMessage(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return 'El correo electrónico no es válido';
+      case 'user-disabled':
+        return 'Esta cuenta ha sido deshabilitada';
+      case 'user-not-found':
+        return 'No existe una cuenta con este correo';
+      case 'wrong-password':
+        return 'Contraseña incorrecta';
+      case 'email-already-in-use':
+        return 'Este correo ya está registrado';
+      case 'weak-password':
+        return 'La contraseña es muy débil (mínimo 6 caracteres)';
+      case 'invalid-credential':
+        return 'Credenciales inválidas';
+      default:
+        return 'Error de autenticación: $code';
+    }
   }
 }

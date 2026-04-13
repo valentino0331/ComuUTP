@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/comment.dart';
 import '../services/api_service.dart';
+import '../utils/mock_data.dart';
 import 'dart:convert';
 
 class CommentProvider with ChangeNotifier {
@@ -16,13 +17,21 @@ class CommentProvider with ChangeNotifier {
     _loading = true;
     _error = null;
     notifyListeners();
-    final res = await ApiService.get('/comments/$publicacionId');
-    if (res.statusCode == 200) {
-      final data = jsonDecode(res.body)['comentarios'] as List;
-      _comments = data.map((c) => Comment.fromJson(c)).toList();
-    } else {
-      _error = 'No se pudieron cargar los comentarios';
+    
+    try {
+      final res = await ApiService.get('/comments/$publicacionId');
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body)['comentarios'] as List;
+        _comments = data.map((c) => Comment.fromJson(c)).toList();
+      } else {
+        // Si falla, filtrar comentarios mock por publicación
+        _comments = MockData.getComments().where((c) => c.publicacionId == publicacionId).toList();
+      }
+    } catch (e) {
+      // Si hay error de conexión, usar datos mock filtrados
+      _comments = MockData.getComments().where((c) => c.publicacionId == publicacionId).toList();
     }
+    
     _loading = false;
     notifyListeners();
   }

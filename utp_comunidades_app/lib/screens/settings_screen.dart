@@ -1,0 +1,669 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../providers/auth_provider.dart';
+import '../services/api_service.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  // Configuraciones de preferencias
+  bool _notificacionesActivas = true;
+  bool _emailNotificaciones = true;
+  bool _notificacionesMenciones = true;
+  bool _modoDark = false;
+  bool _privacidadPerfilPublico = true;
+  bool _privacidadMostrarEmail = false;
+  String _idioma = 'Español';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // Header
+            SliverToBoxAdapter(
+              child: _buildHeader(),
+            ),
+            
+            // Configuraciones
+            SliverToBoxAdapter(
+              child: _buildSettingsContent(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFB21132),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            PhosphorIcons.gear(PhosphorIconsStyle.fill),
+            color: Colors.white,
+            size: 28,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Configuración',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              PhosphorIcons.x(PhosphorIconsStyle.bold),
+              color: Colors.white,
+              size: 26,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          // Notificaciones
+          _buildSectionCard(
+            title: 'Notificaciones',
+            icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
+            children: [
+              _buildSwitchTile(
+                icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
+                title: 'Notificaciones en la app',
+                subtitle: 'Recibir alertas de actividad',
+                value: _notificacionesActivas,
+                onChanged: (v) => setState(() => _notificacionesActivas = v),
+              ),
+              _buildSwitchTile(
+                icon: PhosphorIcons.envelope(PhosphorIconsStyle.fill),
+                title: 'Notificaciones por email',
+                subtitle: 'Recibir resumen semanal',
+                value: _emailNotificaciones,
+                onChanged: (v) => setState(() => _emailNotificaciones = v),
+              ),
+              _buildNavigationTile(
+                icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.fill),
+                title: 'Notificaciones de menciones',
+                subtitle: 'Cuando alguien te menciona',
+                onTap: () => _showMentionsSettings(),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Apariencia
+          _buildSectionCard(
+            title: 'Apariencia',
+            icon: PhosphorIcons.palette(PhosphorIconsStyle.fill),
+            children: [
+              _buildSwitchTile(
+                icon: PhosphorIcons.moon(PhosphorIconsStyle.fill),
+                title: 'Modo oscuro',
+                subtitle: 'Cambiar tema de la app',
+                value: _modoDark,
+                onChanged: (v) => setState(() => _modoDark = v),
+              ),
+              _buildNavigationTile(
+                icon: PhosphorIcons.translate(PhosphorIconsStyle.fill),
+                title: 'Idioma',
+                subtitle: _idioma,
+                onTap: () => _showLanguageSelector(),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Cuenta
+          _buildSectionCard(
+            title: 'Cuenta',
+            icon: PhosphorIcons.user(PhosphorIconsStyle.fill),
+            children: [
+              _buildNavigationTile(
+                icon: PhosphorIcons.lockKey(PhosphorIconsStyle.fill),
+                title: 'Cambiar contraseña',
+                subtitle: 'Actualizar tu contraseña',
+                onTap: () => _showChangePasswordDialog(),
+              ),
+              _buildNavigationTile(
+                icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.fill),
+                title: 'Privacidad',
+                subtitle: 'Configuración de privacidad',
+                onTap: () => _showPrivacySettings(),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Acerca de
+          _buildSectionCard(
+            title: 'Acerca de',
+            icon: PhosphorIcons.info(PhosphorIconsStyle.fill),
+            children: [
+              _buildInfoTile(
+                icon: PhosphorIcons.appWindow(PhosphorIconsStyle.fill),
+                title: 'Versión de la app',
+                value: '1.0.0',
+              ),
+              _buildInfoTile(
+                icon: PhosphorIcons.fileText(PhosphorIconsStyle.fill),
+                title: 'Términos de servicio',
+                value: 'Ver',
+                onTap: () => _showTermsDialog(),
+              ),
+              _buildInfoTile(
+                icon: PhosphorIcons.shield(PhosphorIconsStyle.fill),
+                title: 'Política de privacidad',
+                value: 'Ver',
+                onTap: () => _showPrivacyPolicyDialog(),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Card(
+      elevation: 3,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header de sección
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFB21132).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: const Color(0xFFB21132),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // Items
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required Function(bool) onChanged,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: Colors.grey[400],
+        size: 22,
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 12,
+          color: Colors.grey[500],
+        ),
+      ),
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeColor: const Color(0xFFB21132),
+      ),
+    );
+  }
+
+  Widget _buildNavigationTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: Colors.grey[400],
+        size: 22,
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 12,
+          color: Colors.grey[500],
+        ),
+      ),
+      trailing: Icon(
+        PhosphorIcons.caretRight(PhosphorIconsStyle.fill),
+        color: Colors.grey[300],
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildInfoTile({
+    required IconData icon,
+    required String title,
+    required String value,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: Colors.grey[400],
+        size: 22,
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailing: Text(
+        value,
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 14,
+          color: const Color(0xFFB21132),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  // Dialog methods
+  void _showMentionsSettings() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Notificaciones de menciones',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SwitchListTile(
+                title: const Text(
+                  'Recibir notificaciones',
+                  style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Cuando alguien te mencione en un comentario',
+                  style: TextStyle(fontFamily: 'Montserrat', fontSize: 12),
+                ),
+                value: _notificacionesMenciones,
+                activeColor: const Color(0xFFB21132),
+                onChanged: (v) {
+                  setState(() => _notificacionesMenciones = v);
+                  this.setState(() {});
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageSelector() {
+    final languages = ['Español', 'English', 'Português'];
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Seleccionar idioma',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ...languages.map((lang) => ListTile(
+              title: Text(
+                lang,
+                style: const TextStyle(fontFamily: 'Montserrat'),
+              ),
+              trailing: _idioma == lang
+                  ? const Icon(Icons.check, color: Color(0xFFB21132))
+                  : null,
+              onTap: () {
+                setState(() => _idioma = lang);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Idioma cambiado a $lang')),
+                );
+              },
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog() {
+    final currentPassController = TextEditingController();
+    final newPassController = TextEditingController();
+    final confirmPassController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Cambiar contraseña',
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: currentPassController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Contraseña actual',
+                labelStyle: TextStyle(fontFamily: 'Montserrat'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: newPassController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Nueva contraseña',
+                labelStyle: TextStyle(fontFamily: 'Montserrat'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: confirmPassController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Confirmar contraseña',
+                labelStyle: TextStyle(fontFamily: 'Montserrat'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB21132),
+            ),
+            onPressed: () {
+              if (newPassController.text == confirmPassController.text &&
+                  newPassController.text.isNotEmpty) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Contraseña actualizada correctamente')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Las contraseñas no coinciden')),
+                );
+              }
+            },
+            child: const Text(
+              'Guardar',
+              style: TextStyle(fontFamily: 'Montserrat', color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivacySettings() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Configuración de privacidad',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SwitchListTile(
+                title: const Text(
+                  'Perfil público',
+                  style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Cualquiera puede ver tu perfil',
+                  style: TextStyle(fontFamily: 'Montserrat', fontSize: 12),
+                ),
+                value: _privacidadPerfilPublico,
+                activeColor: const Color(0xFFB21132),
+                onChanged: (v) {
+                  setState(() => _privacidadPerfilPublico = v);
+                  this.setState(() {});
+                },
+              ),
+              SwitchListTile(
+                title: const Text(
+                  'Mostrar email',
+                  style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Otros usuarios pueden ver tu correo',
+                  style: TextStyle(fontFamily: 'Montserrat', fontSize: 12),
+                ),
+                value: _privacidadMostrarEmail,
+                activeColor: const Color(0xFFB21132),
+                onChanged: (v) {
+                  setState(() => _privacidadMostrarEmail = v);
+                  this.setState(() {});
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Términos de servicio',
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+        ),
+        content: const SingleChildScrollView(
+          child: Text(
+            'Bienvenido a UTP Comunidades. Al usar esta aplicación, aceptas:\n\n'
+            '1. Respetar a todos los miembros de la comunidad\n'
+            '2. No compartir contenido ofensivo o inapropiado\n'
+            '3. No hacer spam ni publicidad no autorizada\n'
+            '4. Mantener la privacidad de otros usuarios\n'
+            '5. Usar la plataforma solo para fines educativos y comunitarios\n\n'
+            'El incumplimiento de estos términos puede resultar en la suspensión de tu cuenta.',
+            style: TextStyle(fontFamily: 'Montserrat', fontSize: 14, height: 1.5),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivacyPolicyDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Política de privacidad',
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+        ),
+        content: const SingleChildScrollView(
+          child: Text(
+            'En UTP Comunidades valoramos tu privacidad:\n\n'
+            '• Solo recopilamos datos necesarios para el funcionamiento de la app\n'
+            '• Tu información no se comparte con terceros\n'
+            '• Puedes eliminar tu cuenta en cualquier momento\n'
+            '• Usamos medidas de seguridad para proteger tus datos\n'
+            '• Las contraseñas están encriptadas\n\n'
+            'Para más información contacta a soporte@utp.edu.pe',
+            style: TextStyle(fontFamily: 'Montserrat', fontSize: 14, height: 1.5),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+        ],
+      ),
+    );
+  }
+}

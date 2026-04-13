@@ -7,6 +7,7 @@ import 'profile_screen.dart';
 import '../widgets/bottom_nav.dart';
 import '../providers/community_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -22,9 +23,10 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    // Cargar comunidades al iniciar
+    // Cargar comunidades y notificaciones al iniciar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CommunityProvider>(context, listen: false).fetchCommunities();
+      Provider.of<NotificationProvider>(context, listen: false).fetchNotifications();
     });
   }
 
@@ -32,6 +34,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget build(BuildContext context) {
     final communities = Provider.of<CommunityProvider>(context).communities;
     final user = Provider.of<AuthProvider>(context).user;
+    final unreadNotifications = Provider.of<NotificationProvider>(context).unreadCount;
     final List<Widget> screens = [
       HomeScreen(),
       CommunitiesScreen(communities: communities),
@@ -43,6 +46,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
+        unreadNotifications: unreadNotifications,
       ),
     );
   }
