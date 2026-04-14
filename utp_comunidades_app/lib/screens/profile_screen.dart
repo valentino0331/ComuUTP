@@ -1418,47 +1418,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                       Expanded(
                         child: ListView(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shrinkWrap: true,
                           children: [
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.userCircle(PhosphorIconsStyle.bold),
-                                color: const Color(0xFFB21132),
-                                size: 24,
-                              ),
-                              title: 'Editar perfil',
-                              subtitle: 'Modifica tu información',
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => EditProfileScreen(user: user)),
-                                );
-                              },
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            const Divider(height: 1),
-                            const SizedBox(height: 16),
-                            
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.signOut(PhosphorIconsStyle.bold),
-                                color: Colors.red,
-                                size: 24,
-                              ),
-                              title: 'Cerrar sesión',
-                              subtitle: 'Salir de tu cuenta',
-                              color: Colors.red,
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showLogoutDialog(context);
-                              },
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            const Divider(height: 1),
-                            const SizedBox(height: 16),
-                            
                             _buildDrawerItem(
                               icon: Icon(
                                 PhosphorIcons.bell(PhosphorIconsStyle.bold),
@@ -1466,7 +1427,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 size: 24,
                               ),
                               title: 'Notificaciones',
-                              subtitle: 'Gestiona tus notificaciones',
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.pushNamed(context, '/notifications');
@@ -1482,7 +1442,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 size: 24,
                               ),
                               title: 'Privacidad',
-                              subtitle: 'Controla tu privacidad',
                               onTap: () {
                                 Navigator.pop(context);
                                 _showPrivacyDialog(context);
@@ -1498,7 +1457,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 size: 24,
                               ),
                               title: 'Términos y Condiciones',
-                              subtitle: 'Lee nuestros términos',
                               onTap: () {
                                 Navigator.pop(context);
                                 _showTermsDialog(context);
@@ -1514,7 +1472,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 size: 24,
                               ),
                               title: 'Acerca de',
-                              subtitle: 'Información de la app',
                               onTap: () {
                                 Navigator.pop(context);
                                 _showAboutDialog(context);
@@ -1530,10 +1487,29 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 size: 24,
                               ),
                               title: 'Ayuda',
-                              subtitle: 'Preguntas frecuentes',
                               onTap: () {
                                 Navigator.pop(context);
                                 _showHelpDialog(context);
+                              },
+                            ),
+                            
+                            const Spacer(),
+                            
+                            const SizedBox(height: 16),
+                            const Divider(height: 1),
+                            const SizedBox(height: 16),
+                            
+                            _buildDrawerItem(
+                              icon: Icon(
+                                PhosphorIcons.signOut(PhosphorIconsStyle.bold),
+                                color: Colors.red,
+                                size: 24,
+                              ),
+                              title: 'Cerrar sesión',
+                              color: Colors.red,
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showLogoutDialog(context);
                               },
                             ),
                           ],
@@ -1581,8 +1557,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildDrawerItem({
     required Widget icon,
     required String title,
-    required String subtitle,
     required VoidCallback onTap,
+    String? subtitle,
     Color color = const Color(0xFFB21132),
     bool isAdmin = false,
   }) {
@@ -1609,14 +1585,16 @@ class _ProfileScreenState extends State<ProfileScreen>
             color: isAdmin ? const Color(0xFFB21132) : Colors.grey[800],
           ),
         ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontSize: 12,
-            color: Colors.grey[500],
-          ),
-        ),
+        subtitle: subtitle != null
+            ? Text(
+                subtitle,
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                ),
+              )
+            : null,
         trailing: isAdmin
             ? Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
