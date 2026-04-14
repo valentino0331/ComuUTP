@@ -36,24 +36,7 @@ class AuthProvider with ChangeNotifier {
         
         if (res.statusCode == 200) {
           final data = jsonDecode(res.body);
-          _user = User(
-            id: data['id'],
-            email: data['email'],
-            nombre: data['nombre'],
-            apellido: data['apellido'],
-            carrera: data['carrera'],
-            ciclo: data['ciclo'],
-            biografia: data['biografia'],
-            fotoPerfil: data['fotoPerfil'],
-            postsCount: data['postsCount'],
-            comunidadesCount: data['comunidadesCount'],
-            seguidoresCount: data['seguidoresCount'],
-            seguidosCount: data['seguidosCount'],
-            esPremium: data['esPremium'] ?? false,
-            puedeCrearComunidad: data['puedeCrearComunidad'] ?? false,
-            asistenciasVerificadas: data['asistenciasVerificadas'],
-            esAdmin: data['esAdmin'] ?? false,
-          );
+          _user = User.fromJson(data);
         } else {
           // Token inválido o expirado
           _token = null;
@@ -111,16 +94,7 @@ class AuthProvider with ChangeNotifier {
         await ApiService.saveToken(_token!);
         
         if (data['usuario'] != null) {
-          _user = User(
-            id: data['usuario']['id'],
-            email: data['usuario']['email'],
-            nombre: data['usuario']['nombre'],
-            apellido: data['usuario']['apellido'],
-            carrera: data['usuario']['carrera'],
-            ciclo: data['usuario']['ciclo'],
-            esPremium: data['usuario']['es_premium'],
-            puedeCrearComunidad: data['usuario']['puede_crear_comunidad'],
-          );
+          _user = User.fromJson(data['usuario']);
         }
         
         _loading = false;
@@ -231,14 +205,7 @@ class AuthProvider with ChangeNotifier {
         final data = jsonDecode(res.body);
         
         if (data['usuario'] != null) {
-          _user = User(
-            id: data['usuario']['id'],
-            email: data['usuario']['email'],
-            nombre: data['usuario']['nombre'],
-            apellido: data['usuario']['apellido'],
-            carrera: data['usuario']['carrera'],
-            ciclo: data['usuario']['ciclo'],
-          );
+          _user = User.fromJson(data['usuario']);
         }
         
         _loading = false;
