@@ -5,10 +5,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import 'edit_profile_screen.dart';
-import 'settings/privacy_settings_screen.dart';
-import 'settings/notifications_settings_screen.dart';
-import 'settings/security_settings_screen.dart';
-import 'settings/help_support_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
@@ -1451,50 +1447,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           children: [
                             _buildDrawerItem(
-                              icon: Icons.lock_outline,
-                              title: 'Privacidad',
-                              subtitle: 'Controla tu información',
+                              icon: Icons.edit,
+                              title: 'Editar perfil',
+                              subtitle: 'Modifica tu información',
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => PrivacySettingsScreen()),
-                                );
-                              },
-                            ),
-                            _buildDrawerItem(
-                              icon: Icons.notifications_outlined,
-                              title: 'Notificaciones',
-                              subtitle: 'Personaliza tus alertas',
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => NotificationsSettingsScreen()),
-                                );
-                              },
-                            ),
-                            _buildDrawerItem(
-                              icon: Icons.security_outlined,
-                              title: 'Seguridad',
-                              subtitle: 'Protege tu cuenta',
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => SecuritySettingsScreen()),
-                                );
-                              },
-                            ),
-                            _buildDrawerItem(
-                              icon: Icons.help_outline,
-                              title: 'Ayuda y soporte',
-                              subtitle: 'Centro de ayuda',
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => HelpSupportScreen()),
+                                  MaterialPageRoute(builder: (context) => EditProfileScreen(user: user)),
                                 );
                               },
                             ),
@@ -1502,21 +1462,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             const Divider(height: 1),
                             const SizedBox(height: 16),
-                            
-                            // Admin panel (solo para admins)
-                            if (user?.esAdmin == true) ...[
-                              _buildDrawerItem(
-                                icon: Icons.admin_panel_settings,
-                                title: 'Panel de Administración',
-                                subtitle: 'Gestión de la plataforma',
-                                isAdmin: true,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(context, '/admin');
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                            ],
                             
                             _buildDrawerItem(
                               icon: Icons.logout,

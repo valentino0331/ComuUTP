@@ -1,3 +1,2 @@
-2026/04/12-19:28:29.182 67e8 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.91f6741\flutter_tools_chrome_device.52a7d3e3\Default\EntityExtractionAssetStore.db/MANIFEST-000001
-2026/04/12-19:28:29.198 67e8 Recovering log #3
-2026/04/12-19:28:29.203 67e8 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.91f6741\flutter_tools_chrome_device.52a7d3e3\Default\EntityExtractionAssetStore.db/000003.log 
+2026/04/13-19:31:01.443 6700 Creating DB C:\Users\marca\AppData\Local\Temp\flutter_tools.2425e734\flutter_tools_chrome_device.ec30aa96\Default\EntityExtractionAssetStore.db since it was missing.
+2026/04/13-19:31:01.727 6700 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.2425e734\flutter_tools_chrome_device.ec30aa96\Default\EntityExtractionAssetStore.db/MANIFEST-000001

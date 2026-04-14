@@ -236,6 +236,30 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Recuperar contraseña - enviar email de reset
+  Future<bool> resetPassword(String email) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await firebase.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      _loading = false;
+      notifyListeners();
+      return true;
+    } on firebase.FirebaseAuthException catch (e) {
+      _error = _getFirebaseErrorMessage(e.code);
+      _loading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'Error al enviar email: ${e.toString()}';
+      _loading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Login como admin para pruebas (sin Firebase)
   Future<bool> loginAsAdmin() async {
     _loading = true;

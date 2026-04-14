@@ -2,328 +2,418 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class PantallaLogin extends StatefulWidget {
+  const PantallaLogin({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<PantallaLogin> createState() => _PantallaLoginState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _PantallaLoginState extends State<PantallaLogin> {
+  final _formulario = GlobalKey<FormState>();
+  final _controlEmail = TextEditingController();
+  final _controlPassword = TextEditingController();
   bool _mostrarPassword = false;
+  bool _cargando = false;
+
+  // Colores del diseño
+  static const Color colorPrimario = Color(0xFFB21132);
+  static const Color colorFondoOverlay = Color(0x57B21132); // rgba(178, 17, 50, 0.34)
+  static const Color colorInput = Color(0xD2EDF0F2); // rgba(237, 240, 242, 0.82)
+  static const Color colorBoton = Color(0xFF090A0B);
+  static const Color colorTextoBlanco = Colors.white;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _controlEmail.dispose();
+    _controlPassword.dispose();
     super.dispose();
+  }
+
+  String? _validarEmail(String? valor) {
+    if (valor == null || valor.isEmpty) {
+      return 'Por favor ingresa tu correo';
+    }
+    if (!valor.endsWith('@utp.edu.pe')) {
+      return 'Debe ser un correo @utp.edu.pe';
+    }
+    return null;
+  }
+
+  String? _validarPassword(String? valor) {
+    if (valor == null || valor.isEmpty) {
+      return 'Por favor ingresa tu contraseña';
+    }
+    if (valor.length < 6) {
+      return 'La contraseña debe tener al menos 6 caracteres';
+    }
+    return null;
+  }
+
+  Future<void> _procesarLogin() async {
+    if (!_formulario.currentState!.validate()) return;
+
+    setState(() => _cargando = true);
+
+    try {
+      final provedor = context.read<AuthProvider>();
+      final exito = await provedor.login(
+        _controlEmail.text.trim(),
+        _controlPassword.text,
+      );
+
+      if (exito && mounted) {
+        Navigator.of(context).pushReplacementNamed('/main');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Bienvenido a UTP Comunidades!'),
+            backgroundColor: colorPrimario,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provedor.error ?? 'Error al iniciar sesión'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  Future<void> _recuperarPassword() async {
+    // Validar que hay un email ingresado
+    if (_controlEmail.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingresa tu correo @utp.edu.pe primero'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (!_controlEmail.text.endsWith('@utp.edu.pe')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debe ser un correo @utp.edu.pe'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _cargando = true);
+
+    try {
+      final provedor = context.read<AuthProvider>();
+      final exito = await provedor.resetPassword(_controlEmail.text.trim());
+
+      if (exito && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email de recuperación enviado. Revisa tu correo.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provedor.error ?? 'Error al enviar email'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _cargando = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryRed = Color(0xFFB21132);
-    const Color darkBg = Color(0xFF090A0B);
-    const Color grayInput = Color(0xFFEDF0F2);
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
-          return Stack(
-            children: [
-              // Fondo blanco
-              Container(color: Colors.white),
-              
-              // Overlay rojo semi-transparente
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB21132).withValues(alpha: 0.34),
-                ),
-              ),
+      body: Stack(
+        children: [
+          // Fondo con overlay rojo semitransparente
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: colorFondoOverlay,
+          ),
 
-              // Contenido principal
-              Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Rectángulo rojo principal
-                      Container(
-                        width: 345,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 28,
-                          vertical: 0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: primaryRed,
-                          borderRadius: BorderRadius.circular(34),
-                        ),
+          // Contenido centrado
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 22.5),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Card principal roja
+                    Container(
+                      width: 345,
+                      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 44),
+                      decoration: BoxDecoration(
+                        color: colorPrimario,
+                        borderRadius: BorderRadius.circular(34),
+                      ),
+                      child: Form(
+                        key: _formulario,
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 44),
-                            
                             // Título "Bienvenido a UTP Comunidades"
-                            const Text(
-                              'Bienvenido a UTP\nComunidades',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 26,
-                                fontWeight: FontWeight.w600,
-                                height: 32 / 26,
-                                color: Colors.white,
+                            const Center(
+                              child: Text(
+                                'Bienvenido a UTP Comunidades',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.23,
+                                  color: colorTextoBlanco,
+                                ),
                               ),
                             ),
+                            const SizedBox(height: 48),
 
-                            const SizedBox(height: 87),
-
-                            // Etiqueta: Correo o Código UTP
-                            const Align(
-                              alignment: Alignment.centerLeft,
+                            // Label "Correo o Código UTP"
+                            const Padding(
+                              padding: EdgeInsets.only(left: 8, bottom: 9),
                               child: Text(
                                 'Correo o Código UTP',
                                 style: TextStyle(
                                   fontFamily: 'Montserrat',
                                   fontSize: 15,
                                   fontWeight: FontWeight.w400,
-                                  height: 18 / 15,
-                                  color: Colors.white,
+                                  height: 1.2,
+                                  color: colorTextoBlanco,
                                 ),
                               ),
                             ),
 
-                            const SizedBox(height: 9),
-
-                            // Campo de correo
-                            Container(
+                            // Input Email - Solución definitiva
+                            SizedBox(
                               height: 55,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: grayInput.withValues(alpha: 0.82),
-                                borderRadius: BorderRadius.circular(17),
-                              ),
                               child: TextFormField(
-                                controller: _emailController,
+                                controller: _controlEmail,
+                                enabled: !_cargando,
                                 keyboardType: TextInputType.emailAddress,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'correo@utp.edu.pe',
-                                  hintStyle: TextStyle(
-                                    color: Color(0xFF999999),
+                                textAlignVertical: TextAlignVertical.center,
+                                style: const TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: colorInput,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1),
+                                  ),
+                                  hintText: 'ejemplo@utp.edu.pe',
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black45,
                                     fontFamily: 'Montserrat',
                                   ),
                                 ),
-                                style: const TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  color: Colors.black,
-                                ),
-                                validator: (value) {
-                                  if (value?.isEmpty ?? true) {
-                                    return 'Por favor ingresa tu correo';
-                                  }
-                                  return null;
-                                },
+                                validator: _validarEmail,
                               ),
                             ),
+                            const SizedBox(height: 24),
 
-                            const SizedBox(height: 54),
-
-                            // Etiqueta: Contraseña
-                            const Align(
-                              alignment: Alignment.centerLeft,
+                            // Label "Contraseña"
+                            const Padding(
+                              padding: EdgeInsets.only(left: 8, bottom: 9),
                               child: Text(
                                 'Contraseña',
                                 style: TextStyle(
                                   fontFamily: 'Montserrat',
                                   fontSize: 15,
                                   fontWeight: FontWeight.w400,
-                                  height: 18 / 15,
-                                  color: Colors.white,
+                                  height: 1.2,
+                                  color: colorTextoBlanco,
                                 ),
                               ),
                             ),
 
-                            const SizedBox(height: 9),
-
-                            // Campo de contraseña
-                            Container(
+                            // Input Contraseña - Solución definitiva
+                            SizedBox(
                               height: 55,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: grayInput.withValues(alpha: 0.82),
-                                borderRadius: BorderRadius.circular(17),
-                              ),
                               child: TextFormField(
-                                controller: _passwordController,
+                                controller: _controlPassword,
+                                enabled: !_cargando,
                                 obscureText: !_mostrarPassword,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Tu contraseña',
-                                  hintStyle: const TextStyle(
-                                    color: Color(0xFF999999),
-                                    fontFamily: 'Montserrat',
-                                  ),
-                                  suffixIcon: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _mostrarPassword = !_mostrarPassword;
-                                      });
-                                    },
-                                    child: Icon(
-                                      _mostrarPassword
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                      color: const Color(0xFF999999),
-                                    ),
-                                  ),
-                                ),
+                                textAlignVertical: TextAlignVertical.center,
                                 style: const TextStyle(
                                   fontFamily: 'Montserrat',
-                                  color: Colors.black,
+                                  fontSize: 15,
+                                  color: Colors.black87,
                                 ),
-                                validator: (value) {
-                                  if (value?.isEmpty ?? true) {
-                                    return 'Por favor ingresa tu contraseña';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-
-                            const SizedBox(height: 80),
-
-                            // Botón Ingresar
-                            GestureDetector(
-                              onTap: authProvider.loading
-                                  ? null
-                                  : () {
-                                      if (_emailController.text.isNotEmpty &&
-                                          _passwordController.text.isNotEmpty) {
-                                        authProvider
-                                            .login(
-                                          _emailController.text,
-                                          _passwordController.text,
-                                        )
-                                            .then((success) {
-                                          if (success && mounted) {
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              '/main',
-                                            );
-                                          }
-                                        });
-                                      }
-                                    },
-                              child: Container(
-                                height: 39,
-                                width: 263,
-                                decoration: BoxDecoration(
-                                  color: darkBg,
-                                  borderRadius: BorderRadius.circular(37),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    'Ingresar',
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      height: 20 / 16,
-                                      color: Colors.white,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: colorInput,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _mostrarPassword ? Icons.visibility : Icons.visibility_off,
+                                      color: Colors.black45,
+                                      size: 20,
                                     ),
+                                    onPressed: () => setState(() => _mostrarPassword = !_mostrarPassword),
+                                  ),
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black45,
+                                    fontFamily: 'Montserrat',
                                   ),
                                 ),
+                                validator: _validarPassword,
                               ),
                             ),
-
-                            const SizedBox(height: 48),
-
-                            // Texto: ¿Olvidaste tu contraseña?
-                            GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Función en desarrollo',
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: const Text(
-                                '¿Olvidaste tu contraseña?',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                  height: 16 / 13,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-
                             const SizedBox(height: 32),
 
-                            // Botón para entrar como Admin (solo desarrollo)
-                            GestureDetector(
-                              onTap: authProvider.loading
-                                  ? null
-                                  : () {
-                                      authProvider.loginAsAdmin().then((success) {
-                                        if (success && mounted) {
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            '/main',
-                                          );
-                                        }
-                                      });
-                                    },
-                              child: Container(
-                                height: 39,
+                            // Botón "Ingresar"
+                            Center(
+                              child: SizedBox(
                                 width: 263,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFB21132),
-                                  borderRadius: BorderRadius.circular(37),
-                                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                                height: 39,
+                                child: ElevatedButton(
+                                  onPressed: _cargando ? null : _procesarLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorBoton,
+                                    foregroundColor: colorTextoBlanco,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(37),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: _cargando
+                                      ? const SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Ingresar',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.25,
+                                          ),
+                                        ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.admin_panel_settings,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                      'Entrar como Admin',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // "¿Olvidaste tu contraseña?"
+                            Center(
+                              child: GestureDetector(
+                                onTap: _cargando ? null : _recuperarPassword,
+                                child: const Text(
+                                  '¿Olvidaste tu contraseña?',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.23,
+                                    color: colorTextoBlanco,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // "Crear cuenta"
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/register');
+                                },
+                                child: const Text(
+                                  '¿No tienes cuenta? Crear cuenta',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.23,
+                                    color: colorTextoBlanco,
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

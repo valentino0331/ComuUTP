@@ -4,15 +4,7 @@ const cors = require('cors');
 
 const app = express();
 
-// CORS global - permitir TODOS los orígenes
-app.use(cors({
-  origin: '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
-
-// Handle OPTIONS preflight globally
+// Handle OPTIONS preflight globally (MUST be first!)
 app.options('*', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
@@ -20,6 +12,14 @@ app.options('*', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.status(200).send();
 });
+
+// CORS global - permitir TODOS los orígenes
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 // Force CORS headers on EVERY response (middleware)
 app.use((req, res, next) => {

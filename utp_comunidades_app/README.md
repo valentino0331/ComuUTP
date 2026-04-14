@@ -1,36 +1,17 @@
-# UTP Comunidades App (Flutter)
+# utp_comunidades_app
 
-## Estructura
+A new Flutter project.
 
-- `lib/main.dart`: Punto de entrada
-- `lib/screens/`: Pantallas principales (login, home, etc.)
-- `lib/models/`: Modelos de datos (User, Community, Post, etc.)
-- `lib/services/`: Servicios para consumir la API
-- `lib/widgets/`: Widgets reutilizables
-- `lib/utils/`: Utilidades
+## Getting Started
 
-## Dependencias principales
-- http
-- provider
-- flutter_secure_storage
+This project is a starting point for a Flutter application.
 
-## Primeros pasos
+A few resources to get you started if this is your first Flutter project:
 
-1. Abre esta carpeta en VS Code o Android Studio
-2. Ejecuta:
-   ```
-   flutter pub get
-   flutter run
-   ```
-3. Asegúrate de que el backend esté corriendo y accesible desde el emulador/dispositivo
+- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
+- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
 
-## Personalización
-- Cambia la URL base de la API en `api_service.dart` si usas dispositivo físico
-- Agrega el logo de UTP en `assets/utp_logo.png` y registra la carpeta en `pubspec.yaml`
-
-## Pantallas incluidas
-- Login (con validación de correo UTP)
-- Home/feed (estructura base, lista para personalizar)
-
-## Siguiente paso
-- Agrega más pantallas y lógica según el diseño de la imagen y tus necesidades
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
