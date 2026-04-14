@@ -1409,6 +1409,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[800],
+                            decoration: TextDecoration.none,
                           ),
                         ),
                       ),
@@ -1468,9 +1469,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               subtitle: 'Gestiona tus notificaciones',
                               onTap: () {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Función en desarrollo')),
-                                );
+                                Navigator.pushNamed(context, '/notifications');
                               },
                             ),
                             
@@ -1486,9 +1485,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               subtitle: 'Controla tu privacidad',
                               onTap: () {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Función en desarrollo')),
-                                );
+                                _showPrivacyDialog(context);
                               },
                             ),
                             
@@ -1504,9 +1501,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               subtitle: 'Lee nuestros términos',
                               onTap: () {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Función en desarrollo')),
-                                );
+                                _showTermsDialog(context);
                               },
                             ),
                             
@@ -1538,9 +1533,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               subtitle: 'Preguntas frecuentes',
                               onTap: () {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Función en desarrollo')),
-                                );
+                                _showHelpDialog(context);
                               },
                             ),
                           ],
@@ -1701,6 +1694,180 @@ class _ProfileScreenState extends State<ProfileScreen>
               Text(
                 '© 2024 UTP. Todos los derechos reservados.',
                 style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivacyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Privacidad'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Controla quién puede ver tu perfil y tus publicaciones',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Perfil Público'),
+                subtitle: const Text('Cualquiera puede ver tu perfil'),
+                value: true,
+                onChanged: (value) {},
+                contentPadding: EdgeInsets.zero,
+              ),
+              SwitchListTile(
+                title: const Text('Publicaciones Públicas'),
+                subtitle: const Text('Todos pueden ver tus posts'),
+                value: true,
+                onChanged: (value) {},
+                contentPadding: EdgeInsets.zero,
+              ),
+              SwitchListTile(
+                title: const Text('Permitir Mensajes'),
+                subtitle: const Text('Otros usuarios pueden contactarte'),
+                value: true,
+                onChanged: (value) {},
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text(
+                'Bloqueados',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text('No tienes usuarios bloqueados'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTermsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Términos y Condiciones'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                '1. Aceptación de Términos',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Al usar Comunidades UTP, aceptas estos términos y condiciones.',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '2. Comportamiento del Usuario',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'No debes crear contenido ofensivo, discriminatorio o que viole los derechos de terceros.',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '3. Responsabilidad',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'El usuario es responsable de todo contenido que publique en la plataforma.',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '4. Privacidad',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Tu información será protegida de acuerdo con nuestra política de privacidad.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendido'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Preguntas Frecuentes'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                '¿Cómo crear una comunidad?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Ve a la sección de Comunidades y selecciona "Crear Comunidad". Completa los detalles y listo.',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '¿Cómo hacer una publicación?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Presiona el botón "+" en la barra de navegación inferior para crear un nuevo post.',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '¿Cómo seguir a usuarios?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Visita el perfil del usuario y presiona el botón "Seguir".',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '¿Cómo reportar contenido?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Presiona los tres puntos en cualquier post o perfil y selecciona "Reportar".',
               ),
             ],
           ),
