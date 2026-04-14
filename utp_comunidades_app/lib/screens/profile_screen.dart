@@ -1419,7 +1419,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           children: [
                             _buildDrawerItem(
-                              icon: Icons.edit,
+                              icon: Icon(
+                                PhosphorIcons.userCircle(PhosphorIconsStyle.bold),
+                                color: const Color(0xFFB21132),
+                                size: 24,
+                              ),
                               title: 'Editar perfil',
                               subtitle: 'Modifica tu información',
                               onTap: () {
@@ -1436,7 +1440,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             
                             _buildDrawerItem(
-                              icon: Icons.logout,
+                              icon: Icon(
+                                PhosphorIcons.signOut(PhosphorIconsStyle.bold),
+                                color: Colors.red,
+                                size: 24,
+                              ),
                               title: 'Cerrar sesión',
                               subtitle: 'Salir de tu cuenta',
                               color: Colors.red,
@@ -1451,7 +1459,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             
                             _buildDrawerItem(
-                              icon: Icons.notifications,
+                              icon: Icon(
+                                PhosphorIcons.bell(PhosphorIconsStyle.bold),
+                                color: const Color(0xFFB21132),
+                                size: 24,
+                              ),
                               title: 'Notificaciones',
                               subtitle: 'Gestiona tus notificaciones',
                               onTap: () {
@@ -1465,7 +1477,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             
                             _buildDrawerItem(
-                              icon: Icons.privacy_tip,
+                              icon: Icon(
+                                PhosphorIcons.shield(PhosphorIconsStyle.bold),
+                                color: const Color(0xFFB21132),
+                                size: 24,
+                              ),
                               title: 'Privacidad',
                               subtitle: 'Controla tu privacidad',
                               onTap: () {
@@ -1479,7 +1495,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             
                             _buildDrawerItem(
-                              icon: Icons.article,
+                              icon: Icon(
+                                PhosphorIcons.notepad(PhosphorIconsStyle.bold),
+                                color: const Color(0xFFB21132),
+                                size: 24,
+                              ),
                               title: 'Términos y Condiciones',
                               subtitle: 'Lee nuestros términos',
                               onTap: () {
@@ -1493,7 +1513,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             
                             _buildDrawerItem(
-                              icon: Icons.info,
+                              icon: Icon(
+                                PhosphorIcons.info(PhosphorIconsStyle.bold),
+                                color: const Color(0xFFB21132),
+                                size: 24,
+                              ),
                               title: 'Acerca de',
                               subtitle: 'Información de la app',
                               onTap: () {
@@ -1505,7 +1529,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             const SizedBox(height: 16),
                             
                             _buildDrawerItem(
-                              icon: Icons.help,
+                              icon: Icon(
+                                PhosphorIcons.question(PhosphorIconsStyle.bold),
+                                color: const Color(0xFFB21132),
+                                size: 24,
+                              ),
                               title: 'Ayuda',
                               subtitle: 'Preguntas frecuentes',
                               onTap: () {
@@ -1558,7 +1586,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildDrawerItem({
-    required IconData icon,
+    required Widget icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
@@ -1577,11 +1605,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             color: isAdmin ? const Color(0xFFB21132) : color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: isAdmin ? Colors.white : color,
-            size: 24,
-          ),
+          child: Center(child: icon),
         ),
         title: Text(
           title,
