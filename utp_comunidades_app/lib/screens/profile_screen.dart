@@ -1401,131 +1401,141 @@ class _ProfileScreenState extends State<ProfileScreen>
                       
                       // Título Configuración
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                         child: Text(
                           'Configuración',
                           style: TextStyle(
                             fontFamily: 'Montserrat',
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.grey[900],
                             decoration: TextDecoration.none,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ),
                       
-                      // Opciones del menú
+                      // Opciones del menú con scroll
                       Expanded(
-                        child: ListView(
+                        child: SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          shrinkWrap: true,
-                          children: [
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.bell(PhosphorIconsStyle.bold),
-                                color: const Color(0xFFB21132),
-                                size: 24,
+                          child: Column(
+                            children: [
+                              _buildDrawerItem(
+                                icon: Icon(
+                                  PhosphorIcons.bell(PhosphorIconsStyle.bold),
+                                  color: const Color(0xFFB21132),
+                                  size: 24,
+                                ),
+                                title: 'Notificaciones',
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.pushNamed(context, '/notifications');
+                                },
                               ),
-                              title: 'Notificaciones',
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.pushNamed(context, '/notifications');
-                              },
-                            ),
+                              
+                              const SizedBox(height: 8),
                             
-                            const SizedBox(height: 16),
-                            
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.shield(PhosphorIconsStyle.bold),
-                                color: const Color(0xFFB21132),
-                                size: 24,
+                              _buildDrawerItem(
+                                icon: Icon(
+                                  PhosphorIcons.shield(PhosphorIconsStyle.bold),
+                                  color: const Color(0xFFB21132),
+                                  size: 24,
+                                ),
+                                title: 'Privacidad',
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _showPrivacyDialog(context);
+                                },
                               ),
-                              title: 'Privacidad',
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showPrivacyDialog(context);
-                              },
-                            ),
+                              
+                              const SizedBox(height: 8),
                             
-                            const SizedBox(height: 16),
-                            
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.notepad(PhosphorIconsStyle.bold),
-                                color: const Color(0xFFB21132),
-                                size: 24,
+                              _buildDrawerItem(
+                                icon: Icon(
+                                  PhosphorIcons.notepad(PhosphorIconsStyle.bold),
+                                  color: const Color(0xFFB21132),
+                                  size: 24,
+                                ),
+                                title: 'Términos y Condiciones',
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _showTermsDialog(context);
+                                },
                               ),
-                              title: 'Términos y Condiciones',
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showTermsDialog(context);
-                              },
-                            ),
+                              
+                              const SizedBox(height: 8),
                             
-                            const SizedBox(height: 16),
-                            
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.info(PhosphorIconsStyle.bold),
-                                color: const Color(0xFFB21132),
-                                size: 24,
+                              _buildDrawerItem(
+                                icon: Icon(
+                                  PhosphorIcons.info(PhosphorIconsStyle.bold),
+                                  color: const Color(0xFFB21132),
+                                  size: 24,
+                                ),
+                                title: 'Acerca de',
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _showAboutDialog(context);
+                                },
                               ),
-                              title: 'Acerca de',
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showAboutDialog(context);
-                              },
-                            ),
+                              
+                              const SizedBox(height: 8),
                             
-                            const SizedBox(height: 16),
-                            
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.question(PhosphorIconsStyle.bold),
-                                color: const Color(0xFFB21132),
-                                size: 24,
+                              _buildDrawerItem(
+                                icon: Icon(
+                                  PhosphorIcons.question(PhosphorIconsStyle.bold),
+                                  color: const Color(0xFFB21132),
+                                  size: 24,
+                                ),
+                                title: 'Ayuda',
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _showHelpDialog(context);
+                                },
                               ),
-                              title: 'Ayuda',
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showHelpDialog(context);
-                              },
-                            ),
+                              
+                              const SizedBox(height: 12),
+                              Divider(
+                                height: 1,
+                                color: Colors.grey[200],
+                              ),
+                              const SizedBox(height: 12),
                             
-                            const Spacer(),
-                            
-                            const SizedBox(height: 16),
-                            const Divider(height: 1),
-                            const SizedBox(height: 16),
-                            
-                            _buildDrawerItem(
-                              icon: Icon(
-                                PhosphorIcons.signOut(PhosphorIconsStyle.bold),
+                              _buildDrawerItem(
+                                icon: Icon(
+                                  PhosphorIcons.signOut(PhosphorIconsStyle.bold),
+                                  color: Colors.red,
+                                  size: 24,
+                                ),
+                                title: 'Cerrar sesión',
                                 color: Colors.red,
-                                size: 24,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  _showLogoutDialog(context);
+                                },
                               ),
-                              title: 'Cerrar sesión',
-                              color: Colors.red,
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showLogoutDialog(context);
-                              },
-                            ),
-                          ],
+                              
+                              const SizedBox(height: 20),
+                            ],
+                          ),
                         ),
                       ),
                       
-                      // Footer sin línea amarilla
-                      Padding(
-                        padding: const EdgeInsets.all(20),
+                      // Footer versión
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(top: BorderSide(color: Colors.grey[200]!, width: 1)),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Center(
                           child: Text(
                             'Comunidades UTP v1.0.0',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
-                              fontSize: 12,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
                               color: Colors.grey[400],
+                              letterSpacing: 0.3,
                             ),
                           ),
                         ),
@@ -1565,14 +1575,14 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Material(
       color: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.only(bottom: 4),
         child: ListTile(
         leading: Container(
-          width: 44,
-          height: 44,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: isAdmin ? const Color(0xFFB21132) : color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+            color: isAdmin ? const Color(0xFFB21132) : color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Center(child: icon),
         ),
@@ -1611,11 +1621,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                 ),
               )
-            : Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-              ),
+            : null,
         onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        visualDensity: VisualDensity.compact,
       ),
       ),
     );
