@@ -1,110 +1,11 @@
 {
-   "checksum": "ba3608878a164028ecbcb95ece4d3ad4",
+   "checksum": "bb53c7954b4df5154df29bb8181bca77",
    "roots": {
       "bookmark_bar": {
          "children": [ {
-            "date_added": "13420662356034812",
+            "date_added": "13420666354771219",
             "date_last_used": "0",
-            "guid": "7f8030eb-28a7-4c21-9f02-3c9efb6ee65f",
-            "id": "21",
-            "name": "Express VPN",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://js.redirect.hp.com/jumpstation?bd=expressvpn&c=*&locale=en_us&pf=*&s=*&tp=edge",
-            "visit_count": 0
-         }, {
-            "date_added": "13420662356033937",
-            "date_last_used": "0",
-            "guid": "2f448a7a-6352-4a31-aaea-eb3d48b87064",
-            "id": "20",
-            "name": "McAfee Security",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html",
-            "visit_count": 0
-         }, {
-            "date_added": "13420662356033018",
-            "date_last_used": "0",
-            "guid": "749c21a6-3e05-4ace-9397-80e958ef1d42",
-            "id": "19",
-            "name": "LastPass password manager",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://js.redirect.hp.com/jumpstation?bd=lastpass&c=222&locale=*&pf=*&tp=edge&TYPE=3",
-            "visit_count": 0
-         }, {
-            "date_added": "13420661635297302",
-            "date_last_used": "0",
-            "guid": "72e6c842-a28a-4763-80fb-6ff54fd3515c",
-            "id": "17",
-            "name": "Express VPN",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://js.redirect.hp.com/jumpstation?bd=expressvpn&c=*&locale=en_us&pf=*&s=*&tp=edge",
-            "visit_count": 0
-         }, {
-            "date_added": "13420661635296417",
-            "date_last_used": "0",
-            "guid": "f9400721-ce36-43a1-b417-6a496f309164",
-            "id": "16",
-            "name": "McAfee Security",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html",
-            "visit_count": 0
-         }, {
-            "date_added": "13420661635295360",
-            "date_last_used": "0",
-            "guid": "a2a79d8f-65f9-441f-995e-7569b9092ba0",
-            "id": "15",
-            "name": "LastPass password manager",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://js.redirect.hp.com/jumpstation?bd=lastpass&c=222&locale=*&pf=*&tp=edge&TYPE=3",
-            "visit_count": 0
-         }, {
-            "date_added": "13420629968524655",
-            "date_last_used": "0",
-            "guid": "d7454202-75ad-4bfb-a878-4f1d487f938d",
-            "id": "13",
-            "name": "Express VPN",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://js.redirect.hp.com/jumpstation?bd=expressvpn&c=*&locale=en_us&pf=*&s=*&tp=edge",
-            "visit_count": 0
-         }, {
-            "date_added": "13420629968523183",
-            "date_last_used": "0",
-            "guid": "f7c15a0e-1fc9-4f65-a767-5008411c9280",
-            "id": "12",
-            "name": "McAfee Security",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html",
-            "visit_count": 0
-         }, {
-            "date_added": "13420629968520669",
-            "date_last_used": "0",
-            "guid": "4ce7087a-cd28-4c34-98a4-f34021edbcc8",
-            "id": "11",
-            "name": "LastPass password manager",
-            "show_icon": false,
-            "source": "oem_preload",
-            "type": "url",
-            "url": "https://js.redirect.hp.com/jumpstation?bd=lastpass&c=222&locale=*&pf=*&tp=edge&TYPE=3",
-            "visit_count": 0
-         }, {
-            "date_added": "13420600258763299",
-            "date_last_used": "0",
-            "guid": "7a03ed13-5e53-474b-a117-968ffeaa73d4",
+            "guid": "c026cd65-b882-4163-a2d5-625f35d149f4",
             "id": "9",
             "name": "Express VPN",
             "show_icon": false,
@@ -113,9 +14,9 @@
             "url": "https://js.redirect.hp.com/jumpstation?bd=expressvpn&c=*&locale=en_us&pf=*&s=*&tp=edge",
             "visit_count": 0
          }, {
-            "date_added": "13420600258762499",
+            "date_added": "13420666354770521",
             "date_last_used": "0",
-            "guid": "41abe5fb-ee77-47ae-8c94-6c8b27b1fa66",
+            "guid": "07b47a52-3164-4207-a554-4c24457a00f8",
             "id": "8",
             "name": "McAfee Security",
             "show_icon": false,
@@ -124,9 +25,9 @@
             "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html",
             "visit_count": 0
          }, {
-            "date_added": "13420600258761403",
+            "date_added": "13420666354769441",
             "date_last_used": "0",
-            "guid": "58f0e513-0a0b-4736-af7d-1b7081041285",
+            "guid": "e6294349-6f38-4476-b7f0-4733ff2c6017",
             "id": "7",
             "name": "LastPass password manager",
             "show_icon": false,
@@ -135,9 +36,9 @@
             "url": "https://js.redirect.hp.com/jumpstation?bd=lastpass&c=222&locale=*&pf=*&tp=edge&TYPE=3",
             "visit_count": 0
          } ],
-         "date_added": "13420600258354435",
+         "date_added": "13420666354479620",
          "date_last_used": "0",
-         "date_modified": "13420662356034812",
+         "date_modified": "13420666354771219",
          "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
          "id": "1",
          "name": "Barra de favoritos",
@@ -146,7 +47,7 @@
       },
       "other": {
          "children": [  ],
-         "date_added": "13420600258354435",
+         "date_added": "13420666354479620",
          "date_last_used": "0",
          "date_modified": "0",
          "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
@@ -157,7 +58,7 @@
       },
       "synced": {
          "children": [  ],
-         "date_added": "13420600258354435",
+         "date_added": "13420666354479620",
          "date_last_used": "0",
          "date_modified": "0",
          "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
@@ -168,7 +69,7 @@
       },
       "workspaces_v2": {
          "children": [  ],
-         "date_added": "13420600258354435",
+         "date_added": "13420666354479620",
          "date_last_used": "0",
          "date_modified": "0",
          "guid": "75aa6670-344f-549d-b742-660f029506ab",
@@ -178,6 +79,6 @@
          "type": "folder"
       }
    },
-   "sync_metadata": "CkEKHgiIgQISCAkgFY2dAQAAKg4QABgBIAAoBTAAOABAABIAKhg1dFBwNFNsVUdaSzlkUW5DQkdJQ1lRPT1IA6AGDBKOAQgFEokBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiQ5OTE3ODRiZS05OTY4LTUzMzctOTVlMS1kMWQzMjIzODE0Y2YYACAAKAAwi4v2jaIzOOyL9o2iM0Dsi/aNojNKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1aAGUAAAAAwj4CYAASjgEIAhKJAQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRIkNGY3Nzk2NGYtNzY5OC01ZGQyLTlmMjAtMzQ3N2EzZjQ0OTBiGAAgACgAMN3bxq37LjjlgMXT7C9A5YDF0+wvShxvUFZraHdCUmJWNjVLQ1dSMitJT05IV29PdTg9WgBlAAAAAMI+AmAAEo4BCAESiQEKHHl4Si82ZnZrZWNyN2twNUVRekI0dFdMcGRiRT0SJGZlNjdlNTQyLTJkNmItNWEwYi05NmEzLTE4YmU1MTBhMzUwOBgAIAAoADDc28at+y44xoDF0+wvQMaAxdPsL0ocYVJDV0xnaEY5YjVJbnFLSUR2dUovanZRa0ZjPVoAZQAAAADCPgJgABKOAQgDEokBChxuamdEdTg4ZUNydlhwODZwRDdmSEdjcUZwODg9EiRiODBlYzRkMC1lNDFkLTU3ZTYtOTcyNi0wMjQ1ZTQ0ZGJlOWEYACAAKAAw4dvGrfsuOIGCxdPsL0CBgsXT7C9KHHl6TkIwMWNuNTRBN2NSVTB1VCsvUGdtVHRVbz1aAGUAAAAAwj4CYAAwADgA",
+   "sync_metadata": "CkEKHgiIgQISCJYsUo2dAQAAKg4QABgBIAAoBTAAOABAABIAKhg5YTlGaTJRbHVVL1U1cWtOMVNhQU5nPT1IA6AGDBKOAQgCEokBChxZY1NUb252RVNQd3FDczRMMmNyVmh2NjhMOTg9EiQ0Zjc3OTY0Zi03Njk4LTVkZDItOWYyMC0zNDc3YTNmNDQ5MGIYACAAKAAw3dvGrfsuOOWAxdPsL0DlgMXT7C9KHG9QVmtod0JSYlY2NUtDV1IyK0lPTkhXb091OD1aAGUAAAAAwj4CYAASjgEIARKJAQoceXhKLzZmdmtlY3I3a3A1RVF6QjR0V0xwZGJFPRIkZmU2N2U1NDItMmQ2Yi01YTBiLTk2YTMtMThiZTUxMGEzNTA4GAAgACgAMNzbxq37LjjGgMXT7C9AxoDF0+wvShxhUkNXTGdoRjliNUlucUtJRHZ1Si9qdlFrRmM9WgBlAAAAAMI+AmAAEo4BCAMSiQEKHG5qZ0R1ODhlQ3J2WHA4NnBEN2ZIR2NxRnA4OD0SJGI4MGVjNGQwLWU0MWQtNTdlNi05NzI2LTAyNDVlNDRkYmU5YRgAIAAoADDh28at+y44gYLF0+wvQIGCxdPsL0oceXpOQjAxY241NEE3Y1JVMHVUKy9QZ21UdFVvPVoAZQAAAADCPgJgABKOAQgFEokBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiQ5OTE3ODRiZS05OTY4LTUzMzctOTVlMS1kMWQzMjIzODE0Y2YYACAAKAAwi4v2jaIzOOyL9o2iM0Dsi/aNojNKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1aAGUAAAAAwj4CYAAwADgA",
    "version": 1
 }

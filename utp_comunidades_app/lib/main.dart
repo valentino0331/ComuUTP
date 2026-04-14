@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/main_scaffold.dart';
 import 'screens/splash_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/community_provider.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => PantallaLogin(),
           '/register': (context) => RegisterScreen(),
           '/home': (context) => HomeScreen(),
+          '/main': (context) => MainScaffold(),
         },
       ),
     );

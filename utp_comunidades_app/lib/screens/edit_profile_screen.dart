@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'dart:io';
 
+import '../models/user.dart';
+
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  final User? user;
+  const EditProfileScreen({super.key, required this.user});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameController = TextEditingController(text: 'Marco Antonio');
-  final TextEditingController _usernameController = TextEditingController(text: '@marquito_23');
-  final TextEditingController _bioController = TextEditingController(
-    text: 'Estudiante de Ingeniería de Software en UTP 🎓\nAmante del fútbol ⚽ y la música 🎵',
-  );
-  final TextEditingController _careerController = TextEditingController(text: 'Ingeniería de Software');
+  late final TextEditingController _nameController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _bioController;
+  late final TextEditingController _careerController;
   
   File? _profileImage;
   File? _coverImage;
@@ -26,7 +27,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     'Videojuegos', 'Voluntariado', 'Emprendimiento', 'Idiomas', 'Baile'
   ];
   
-  final List<String> _selectedInterests = ['Tecnología', 'Deportes', 'Música'];
+  late final List<String> _selectedInterests;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with user data if available
+    _nameController = TextEditingController(text: widget.user?.nombre ?? '');
+    _usernameController = TextEditingController(text: widget.user?.email?.split('@').first ?? '');
+    _bioController = TextEditingController(text: widget.user?.biografia ?? '');
+    _careerController = TextEditingController(text: widget.user?.carrera ?? '');
+    _selectedInterests = [];
+  }
 
   @override
   void dispose() {

@@ -19,6 +19,58 @@ class AuthProvider with ChangeNotifier {
   String? get error => _error;
   firebase.User? get firebaseUser => _firebaseUser;
 
+  /// Restaurar sesión guardada al iniciar la app
+  Future<void> restoreSession() async {
+    _loading = true;
+    notifyListeners();
+    
+    try {
+      // Intentar recuperar el token guardado
+      final savedToken = await ApiService.getToken();
+      
+      if (savedToken != null) {
+        _token = savedToken;
+        
+        // Intentar obtener datos del usuario con el token guardado
+        final res = await ApiService.get('/auth/me', auth: true);
+        
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          _user = User(
+            id: data['id'],
+            email: data['email'],
+            nombre: data['nombre'],
+            apellido: data['apellido'],
+            carrera: data['carrera'],
+            ciclo: data['ciclo'],
+            biografia: data['biografia'],
+            fotoPerfil: data['fotoPerfil'],
+            postsCount: data['postsCount'],
+            comunidadesCount: data['comunidadesCount'],
+            seguidoresCount: data['seguidoresCount'],
+            seguidosCount: data['seguidosCount'],
+            esPremium: data['esPremium'] ?? false,
+            puedeCrearComunidad: data['puedeCrearComunidad'] ?? false,
+            asistenciasVerificadas: data['asistenciasVerificadas'],
+            esAdmin: data['esAdmin'] ?? false,
+          );
+        } else {
+          // Token inválido o expirado
+          _token = null;
+          _user = null;
+          await ApiService.deleteToken();
+        }
+      }
+    } catch (e) {
+      // Error al restaurar sesión, es normal si no hay sesión guardada
+      _token = null;
+      _user = null;
+    }
+    
+    _loading = false;
+    notifyListeners();
+  }
+
   /// Login con Firebase Auth + Backend Neon
   Future<bool> login(String email, String password) async {
     _loading = true;

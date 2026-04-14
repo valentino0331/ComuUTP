@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import 'edit_profile_screen.dart';
@@ -405,7 +404,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: OutlinedButton.icon(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                  MaterialPageRoute(builder: (context) => EditProfileScreen(user: user)),
                 ),
                 icon: Icon(PhosphorIcons.pencilSimple(PhosphorIconsStyle.bold), size: 16),
                 label: const Text(
@@ -558,14 +557,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildPostsGrid(User user) {
-    final List<Map<String, dynamic>> mockPosts = [
-      {'likes': 45, 'comments': 12, 'hasImage': true},
-      {'likes': 123, 'comments': 34, 'hasImage': false},
-      {'likes': 8, 'comments': 2, 'hasImage': true},
-      {'likes': 67, 'comments': 15, 'hasImage': true},
-      {'likes': 234, 'comments': 56, 'hasImage': false},
-      {'likes': 12, 'comments': 4, 'hasImage': true},
-    ];
+    final List<Map<String, dynamic>> mockPosts = [];
 
     if (mockPosts.isEmpty) {
       return _buildEmptyState(
@@ -679,10 +671,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildCommunitiesList(User user) {
-    final mockCommunities = [
-      {'name': 'Ingeniería UTP', 'role': 'Miembro', 'color': 0xFFB21132},
-      {'name': 'Desarrollo Web', 'role': 'Admin', 'color': 0xFF2196F3},
-    ];
+    final mockCommunities = [];
 
     if (mockCommunities.isEmpty) {
       return _buildEmptyState(
@@ -930,23 +919,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // QR Code
-                  QrImageView(
-                    data: shareUrl,
-                    version: QrVersions.auto,
-                    size: 180,
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Escanea para ver mi perfil',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -1523,9 +1495,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     Color color = const Color(0xFFB21132),
     bool isAdmin = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
+    return Material(
+      color: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: ListTile(
         leading: Container(
           width: 44,
           height: 44,
@@ -1577,6 +1551,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 color: Colors.grey[400],
               ),
         onTap: onTap,
+      ),
       ),
     );
   }

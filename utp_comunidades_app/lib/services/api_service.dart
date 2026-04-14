@@ -4,23 +4,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:io' show Platform;
 
 class ApiService {
-  // URL del backend - CAMBIAR ESTA URL cuando despliegues en Railway/Render
-  // Desarrollo local:
-  // static const String _prodUrl = 'http://localhost:3000/api';
-  // Producción Railway:
-  static const String _prodUrl = 'https://comuutp-production.up.railway.app/api';
-
+  // URL base - Se adapta según la plataforma
   static String get baseUrl {
-    // Para desarrollo local (descomenta estas líneas si quieres usar localhost)
-    // try {
-    //   if (Platform.isAndroid) return 'http://10.0.2.2:3000/api';
-    //   return 'http://localhost:3000/api';
-    // } catch (_) {
-    //   return 'http://localhost:3000/api';
-    // }
-    
-    // Usar URL de producción:
-    return _prodUrl;
+    // Siempre usar la URL de Railway en producción
+    return 'https://comuutp-production.up.railway.app/api';
   }
   
   static final storage = FlutterSecureStorage();
