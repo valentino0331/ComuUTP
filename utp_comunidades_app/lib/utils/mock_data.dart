@@ -4,13 +4,35 @@ import '../models/community.dart';
 import '../models/notification.dart';
 import '../models/comment.dart';
 
-/// Generador de datos falsos para pruebas de la aplicación
+/// Generador de datos - vacío para usar solo datos del backend
 class MockData {
   
-  // Usuarios de prueba
+  // Usuarios - vacío, usar backend
   static List<User> getUsers() {
-    return [
-      User(
+    return [];
+  }
+
+  // Comunidades - vacío, usar backend
+  static List<Community> getCommunities() {
+    return [];
+  }
+
+  // Posts - vacío, usar backend
+  static List<Post> getPosts() {
+    return [];
+  }
+
+  // Comentarios - vacío, usar backend
+  static List<Comment> getComments() {
+    return [];
+  }
+
+  // Notificaciones - vacío, usar backend
+  static List<NotificationModel> getNotifications() {
+    return [];
+  }
+}
+
         id: 1,
         nombre: 'Juan Pérez',
         email: 'juan.perez@utp.edu.pe',

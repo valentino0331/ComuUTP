@@ -1445,11 +1445,81 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 _showLogoutDialog(context);
                               },
                             ),
+                            
+                            const SizedBox(height: 16),
+                            const Divider(height: 1),
+                            const SizedBox(height: 16),
+                            
+                            _buildDrawerItem(
+                              icon: Icons.notifications,
+                              title: 'Notificaciones',
+                              subtitle: 'Gestiona tus notificaciones',
+                              onTap: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Función en desarrollo')),
+                                );
+                              },
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
+                            _buildDrawerItem(
+                              icon: Icons.privacy_tip,
+                              title: 'Privacidad',
+                              subtitle: 'Controla tu privacidad',
+                              onTap: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Función en desarrollo')),
+                                );
+                              },
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
+                            _buildDrawerItem(
+                              icon: Icons.article,
+                              title: 'Términos y Condiciones',
+                              subtitle: 'Lee nuestros términos',
+                              onTap: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Función en desarrollo')),
+                                );
+                              },
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
+                            _buildDrawerItem(
+                              icon: Icons.info,
+                              title: 'Acerca de',
+                              subtitle: 'Información de la app',
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showAboutDialog(context);
+                              },
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
+                            _buildDrawerItem(
+                              icon: Icons.help,
+                              title: 'Ayuda',
+                              subtitle: 'Preguntas frecuentes',
+                              onTap: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Función en desarrollo')),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
                       
-                      // Footer
+                      // Footer sin línea amarilla
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: Center(
@@ -1574,6 +1644,47 @@ class _ProfileScreenState extends State<ProfileScreen>
             },
             child: const Text('Cerrar sesión',
                 style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Acerca de'),
+        content: const SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Comunidades UTP',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text('Versión 1.0.0'),
+              SizedBox(height: 16),
+              Text(
+                'Una plataforma para estudiantes de UTP donde puedes compartir experiencias, conectar con otros estudiantes e intercambiar información.',
+              ),
+              SizedBox(height: 16),
+              Text(
+                '© 2024 UTP. Todos los derechos reservados.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
           ),
         ],
       ),
