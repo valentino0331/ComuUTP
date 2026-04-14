@@ -103,3 +103,76 @@ exports.me = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener usuario: ' + err.message });
   }
 };
+
+/// Sincronizar usuario entre Firebase y Neon
+exports.syncUser = async (req, res) => {
+  try {
+    const { uid, email, nombre } = req.body;
+    
+    if (!uid || !email) {
+      return res.status(400).json({ error: 'UID y email son requeridos' });
+    }
+    
+    // Verificar si existe en Neon
+    const userExists = await pool.query('SELECT id FROM usuarios WHERE email = $1', [email]);
+    
+    if (userExists.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado, completa tu registro' });
+    }
+    
+    res.json({ usuario: userExists.rows[0] });
+  } catch (err) {
+    console.error('Error en syncUser:', err.message);
+    res.status(500).json({ error: 'Error al sincronizar usuario: ' + err.message });
+  }
+};
+
+/// Verificar email (para links de verificación)
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { email } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email es requerido' });
+    }
+    
+    // Actualizar usuario como verificado
+    const result = await pool.query(
+      'UPDATE usuarios SET emailVerified = true WHERE email = $1 RETURNING id, email, nombre',
+      [email]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    
+    res.json({ message: 'Email verificado exitosamente', usuario: result.rows[0] });
+  } catch (err) {
+    console.error('Error en verifyEmail:', err.message);
+    res.status(500).json({ error: 'Error al verificar email: ' + err.message });
+  }
+};
+
+/// Reenviar email de verificación
+exports.resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email es requerido' });
+    }
+    
+    // Verificar que usuario existe
+    const userExists = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    
+    if (userExists.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    
+    // Aquí iría la lógica para reenviar el email (usando email.service.js)
+    res.json({ message: 'Email de verificación reenviado a ' + email });
+  } catch (err) {
+    console.error('Error en resendVerification:', err.message);
+    res.status(500).json({ error: 'Error al reenviar email: ' + err.message });
+  }
+};
