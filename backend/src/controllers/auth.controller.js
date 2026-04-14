@@ -4,26 +4,29 @@ const pool = require('../config/db');
 require('dotenv').config();
 
 exports.register = async (req, res) => {
-  const { email, password, nombre } = req.body;
+  const { uid, email, nombre, apellido, carrera, ciclo } = req.body;
   try {
     // Validar que el email sea @utp.edu.pe
     if (!email || !email.endsWith('@utp.edu.pe')) {
       return res.status(400).json({ error: 'El correo debe ser @utp.edu.pe' });
     }
 
+    if (!uid || !nombre) {
+      return res.status(400).json({ error: 'UID y nombre son requeridos' });
+    }
+
     // Verificar si el usuario ya existe
-    const userExists = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    const userExists = await pool.query('SELECT * FROM usuarios WHERE email = $1 OR firebase_uid = $2', [email, uid]);
     if (userExists.rows.length > 0) {
       return res.status(400).json({ error: 'El usuario ya existe' });
     }
 
-    // Hashear la contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insertar el nuevo usuario
+    // Insertar el nuevo usuario con firebase_uid
     const result = await pool.query(
-      'INSERT INTO usuarios (email, password, nombre) VALUES ($1, $2, $3) RETURNING id, email, nombre',
-      [email, hashedPassword, nombre]
+      `INSERT INTO usuarios (firebase_uid, email, nombre, apellido, carrera, ciclo, email_verificado) 
+       VALUES ($1, $2, $3, $4, $5, $6, true) 
+       RETURNING id, firebase_uid, email, nombre, apellido, carrera, ciclo`,
+      [uid, email, nombre, apellido || null, carrera || null, ciclo || null]
     );
 
     res.status(201).json({ 
@@ -37,35 +40,39 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  console.log('LOGIN REQUEST:', { email, password, body: req.body });
+  const { uid, email } = req.body;
+  console.log('LOGIN REQUEST:', { uid, email, body: req.body });
   try {
-    // Validar que el email sea @utp.edu.pe
-    if (!email || !email.endsWith('@utp.edu.pe')) {
-      console.log('EMAIL VALIDATION FAILED:', email);
-      return res.status(400).json({ error: 'El correo debe ser @utp.edu.pe' });
+    // Validar que al menos uno de los dos esté presente
+    if (!uid && !email) {
+      return res.status(400).json({ error: 'UID o email requerido' });
     }
 
-    // Buscar el usuario
-    const user = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-    console.log('USER FOUND:', { email, userExists: user.rows.length > 0, userData: user.rows });
+    // Buscar el usuario por UID o email
+    let query = 'SELECT * FROM usuarios WHERE';
+    let params = [];
+    
+    if (uid) {
+      query += ' firebase_uid = $1';
+      params = [uid];
+    } else if (email) {
+      query += ' email = $1';
+      params = [email];
+    }
+
+    const user = await pool.query(query, params);
+    console.log('USER FOUND:', { uid, email, userExists: user.rows.length > 0, userData: user.rows });
+    
     if (user.rows.length === 0) {
-      console.log('USER NOT FOUND - Returning 400');
-      return res.status(400).json({ error: 'Credenciales inválidas' });
+      console.log('USER NOT FOUND');
+      return res.status(404).json({ error: 'Usuario no encontrado - completa tu registro' });
     }
 
-    // Verificar contraseña
-    console.log('COMPARING PASSWORD - stored:', user.rows[0].password, 'provided:', password);
-    const valid = await bcrypt.compare(password, user.rows[0].password);
-    console.log('PASSWORD VALID:', valid);
-    if (!valid) {
-      console.log('PASSWORD INVALID - Returning 400');
-      return res.status(400).json({ error: 'Credenciales inválidas' });
-    }
-
-    // Generar JWT
+    const userData = user.rows[0];
+    
+    // Generar JWT con todos los datos del usuario
     const token = jwt.sign(
-      { id: user.rows[0].id, email: user.rows[0].email }, 
+      { id: userData.id, email: userData.email }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -73,9 +80,14 @@ exports.login = async (req, res) => {
     res.json({ 
       token,
       usuario: {
-        id: user.rows[0].id,
-        email: user.rows[0].email,
-        nombre: user.rows[0].nombre
+        id: userData.id,
+        email: userData.email,
+        nombre: userData.nombre,
+        apellido: userData.apellido,
+        carrera: userData.carrera,
+        ciclo: userData.ciclo,
+        esPremium: userData.es_premium,
+        puedeCrearComunidad: userData.puede_crear_comunidad,
       }
     });
   } catch (err) {

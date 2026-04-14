@@ -12,9 +12,9 @@ exports.validateRegister = (req, res, next) => {
 exports.validateLogin = (req, res, next) => {
   const { uid, email } = req.body;
   console.log('VALIDATE LOGIN MIDDLEWARE:', { uid, email, body: req.body });
-  if (!uid) {
-    console.log('VALIDATION FAILED - Missing uid');
-    return res.status(400).json({ error: 'Firebase UID requerido' });
+  if (!uid && !email) {
+    console.log('VALIDATION FAILED - Missing uid or email');
+    return res.status(400).json({ error: 'Firebase UID o email requerido' });
   }
   next();
 };
