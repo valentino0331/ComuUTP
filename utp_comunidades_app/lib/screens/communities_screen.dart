@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../models/community.dart';
 import '../providers/community_provider.dart';
+import '../theme/app_theme.dart';
 
 class CommunitiesScreen extends StatefulWidget {
   final List<Community> communities;
@@ -58,378 +58,298 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final communities = Provider.of<CommunityProvider>(context).communities;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: _buildHeader(),
-            ),
-            
-            // Search Bar
-            SliverToBoxAdapter(
-              child: _buildSearchBar(),
-            ),
-            
-            // Filter Chips
-            SliverToBoxAdapter(
-              child: _buildFilterChips(),
-            ),
-            
-            // Communities Grid
-            _buildCommunitiesGrid(),
-          ],
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: AppTheme.colorSurface,
+        elevation: 0,
+        title: Text(
+          'Comunidades',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppTheme.colorTextPrimary,
+                fontSize: AppTheme.fontSizeMd,
+              ),
+        ),
+        toolbarHeight: 56,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: AppTheme.colorBorder,
+            height: 1,
+          ),
         ),
       ),
-      floatingActionButton: _buildFAB(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFB21132),
-        borderRadius: BorderRadius.circular(20),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () =>
+            Navigator.of(context).pushNamed('/create_community'),
+        icon: const Icon(Icons.add),
+        label: const Text('Nueva'),
+        backgroundColor: AppTheme.colorPrimary,
       ),
-      child: Row(
+      body: Column(
         children: [
-          Icon(
-            PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
-            color: Colors.white,
-            size: 28,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Comunidades',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: _searchController,
-          onChanged: (_) => _updateFilteredCommunities(),
-          decoration: InputDecoration(
-            hintText: 'Buscar comunidades',
-            hintStyle: TextStyle(
-              fontFamily: 'Montserrat',
-              color: Colors.grey[400],
-            ),
-            prefixIcon: Icon(
-              PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.regular),
-              color: Colors.grey[400],
-            ),
-            suffixIcon: _searchController.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(
-                      PhosphorIcons.x(PhosphorIconsStyle.regular),
-                      color: Colors.grey[400],
-                    ),
-                    onPressed: () {
-                      _searchController.clear();
-                      _updateFilteredCommunities();
-                    },
-                  )
-                : null,
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChips() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: _filters.map((filter) {
-            final isSelected = _selectedFilter == filter;
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: FilterChip(
-                label: Text(filter),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() => _selectedFilter = filter);
-                },
-                backgroundColor: Colors.white,
-                selectedColor: const Color(0xFF474545),
-                side: BorderSide(
-                  color: isSelected 
-                      ? const Color(0xFF474545) 
-                      : Colors.grey[300]!,
+          // Buscador
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) => _updateFilteredCommunities(),
+              decoration: InputDecoration(
+                hintText: 'Buscar comunidades...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _updateFilteredCommunities();
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: AppTheme.colorBorder),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                labelStyle: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black87,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCommunitiesGrid() {
-    return Consumer<CommunityProvider>(
-      builder: (context, communityProvider, _) {
-        if (communityProvider.loading) {
-          return const SliverFillRemaining(
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Color(0xFFB21132),
+                filled: true,
+                fillColor: AppTheme.colorSurface,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
               ),
             ),
-          );
-        }
-
-        if (communityProvider.error != null) {
-          return SliverFillRemaining(
-            child: _buildEmptyState(
-              icon: PhosphorIcons.warningCircle(PhosphorIconsStyle.fill),
-              title: 'Error al cargar comunidades',
-              subtitle: 'Intenta nuevamente más tarde',
-              showButton: true,
-              buttonText: 'Reintentar',
-              onButtonPressed: () => communityProvider.fetchCommunities(),
-            ),
-          );
-        }
-
-        if (_filteredCommunities.isEmpty) {
-          return SliverFillRemaining(
-            child: _buildEmptyState(
-              icon: PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
-              title: 'No hay comunidades',
-              subtitle: _searchController.text.isEmpty 
-                  ? 'Sé el primero en crear una comunidad'
-                  : 'No se encontraron resultados',
-              showButton: true,
-              buttonText: 'Crear comunidad',
-              onButtonPressed: () => Navigator.of(context).pushNamed('/create_community'),
-            ),
-          );
-        }
-
-        return SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.9,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final community = _filteredCommunities[index];
-                return _buildCommunityCard(community);
-              },
-              childCount: _filteredCommunities.length,
-            ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEmptyState({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    bool showButton = false,
-    String buttonText = '',
-    VoidCallback? onButtonPressed,
-  }) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 64,
-            color: Colors.grey[300],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+          // Filtros
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: _filters
+                    .map((filter) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: FilterChip(
+                            label: Text(filter),
+                            selected: _selectedFilter == filter,
+                            onSelected: (selected) {
+                              setState(() => _selectedFilter = filter);
+                            },
+                            backgroundColor: AppTheme.colorSurface,
+                            selectedColor: AppTheme.colorPrimary
+                                .withOpacity(0.2),
+                            side: BorderSide(
+                              color: _selectedFilter == filter
+                                  ? AppTheme.colorPrimary
+                                  : AppTheme.colorBorder,
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 14,
-              color: Colors.grey[400],
+          // Grid de comunidades
+          Expanded(
+            child: Consumer<CommunityProvider>(
+              builder: (context, communityProvider, _) {
+                if (communityProvider.loading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.colorPrimary),
+                    ),
+                  );
+                }
+
+                if (communityProvider.error != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red.withOpacity(0.7),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error al cargar comunidades',
+                          style: TextStyle(
+                            color: AppTheme.colorTextSecondary,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () =>
+                              communityProvider.fetchCommunities(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.colorPrimary,
+                          ),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (_filteredCommunities.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.group_outlined,
+                          size: 64,
+                          color: AppTheme.colorTextSecondary
+                              .withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _searchController.text.isEmpty
+                              ? 'No hay comunidades disponibles'
+                              : 'No se encontraron comunidades',
+                          style: TextStyle(
+                            color: AppTheme.colorTextSecondary,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed(
+                                  '/create_community'),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Crear una'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.colorPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.85,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: _filteredCommunities.length,
+                    itemBuilder: (context, index) {
+                      final community = _filteredCommunities[index];
+                      return CommunityCardGrid(community: community);
+                    },
+                  ),
+                );
+              },
             ),
           ),
-          if (showButton) ...[
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: onButtonPressed,
-              icon: Icon(
-                PhosphorIcons.plus(PhosphorIconsStyle.bold),
-                color: Colors.white,
-              ),
-              label: Text(
-                buttonText,
-                style: const TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB21132),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildCommunityCard(Community community) {
+class CommunityCardGrid extends StatelessWidget {
+  final Community community;
+
+  const CommunityCardGrid({
+    super.key,
+    required this.community,
+  });
+
+  Color _getColorForCommunity(int index) {
     final colors = [
-      const Color(0xFFB21132),    // Rojo
-      const Color(0xFF1E3A8A),    // Azul
-      const Color(0xFF059669),    // Verde
-      const Color(0xFF7C3AED),    // Morado
+      AppTheme.colorIconSistemas,      // Rojo
+      AppTheme.colorIconFutbol,         // Azul marino
+      AppTheme.colorIconHacks,          // Verde
+      AppTheme.colorIconArequipa,       // Rojo claro
     ];
-    final icons = [
-      PhosphorIcons.desktop(PhosphorIconsStyle.fill),
-      PhosphorIcons.soccerBall(PhosphorIconsStyle.fill),
-      PhosphorIcons.trophy(PhosphorIconsStyle.fill),
-      PhosphorIcons.building(PhosphorIconsStyle.fill),
-    ];
-    
-    final color = colors[community.id % colors.length];
-    final icon = icons[community.id % icons.length];
+    return colors[index % colors.length];
+  }
 
-    return Card(
-      elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+  IconData _getIconForCommunity(int index) {
+    final icons = [
+      Icons.computer,
+      Icons.sports_soccer,
+      Icons.emoji_events,
+      Icons.location_city,
+    ];
+    return icons[index % icons.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.colorSurface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: [AppTheme.shadowCard],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icono circular
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
+          // Icono de comunidad circular
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: _getColorForCommunity(community.id),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _getIconForCommunity(community.id),
+                color: AppTheme.colorTextWhite,
+                size: 32,
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          // Nombre
+
+          // Nombre de comunidad
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               community.nombre,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeSm,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.colorTextPrimary,
+                height: 1.3,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 4),
+
+          const SizedBox(height: 8),
+
           // Miembros
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                PhosphorIcons.users(PhosphorIconsStyle.regular),
-                size: 14,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${(community.id * 30 + 81)} miembros',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 11,
-                  color: Colors.grey[500],
-                ),
-              ),
-            ],
+          Text(
+            '👥 ${(community.id * 30 + 81)} miembros',
+            style: TextStyle(
+              fontSize: AppTheme.fontSizeXs,
+              color: AppTheme.colorTextSecondary,
+            ),
           ),
-          const SizedBox(height: 12),
+
+          const Spacer(),
+
           // Botón Unirse
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(12),
             child: SizedBox(
               width: double.infinity,
+              height: 34,
               child: OutlinedButton(
                 onPressed: () {
                   Provider.of<CommunityProvider>(context, listen: false)
@@ -437,28 +357,26 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Te uniste a ${community.nombre}'),
-                      backgroundColor: const Color(0xFFB21132),
                       duration: const Duration(seconds: 2),
                     ),
                   );
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(
-                    color: Color(0xFFB21132),
+                    color: AppTheme.colorPrimary,
                     width: 1.5,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                 ),
-                child: const Text(
+                child: Text(
                   'Unirse',
                   style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFB21132),
+                    fontSize: AppTheme.fontSizeSm,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.colorPrimary,
                   ),
                 ),
               ),
@@ -466,16 +384,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFAB() {
-    return FloatingActionButton.extended(
-      onPressed: () => Navigator.of(context).pushNamed('/create_community'),
-      icon: const Icon(Icons.add),
-      label: const Text('Nueva'),
-      backgroundColor: const Color(0xFFB21132),
-      foregroundColor: Colors.white,
     );
   }
 }

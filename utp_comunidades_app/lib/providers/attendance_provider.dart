@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/attendance.dart';
 import '../services/api_service.dart';
-import 'auth_provider.dart';
 
 class AttendanceProvider extends ChangeNotifier {
   List<AttendanceEvidence> _evidences = [];
@@ -197,7 +196,7 @@ class AttendanceProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error fetching stats: $e');
+      _error = e.toString();
     }
   }
 

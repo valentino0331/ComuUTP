@@ -96,6 +96,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 IconButton(
                   icon: Icon(
+                    PhosphorIcons.uploadSimple(PhosphorIconsStyle.bold),
+                    color: Colors.red,
+                  ),
+                  tooltip: 'Subir evidencias',
+                  onPressed: () => Navigator.pushNamed(context, '/submit_attendance'),
+                ),
+                IconButton(
+                  icon: Icon(
                     PhosphorIcons.list(PhosphorIconsStyle.bold),
                     color: Colors.black,
                   ),

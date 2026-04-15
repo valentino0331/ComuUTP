@@ -8,10 +8,14 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/main_scaffold.dart';
 import 'screens/splash_screen.dart';
+import 'screens/create_post_screen.dart';
+import 'screens/admin_screen.dart';
+import 'screens/submit_attendance_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/community_provider.dart';
 import 'providers/post_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/attendance_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +43,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CommunityProvider()),
         ChangeNotifierProvider(create: (_) => PostProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => AttendanceProvider()),
       ],
       child: MaterialApp(
         title: 'UTP Comunidades',
@@ -54,6 +59,9 @@ class MyApp extends StatelessWidget {
           '/register': (context) => RegisterScreen(),
           '/home': (context) => HomeScreen(),
           '/main': (context) => MainScaffold(),
+          '/create_post': (context) => const CreatePostScreen(),
+          '/admin': (context) => const AdminScreen(),
+          '/submit_attendance': (context) => const SubmitAttendanceScreen(),
         },
       ),
     );

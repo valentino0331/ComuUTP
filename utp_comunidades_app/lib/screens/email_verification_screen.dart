@@ -34,7 +34,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   static const Color colorPrimario = Color(0xFFB21132);
   static const Color colorFondoOverlay = Color(0x57B21132);
-  static const Color colorBoton = Color(0xFF090A0B);
   static const Color colorTextoBlanco = Colors.white;
 
   @override

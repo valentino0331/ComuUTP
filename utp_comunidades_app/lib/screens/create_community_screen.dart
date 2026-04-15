@@ -219,6 +219,8 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            _buildAttendanceRequirement(),
+            const SizedBox(height: 16),
             _buildTermsBanner(),
             const SizedBox(height: 24),
             _buildActionButtons(),
@@ -362,6 +364,125 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
     );
   }
 
+  Widget _buildAttendanceRequirement() {
+    final attendanceProvider = Provider.of<AttendanceProvider>(context);
+    final requiredAttendances = 9;
+    final currentAttendances = attendanceProvider.approvedAttendancesCount;
+    final isComplete = currentAttendances >= requiredAttendances;
+    final remaining = requiredAttendances - currentAttendances;
+
+    return _buildCard(
+      title: 'Evidencia de Asistencia',
+      icon: PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isComplete ? Colors.green.withAlpha(25) : Colors.amber.withAlpha(25),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isComplete ? Colors.green.withAlpha(77) : Colors.amber.withAlpha(77),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      isComplete
+                          ? PhosphorIcons.checkCircle(PhosphorIconsStyle.fill)
+                          : PhosphorIcons.warning(PhosphorIconsStyle.fill),
+                      color: isComplete ? Colors.green : Colors.amber,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isComplete
+                                ? '¡Cumples los requisitos!'
+                                : 'Asistencias requeridas para crear comunidad',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: isComplete ? Colors.green : Colors.orange[800],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isComplete
+                                ? 'Ya tienes $currentAttendances asistencias verificadas'
+                                : 'Te faltan $remaining asistencias de $requiredAttendances',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 12,
+                              color: isComplete ? Colors.green[700] : Colors.orange[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: (currentAttendances / requiredAttendances).clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isComplete ? Colors.green : Colors.orange,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Progreso: $currentAttendances de $requiredAttendances',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (!isComplete)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Builder(
+                builder: (context) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/submit_attendance'),
+                      icon: Icon(Icons.upload_file),
+                      label: Text('Subir evidencias de asistencia'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        minimumSize: const Size(double.infinity, 44),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCard({
     required String title,
     required IconData icon,
@@ -412,13 +533,13 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.red.withAlpha(80)),
       ),
       child: Row(
         children: [
-          Icon(PhosphorIcons.info(PhosphorIconsStyle.fill), color: Colors.blue),
+          Icon(PhosphorIcons.info(PhosphorIconsStyle.fill), color: Colors.red),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -426,7 +547,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
               style: TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 12,
-                color: Colors.blue.shade900,
+                color: Colors.red.shade900,
               ),
             ),
           ),
