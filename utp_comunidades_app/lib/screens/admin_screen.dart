@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../services/database_service.dart';
+import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'dart:convert';
+import '../providers/auth_provider.dart';
+import '../services/api_service.dart';
 
 class AdminScreen extends StatefulWidget {
-  const AdminScreen({super.key});
+  const AdminScreen({Key? key}) : super(key: key);
 
   @override
   State<AdminScreen> createState() => _AdminScreenState();
@@ -10,35 +14,127 @@ class AdminScreen extends StatefulWidget {
 
 class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final DatabaseService _dbService = DatabaseService();
-  final Color primaryColor = const Color(0xFFB21132);
+  final ApiService _apiService = ApiService();
   
-  List<Map<String, dynamic>> _users = [];
-  bool _isLoading = true;
-  String _searchQuery = '';
+  // Users search
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _users = [];
+  List<dynamic> _filteredUsers = [];
+  bool _isLoadingUsers = true;
+  String _userError = '';
+
+  // Stats
+  Map<String, dynamic>? _stats;
+  bool _isLoadingStats = true;
+  String _statsError = '';
+
+  final Color _primaryColor = const Color(0xFFB21132);
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
+    _fetchUsers();
+    _fetchStats();
+    _searchController.addListener(_filterUsers);
   }
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchUsers() async {
+    setState(() {
+      _isLoadingUsers = true;
+      _userError = '';
+    });
     try {
-      final users = await _dbService.getUsers();
-      setState(() {
-        _users = users;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error cargando datos: $e'), backgroundColor: Colors.red),
-        );
+      final response = await _apiService.get('/admin/usuarios', auth: true);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _users = data;
+          _filteredUsers = data;
+          _isLoadingUsers = false;
+        });
+      } else {
+        setState(() {
+          _userError = 'Error al cargar usuarios: \';
+          _isLoadingUsers = false;
+        });
       }
+    } catch (e) {
+      setState(() {
+        _userError = 'Error: \';
+        _isLoadingUsers = false;
+      });
+    }
+  }
+
+  Future<void> _fetchStats() async {
+    setState(() {
+      _isLoadingStats = true;
+      _statsError = '';
+    });
+    try {
+      final response = await _apiService.get('/admin/stats', auth: true);
+      if (response.statusCode == 200) {
+        setState(() {
+          _stats = json.decode(response.body);
+          _isLoadingStats = false;
+        });
+      } else {
+        setState(() {
+          _statsError = 'Error al cargar estadísticas';
+          _isLoadingStats = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _statsError = 'Error: \';
+        _isLoadingStats = false;
+      });
+    }
+  }
+
+  void _filterUsers() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredUsers = _users.where((user) {
+        final name = (user['nombre'] ?? '').toString().toLowerCase();
+        final email = (user['email'] ?? '').toString().toLowerCase();
+        return name.contains(query) || email.contains(query);
+      }).toList();
+    });
+  }
+
+  Future<void> _togglePermission(int userId, String field, bool value) async {
+    try {
+      final response = await _apiService.post(
+        '/admin/update-permission',
+        {
+          'userId': userId,
+          'field': field,
+          'value': value,
+        },
+        auth: true,
+      );
+      
+      if (response.statusCode == 200) {
+        _fetchUsers(); // Refresh list
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permiso actualizado correctamente')),
+        );
+      } else {
+        throw Exception('Error al actualizar');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: \'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -46,182 +142,146 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: primaryColor,
-        title: const Text('Panel de Administración', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _loadData,
-          ),
-        ],
+        title: const Text('Administración UTP', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: _primaryColor,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
+          tabs: const [
+            Tab(icon: Icon(PhosphorIcons.users, color: Colors.white), text: 'Usuarios'),
+            Tab(icon: Icon(PhosphorIcons.chartBar, color: Colors.white), text: 'Stats'),
+            Tab(icon: Icon(PhosphorIcons.wrench, color: Colors.white), text: 'Tools'),
+          ],
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(icon: Icon(Icons.people), text: 'Usuarios'),
-            Tab(icon: Icon(Icons.analytics), text: 'Estadísticas'),
-            Tab(icon: Icon(Icons.settings), text: 'Herramientas'),
-          ],
         ),
       ),
-      body: _isLoading 
-        ? Center(child: CircularProgressIndicator(color: primaryColor))
-        : TabBarView(
-            controller: _tabController,
-            children: [
-              _buildUsersTab(),
-              _buildStatsTab(),
-              _buildToolsTab(),
-            ],
-          ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildUsersTab(),
+          _buildStatsTab(),
+          _buildToolsTab(),
+        ],
+      ),
     );
   }
 
   Widget _buildUsersTab() {
-    final filteredUsers = _users.where((u) => 
-      (u['nombre']?.toString().toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-      (u['correo']?.toString().toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
-    ).toList();
+    if (_isLoadingUsers) return const Center(child: CircularProgressIndicator());
+    if (_userError.isNotEmpty) return Center(child: Text(_userError));
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          TextField(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Buscar usuarios...',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              filled: true,
-              fillColor: Colors.grey[100],
+              hintText: 'Buscar usuario...',
+              prefixIcon: const Icon(PhosphorIcons.magnifyingGlass),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: _primaryColor),
+              ),
             ),
-            onChanged: (value) => setState(() => _searchQuery = value),
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredUsers.length,
-              itemBuilder: (context, index) {
-                final user = filteredUsers[index];
-                return Card(
-                  elevation: 2,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ExpansionTile(
-                    leading: CircleAvatar(
-                      backgroundColor: primaryColor,
-                      child: Text(user['nombre']?[0].toUpperCase() ?? 'U', style: const TextStyle(color: Colors.white)),
-                    ),
-                    title: Text(user['nombre'] ?? 'Sin nombre', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(user['correo'] ?? ''),
-                    trailing: Chip(
-                      label: Text(user['role'] ?? 'user', style: const TextStyle(fontSize: 12)),
-                      backgroundColor: (user['role'] == 'admin') ? Colors.amber[100] : Colors.blue[100],
-                    ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Column(
-                          children: [
-                            SwitchListTile(
-                              title: const Text('Permiso para crear comunidades'),
-                              value: user['puede_crear_comunidad'] ?? false,
-                              activeColor: primaryColor,
-                              onChanged: (bool value) async {
-                                // Aquí iría la lógica de actualización
-                              },
-                            ),
-                            const Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.edit, size: 18),
-                                  label: const Text('Editar'),
-                                ),
-                                TextButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.block, size: 18, color: Colors.red),
-                                  label: const Text('Suspender', style: TextStyle(color: Colors.red)),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: _filteredUsers.length,
+            itemBuilder: (context, index) {
+              final user = _filteredUsers[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                elevation: 2,
+                child: ExpansionTile(
+                  leading: CircleAvatar(
+                    backgroundColor: _primaryColor,
+                    child: Text(user['nombre']?[0].toUpperCase() ?? 'U', style: const TextStyle(color: Colors.white)),
                   ),
-                );
-              },
-            ),
+                  title: Text(user['nombre'] ?? 'Sin nombre', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(user['email'] ?? ''),
+                  trailing: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: _primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(user['role'] ?? 'user', style: TextStyle(color: _primaryColor, fontSize: 12)),
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          SwitchListTile(
+                            title: const Text('Puede crear comunidades'),
+                            value: user['puede_crear_comunidad'] == 1 || user['puede_crear_comunidad'] == true,
+                            activeColor: _primaryColor,
+                            onChanged: (val) => _togglePermission(user['id'], 'puede_crear_comunidad', val),
+                          ),
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () {/* Ver perfil detallado */},
+                                child: Text('Ver Detalle', style: TextStyle(color: _primaryColor)),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildStatsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    if (_isLoadingStats) return const Center(child: CircularProgressIndicator());
+    if (_statsError.isNotEmpty) return Center(child: Text(_statsError));
+
+    return RefreshIndicator(
+      onRefresh: _fetchStats,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          const Text('Resumen General', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatCard('Usuarios', _users.length.toString(), Icons.person, Colors.blue),
-              _buildStatCard('Comunidades', '12', Icons.groups, Colors.green),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatCard('Eventos', '45', Icons.event, Colors.orange),
-              _buildStatCard('Reportes', '3', Icons.warning, Colors.red),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const Text('Actividad Reciente', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          _buildActivityItem('Nuevo usuario registrado: Juan Perez', 'Hace 5 min'),
-          _buildActivityItem('Nueva comunidad creada: Flutter Devs', 'Hace 2 horas'),
-          _buildActivityItem('Reporte resuelto: Spam en General', 'Hace 1 día'),
+          _buildStatCard('Total Usuarios', _stats?['total_usuarios']?.toString() ?? '0', PhosphorIcons.usersThree),
+          _buildStatCard('Comunidades', _stats?['total_comunidades']?.toString() ?? '0', PhosphorIcons.users),
+          _buildStatCard('Publicaciones', _stats?['total_posts']?.toString() ?? '0', PhosphorIcons.article),
+          _buildStatCard('Reportes Pendientes', _stats?['total_reportes']?.toString() ?? '0', PhosphorIcons.warning, color: Colors.orange),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 30),
-              const SizedBox(height: 8),
-              Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              Text(label, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActivityItem(String text, String time) {
+  Widget _buildStatCard(String title, String value, IconData icon, {Color? color}) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(Icons.history, color: primaryColor),
-        title: Text(text),
-        trailing: Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      elevation: 3,
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            Icon(icon, size: 40, color: color ?? _primaryColor),
+            const SizedBox(width: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -230,41 +290,24 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildToolTile('Configuración del Sistema', 'Ajustes globales de la plataforma', Icons.settings),
-        _buildToolTile('Logs del Servidor', 'Ver historial de transacciones y errores', Icons.terminal),
-        _buildToolTile('Gestión de Roles', 'Definir permisos personalizados', Icons.security),
-        _buildToolTile('Base de Datos', 'Backup y limpieza de registros', Icons.storage),
-        const SizedBox(height: 20),
-        ElevatedButton.icon(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primaryColor,
-            padding: const EdgeInsets.all(16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          icon: const Icon(Icons.download, color: Colors.white),
-          label: const Text('Exportar Reporte Mensual (PDF)', style: TextStyle(color: Colors.white)),
+        ListTile(
+          leading: Icon(PhosphorIcons.trash, color: _primaryColor),
+          title: const Text('Limpiar Caché'),
+          onTap: () {},
+        ),
+        const Divider(),
+        ListTile(
+          leading: Icon(PhosphorIcons.bell, color: _primaryColor),
+          title: const Text('Enviar Notificación Global'),
+          onTap: () {},
+        ),
+        const Divider(),
+        ListTile(
+          leading: Icon(PhosphorIcons.database, color: _primaryColor),
+          title: const Text('Backup de Base de Datos'),
+          onTap: () {},
         ),
       ],
     );
-  }
-
-  Widget _buildToolTile(String title, String subtitle, IconData icon) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: Icon(icon, color: primaryColor),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {},
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }

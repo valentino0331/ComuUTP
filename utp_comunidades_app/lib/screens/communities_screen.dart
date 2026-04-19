@@ -40,17 +40,18 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final isTeacher = authProvider.user?.rolId == 2;
+    // final isTeacher = authProvider.user?.rolId == 2;
+    const isTeacher = false;
 
     final filteredCommunities = widget.communities.where((c) {
-      if (_selectedFilter != 'Todas' && c.categoria != _selectedFilter) return false;
+      // if (_selectedFilter != 'Todas' && c.categoria != _selectedFilter) return false;
       if (_searchController.text.isNotEmpty && 
           !c.nombre.toLowerCase().contains(_searchController.text.toLowerCase())) return false;
       return true;
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.primaryLighter,
+      backgroundColor: AppTheme.colorPrimary.withOpacity(0.1),
       appBar: AppBar(
         title: const Text('Comunidades UTP'),
         actions: [
@@ -82,7 +83,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               onPressed: _showCreateCommunity,
               label: const Text('Crear Comunidad'),
               icon: const Icon(Icons.add),
-              backgroundColor: AppTheme.primaryRed,
+              backgroundColor: AppTheme.colorPrimary,
             )
           : null,
     );
@@ -113,7 +114,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: AppTheme.primaryLighter,
+              fillColor: AppTheme.colorPrimary.withOpacity(0.1),
             ),
             onChanged: (value) => setState(() {}),
           ),
@@ -138,9 +139,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     onSelected: (val) {
                       if (val) setState(() => _selectedFilter = filter);
                     },
-                    selectedColor: AppTheme.primaryRed,
+                    selectedColor: AppTheme.colorPrimary,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppTheme.textPrimary,
+                      color: isSelected ? Colors.white : AppTheme.colorTextPrimary,
                     ),
                   ),
                 );
@@ -172,12 +173,13 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryRed.withOpacity(0.1),
+                      color: AppTheme.colorPrimary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      _getCategoryIcon(community.categoria),
-                      color: AppTheme.primaryRed,
+                      // _getCategoryIcon(community.categoria),
+                      PhosphorIconsRegular.users,
+                      color: AppTheme.colorPrimary,
                       size: 24,
                     ),
                   ),
@@ -194,9 +196,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                           ),
                         ),
                         Text(
-                          community.categoria,
+                          'Comunidad',
                           style: TextStyle(
-                            color: AppTheme.textSecondary,
+                            color: AppTheme.colorTextSecondary,
                             fontSize: 14,
                           ),
                         ),
@@ -206,7 +208,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryLighter,
+                      color: AppTheme.colorPrimary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -224,15 +226,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 community.descripcion,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppTheme.textSecondary),
+                style: TextStyle(color: AppTheme.colorTextSecondary),
               ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Por: ${community.creadorNombre}',
-                    style: const TextStyle(
+                  const Text(
+                    'Por: Comunidad',
+                    style: TextStyle(
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
                     ),
@@ -242,7 +244,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                       Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryRed,
+                      backgroundColor: AppTheme.colorPrimary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -264,11 +266,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(PhosphorIconsRegular.usersThree, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
+          Icon(PhosphorIconsRegular.usersThree, size: 64, color: AppTheme.colorTextSecondary.withOpacity(0.5)),
           const SizedBox(height: 16),
           Text(
             'No se encontraron comunidades',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+            style: TextStyle(color: AppTheme.colorTextSecondary, fontSize: 16),
           ),
         ],
       ),
