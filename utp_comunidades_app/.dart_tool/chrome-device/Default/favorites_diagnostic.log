@@ -24,3 +24,33 @@
 2026-04-19 23:19:01.284: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
 2026-04-19 23:19:01.314: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
 2026-04-19 23:19:07.373: [INFO] Sync initialization duration: 5942ms
+2026-04-19 23:24:12.028: [INFO] VisibilityChanged: 0
+2026-04-19 23:24:12.155: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:24:12.156: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:24:12.156: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:24:12.156: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-19 23:24:12.156: [INFO] OnDoneLoading sync enabled: 1
+2026-04-19 23:27:21.127: [INFO] VisibilityChanged: 0
+2026-04-19 23:27:21.257: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:27:21.259: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:27:21.260: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:27:21.260: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-19 23:27:21.260: [INFO] OnDoneLoading sync enabled: 0
+2026-04-19 23:27:21.997: [INFO] Primary account changed.
+2026-04-19 23:27:21.997: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-04-19 23:27:28.128: [INFO] Sync initialization duration: 6861ms
+2026-04-19 23:31:58.844: [INFO] VisibilityChanged: 0
+2026-04-19 23:31:58.974: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:31:58.975: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:31:58.976: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:31:58.976: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-19 23:31:58.976: [INFO] OnDoneLoading sync enabled: 1
+2026-04-19 23:37:17.353: [INFO] VisibilityChanged: 0
+2026-04-19 23:37:17.534: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:37:17.535: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:37:17.536: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-19 23:37:17.536: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-19 23:37:17.536: [INFO] OnDoneLoading sync enabled: 0
+2026-04-19 23:37:19.424: [INFO] Primary account changed.
+2026-04-19 23:37:19.424: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-04-19 23:37:25.623: [INFO] Sync initialization duration: 8077ms

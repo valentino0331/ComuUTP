@@ -51,8 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
       title: ShaderMask(
         shaderCallback: (bounds) => LinearGradient(
           colors: [
-            const Color(0xFF2563EB), // Azul profesional
-            const Color(0xFF7C3AED), // Morado
+            const Color(0xFFB21132), // Rojo primario
+            const Color(0xFFA00D24), // Rojo oscuro
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

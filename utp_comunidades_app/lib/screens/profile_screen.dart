@@ -1459,6 +1459,26 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                       
                       const SizedBox(height: 28),
+
+                      // SECCIÓN: Administración (Solo visible para admins)
+                      if (user?.role == 'admin') ...[
+                        _buildSettingsSection(
+                          title: 'Administración',
+                          color: const Color(0xFFB21132),
+                          items: [
+                            (
+                              icon: PhosphorIcons.userGear(PhosphorIconsStyle.bold),
+                              title: 'Panel de Admin',
+                              subtitle: 'Gestiona usuarios y comunidades',
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, '/admin');
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+                      ],
                       
                       // SECCIÓN: Información
                       _buildSettingsSection(
