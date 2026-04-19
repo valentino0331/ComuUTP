@@ -6,7 +6,7 @@ import 'dart:io' show Platform;
 class ApiService {
   // URL base - Se adapta según la plataforma
   static String get baseUrl {
-    // Siempre usar la URL de Railway en producción
+    // Siempre usar Railway para evitar problemas de conexión en web
     return 'https://comuutp-production.up.railway.app/api';
   }
   
@@ -56,6 +56,18 @@ class ApiService {
       if (token != null) headers['Authorization'] = 'Bearer $token';
     }
     return await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: headers,
+    );
+  }
+
+  static Future<http.Response> delete(String endpoint, {bool auth = false}) async {
+    final headers = {'Content-Type': 'application/json'};
+    if (auth) {
+      final token = await getToken();
+      if (token != null) headers['Authorization'] = 'Bearer $token';
+    }
+    return await http.delete(
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
     );

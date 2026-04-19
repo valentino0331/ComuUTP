@@ -17,6 +17,7 @@ class AuthProvider with ChangeNotifier {
   String? get token => _token;
   bool get loading => _loading;
   String? get error => _error;
+  String? get loginError => _error; // Alias para el UI del login
   firebase.User? get firebaseUser => _firebaseUser;
 
   /// Restaurar sesión guardada al iniciar la app
@@ -294,7 +295,7 @@ class AuthProvider with ChangeNotifier {
       esAdmin: true,
       esPremium: true,
       puedeCrearComunidad: true,
-      asistenciasVerificadas: 10,
+      role: 'admin',
       fotoPerfil: null,
     );
     _token = 'admin-token-test';
@@ -325,4 +326,47 @@ class AuthProvider with ChangeNotifier {
         return 'Error de autenticación: $code';
     }
   }
+
+  /// Actualizar perfil del usuario
+  Future<bool> updateProfile({
+    required String nombre,
+    String? biografia,
+    String? carrera,
+    List<String>? intereses,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await ApiService.post('/users/edit', {
+        'nombre': nombre,
+        'biografia': biografia,
+        'carrera': carrera,
+        'intereses': intereses,
+      }, auth: true);
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['usuario'] != null) {
+          _user = User.fromJson(data['usuario']);
+        }
+        _loading = false;
+        notifyListeners();
+        return true;
+      } else {
+        final error = jsonDecode(res.body);
+        _error = error['error'] ?? 'Error al actualizar perfil';
+        _loading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = 'Error: ${e.toString()}';
+      _loading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }
+

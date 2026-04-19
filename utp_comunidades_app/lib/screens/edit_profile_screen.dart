@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../models/user.dart';
+import '../providers/auth_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final User? user;
@@ -103,6 +105,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Funcionalidad de tomar foto próximamente')),
+                  );
                 },
               ),
               ListTile(
@@ -113,6 +118,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Funcionalidad de galería próximamente')),
+                  );
                 },
               ),
               if ((isProfile && _profileImage != null) || (!isProfile && _coverImage != null))
@@ -168,14 +176,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             centerTitle: true,
             actions: [
               TextButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Perfil actualizado exitosamente'),
-                      backgroundColor: Colors.green,
-                    ),
+                onPressed: () async {
+                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  
+                  final success = await authProvider.updateProfile(
+                    nombre: _nameController.text.trim(),
+                    biografia: _bioController.text.trim(),
+                    carrera: _careerController.text.trim(),
+                    intereses: _selectedInterests,
                   );
-                  Navigator.pop(context);
+
+                  if (mounted) {
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Perfil actualizado exitosamente'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error: ${authProvider.error}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
                 },
                 child: const Text(
                   'Guardar',

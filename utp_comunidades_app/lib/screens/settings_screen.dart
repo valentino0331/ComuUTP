@@ -21,116 +21,191 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _privacidadMostrarEmail = false;
   String _idioma = 'Español';
 
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPreferences();
+  }
+
+  Future<void> _loadUserPreferences() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    if (user != null) {
+      setState(() {
+        _notificacionesActivas = user.notificacionesActivas ?? true;
+        _emailNotificaciones = user.emailNotificaciones ?? true;
+        _notificacionesMenciones = user.notificacionesMenciones ?? true;
+        _modoDark = user.modoOscuro ?? false;
+        _privacidadPerfilPublico = user.privacidadPerfilPublico ?? true;
+        _privacidadMostrarEmail = user.privacidadMostrarEmail ?? false;
+        _idioma = user.idioma ?? 'Español';
+      });
+    }
+  }
+
+  Future<void> _savePreferences() async {
+    setState(() => _loading = true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    final success = await ApiService.post(
+      '/users/edit',
+      {
+        'nombre': user?.nombre ?? '',
+        'notificaciones_activas': _notificacionesActivas,
+        'email_notificaciones': _emailNotificaciones,
+        'notificaciones_menciones': _notificacionesMenciones,
+        'modo_oscuro': _modoDark,
+        'privacidad_perfil_publico': _privacidadPerfilPublico,
+        'privacidad_mostrar_email': _privacidadMostrarEmail,
+        'idioma': _idioma,
+      },
+      auth: true,
+    );
+    setState(() => _loading = false);
+    if (success.statusCode == 200) {
+      // Actualizar modelo en provider
+      await authProvider.restoreSession();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preferencias guardadas')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al guardar preferencias')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: _buildHeader(),
-            ),
-            
-            // Configuraciones
-            SliverToBoxAdapter(
-              child: _buildSettingsContent(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFB21132),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            PhosphorIcons.gear(PhosphorIconsStyle.fill),
-            color: Colors.white,
-            size: 28,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Configuración',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              PhosphorIcons.x(PhosphorIconsStyle.bold),
-              color: Colors.white,
-              size: 26,
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsContent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          // Notificaciones
-          _buildSectionCard(
-            title: 'Notificaciones',
-            icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
+      Widget _buildSettingsContent() {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
             children: [
-              _buildSwitchTile(
+              if (_loading) ...[
+                const LinearProgressIndicator(),
+                const SizedBox(height: 12),
+              ],
+              // Notificaciones
+              _buildSectionCard(
+                title: 'Notificaciones',
                 icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
-                title: 'Notificaciones en la app',
-                subtitle: 'Recibir alertas de actividad',
-                value: _notificacionesActivas,
-                onChanged: (v) => setState(() => _notificacionesActivas = v),
+                children: [
+                  _buildSwitchTile(
+                    icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
+                    title: 'Notificaciones en la app',
+                    subtitle: 'Recibir alertas de actividad',
+                    value: _notificacionesActivas,
+                    onChanged: (v) {
+                      setState(() => _notificacionesActivas = v);
+                      _savePreferences();
+                    },
+                  ),
+                  _buildSwitchTile(
+                    icon: PhosphorIcons.envelope(PhosphorIconsStyle.fill),
+                    title: 'Notificaciones por email',
+                    subtitle: 'Recibir resumen semanal',
+                    value: _emailNotificaciones,
+                    onChanged: (v) {
+                      setState(() => _emailNotificaciones = v);
+                      _savePreferences();
+                    },
+                  ),
+                  _buildSwitchTile(
+                    icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.fill),
+                    title: 'Notificaciones de menciones',
+                    subtitle: 'Cuando alguien te menciona',
+                    value: _notificacionesMenciones,
+                    onChanged: (v) {
+                      setState(() => _notificacionesMenciones = v);
+                      _savePreferences();
+                    },
+                  ),
+                ],
               ),
-              _buildSwitchTile(
-                icon: PhosphorIcons.envelope(PhosphorIconsStyle.fill),
-                title: 'Notificaciones por email',
-                subtitle: 'Recibir resumen semanal',
-                value: _emailNotificaciones,
-                onChanged: (v) => setState(() => _emailNotificaciones = v),
+              const SizedBox(height: 16),
+              // Apariencia
+              _buildSectionCard(
+                title: 'Apariencia',
+                icon: PhosphorIcons.palette(PhosphorIconsStyle.fill),
+                children: [
+                  _buildSwitchTile(
+                    icon: PhosphorIcons.moon(PhosphorIconsStyle.fill),
+                    title: 'Modo oscuro',
+                    subtitle: 'Cambiar tema de la app',
+                    value: _modoDark,
+                    onChanged: (v) {
+                      setState(() => _modoDark = v);
+                      _savePreferences();
+                    },
+                  ),
+                  _buildNavigationTile(
+                    icon: PhosphorIcons.translate(PhosphorIconsStyle.fill),
+                    title: 'Idioma',
+                    subtitle: _idioma,
+                    onTap: () async {
+                      await _showLanguageSelector();
+                      _savePreferences();
+                    },
+                  ),
+                ],
               ),
-              _buildNavigationTile(
-                icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.fill),
-                title: 'Notificaciones de menciones',
-                subtitle: 'Cuando alguien te menciona',
-                onTap: () => _showMentionsSettings(),
+              const SizedBox(height: 16),
+              // Cuenta
+              _buildSectionCard(
+                title: 'Cuenta',
+                icon: PhosphorIcons.user(PhosphorIconsStyle.fill),
+                children: [
+                  _buildNavigationTile(
+                    icon: PhosphorIcons.lockKey(PhosphorIconsStyle.fill),
+                    title: 'Cambiar contraseña',
+                    subtitle: 'Actualizar tu contraseña',
+                    onTap: () => _showChangePasswordDialog(),
+                  ),
+                  _buildNavigationTile(
+                    icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.fill),
+                    title: 'Privacidad',
+                    subtitle: 'Configuración de privacidad',
+                    onTap: () async {
+                      await _showPrivacySettings();
+                      _savePreferences();
+                    },
+                  ),
+                ],
               ),
+              const SizedBox(height: 16),
+              // Acerca de
+              _buildSectionCard(
+                title: 'Acerca de',
+                icon: PhosphorIcons.info(PhosphorIconsStyle.fill),
+                children: [
+                  _buildInfoTile(
+                    icon: PhosphorIcons.appWindow(PhosphorIconsStyle.fill),
+                    title: 'Versión de la app',
+                    value: '1.0.0',
+                  ),
+                  _buildInfoTile(
+                    icon: PhosphorIcons.fileText(PhosphorIconsStyle.fill),
+                    title: 'Términos de servicio',
+                    value: 'Ver',
+                    onTap: () => _showTermsDialog(),
+                  ),
+                  _buildInfoTile(
+                    icon: PhosphorIcons.shield(PhosphorIconsStyle.fill),
+                    title: 'Política de privacidad',
+                    value: 'Ver',
+                    onTap: () => _showPrivacyPolicyDialog(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
             ],
           ),
-          
-          const SizedBox(height: 16),
-          
-          // Apariencia
-          _buildSectionCard(
-            title: 'Apariencia',
-            icon: PhosphorIcons.palette(PhosphorIconsStyle.fill),
-            children: [
-              _buildSwitchTile(
-                icon: PhosphorIcons.moon(PhosphorIconsStyle.fill),
-                title: 'Modo oscuro',
-                subtitle: 'Cambiar tema de la app',
-                value: _modoDark,
-                onChanged: (v) => setState(() => _modoDark = v),
-              ),
-              _buildNavigationTile(
+        );
+      }
                 icon: PhosphorIcons.translate(PhosphorIconsStyle.fill),
                 title: 'Idioma',
                 subtitle: _idioma,
@@ -513,16 +588,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFB21132),
             ),
-            onPressed: () {
-              if (newPassController.text == confirmPassController.text &&
-                  newPassController.text.isNotEmpty) {
+            onPressed: () async {
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              final user = authProvider.firebaseUser;
+              if (newPassController.text != confirmPassController.text) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Las contraseñas no coinciden')),
+                );
+                return;
+              }
+              if (newPassController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Por favor ingresa la nueva contraseña')),
+                );
+                return;
+              }
+              if (user == null || user.email == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Usuario no autenticado')),
+                );
+                return;
+              }
+              try {
+                // Reautenticación
+                final cred = firebase.EmailAuthProvider.credential(
+                  email: user.email!,
+                  password: currentPassController.text,
+                );
+                await user.reauthenticateWithCredential(cred);
+                await user.updatePassword(newPassController.text);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Contraseña actualizada correctamente')),
                 );
-              } else {
+              } on firebase.FirebaseAuthException catch (e) {
+                String msg = 'Error al cambiar contraseña';
+                if (e.code == 'wrong-password') {
+                  msg = 'Contraseña actual incorrecta';
+                } else if (e.code == 'weak-password') {
+                  msg = 'La nueva contraseña es muy débil';
+                } else if (e.code == 'requires-recent-login') {
+                  msg = 'Por seguridad, inicia sesión de nuevo.';
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Las contraseñas no coinciden')),
+                  SnackBar(content: Text(msg)),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error: ${e.toString()}')),
                 );
               }
             },

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/notification_provider.dart';
 import '../models/notification.dart';
+import '../theme/app_theme.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -13,23 +13,6 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _showOnlyUnread = false;
-
-  String _formatTimeAgo(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-    
-    if (diff.inDays > 7) {
-      return '${date.day}/${date.month}/${date.year}';
-    } else if (diff.inDays > 0) {
-      return 'Hace ${diff.inDays} ${diff.inDays == 1 ? 'día' : 'días'}';
-    } else if (diff.inHours > 0) {
-      return 'Hace ${diff.inHours} ${diff.inHours == 1 ? 'hora' : 'horas'}';
-    } else if (diff.inMinutes > 0) {
-      return 'Hace ${diff.inMinutes} ${diff.inMinutes == 1 ? 'minuto' : 'minutos'}';
-    } else {
-      return 'Ahora mismo';
-    }
-  }
 
   @override
   void initState() {
@@ -45,260 +28,247 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final notificationProvider = Provider.of<NotificationProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: _buildHeader(),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Notificaciones'),
+        backgroundColor: AppTheme.colorSurface,
+        elevation: 1,
+        actions: [
+          if (notificationProvider.notifications.isNotEmpty)
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: const Text('Marcar todo como leído'),
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('¡Todas las notificaciones marcadas como leídas!'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                ),
+                PopupMenuItem(
+                  child: const Text('Limpiar todo'),
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('¡Notificaciones eliminadas!'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                ),
+              ],
+              offset: const Offset(0, 40),
             ),
-            
-            // Notifications List
-            _buildNotificationsList(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFB21132),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            PhosphorIcons.bell(PhosphorIconsStyle.fill),
-            color: Colors.white,
-            size: 28,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Notificaciones',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNotificationsList() {
-    return Consumer<NotificationProvider>(
-      builder: (context, notificationProvider, _) {
-        if (notificationProvider.loading) {
-          return const SliverFillRemaining(
-            child: Center(
+      body: notificationProvider.loading
+          ? const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  Color(0xFFB21132),
-                ),
+                    AppTheme.colorPrimary),
               ),
-            ),
-          );
-        }
-
-        if (notificationProvider.notifications.isEmpty) {
-          return SliverFillRemaining(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    PhosphorIcons.bellSlash(PhosphorIconsStyle.fill),
-                    size: 80,
-                    color: Colors.grey[300],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No hay notificaciones',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Cuando recibas notificaciones,\naparecerán aquí',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 14,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final notification = notificationProvider.notifications[index];
-                return _buildNotificationCard(notification, index);
-              },
-              childCount: notificationProvider.notifications.length,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildNotificationCard(NotificationModel notification, int index) {
-    // Map notification types to icons
-    IconData getIconForType(String tipo) {
-      switch (tipo) {
-        case 'like':
-          return PhosphorIcons.heart(PhosphorIconsStyle.fill);
-        case 'comentario':
-          return PhosphorIcons.chatCircleText(PhosphorIconsStyle.fill);
-        case 'seguir':
-          return PhosphorIcons.userPlus(PhosphorIconsStyle.fill);
-        case 'invitacion':
-          return PhosphorIcons.envelope(PhosphorIconsStyle.fill);
-        case 'publicacion':
-          return PhosphorIcons.notebook(PhosphorIconsStyle.fill);
-        case 'mencion':
-          return PhosphorIcons.at(PhosphorIconsStyle.fill);
-        case 'sistema':
-          return PhosphorIcons.info(PhosphorIconsStyle.fill);
-        default:
-          return PhosphorIcons.bell(PhosphorIconsStyle.fill);
-      }
-    }
-    
-    // Map notification types to colors
-    Color getColorForType(String tipo) {
-      switch (tipo) {
-        case 'like':
-          return const Color(0xFFB21132);
-        case 'comentario':
-          return const Color(0xFF1E3A8A);
-        case 'seguir':
-          return const Color(0xFF059669);
-        case 'invitacion':
-          return const Color(0xFF7C3AED);
-        case 'publicacion':
-          return const Color(0xFFF59E0B);
-        case 'mencion':
-          return const Color(0xFFEC4899);
-        case 'sistema':
-          return const Color(0xFF6B7280);
-        default:
-          return const Color(0xFFB21132);
-      }
-    }
-    
-    final icon = getIconForType(notification.tipo);
-    final color = getColorForType(notification.tipo);
-
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.08),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${notification.titulo}: ${notification.mensaje}')),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      notification.titulo,
-                      style: const TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+            )
+          : notificationProvider.notifications.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.notifications_off_outlined,
+                        size: 64,
+                        color: AppTheme.colorTextSecondary.withOpacity(0.5),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      notification.mensaje,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          PhosphorIcons.clock(PhosphorIconsStyle.regular),
-                          size: 12,
-                          color: Colors.grey[400],
+                      const SizedBox(height: 16),
+                      Text(
+                        'No hay notificaciones',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppTheme.colorTextSecondary,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatTimeAgo(notification.fechaCreacion),
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 12,
-                            color: Colors.grey[500],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Cuando recibas notificaciones, aparecerán aquí',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.colorTextSecondary.withOpacity(0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : CustomScrollView(
+                  slivers: [
+                    if (notificationProvider.notifications.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Hoy',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall
+                                    ?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.colorPrimary
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${notificationProvider.notifications.length} nuevas',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.colorPrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final notification =
+                              notificationProvider.notifications[index];
+                          return _buildNotificationItem(
+                            context,
+                            notification,
+                            index,
+                          );
+                        },
+                        childCount:
+                            notificationProvider.notifications.length,
+                      ),
                     ),
                   ],
                 ),
+    );
+  }
+
+  Widget _buildNotificationItem(
+    BuildContext context,
+    NotificationModel notification,
+    int index,
+  ) {
+    final iconData = _getNotificationIcon(index);
+    final color = _getNotificationColor(index);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Notificación: $notification'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.colorSurface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppTheme.colorBorder,
               ),
-              Icon(
-                PhosphorIcons.caretRight(PhosphorIconsStyle.regular),
-                color: Colors.grey[300],
-                size: 20,
-              ),
-            ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    iconData,
+                    color: color,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        notification.titulo,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Hace ${index + 1} ${index == 0 ? 'minuto' : 'minutos'}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.colorTextSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  IconData _getNotificationIcon(int index) {
+    final icons = [
+      Icons.favorite_outline,
+      Icons.chat_bubble_outline,
+      Icons.person_add_outlined,
+      Icons.notification_important_outlined,
+      Icons.trending_up,
+    ];
+    return icons[index % icons.length];
+  }
+
+  Color _getNotificationColor(int index) {
+    final colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      AppTheme.colorPrimary,
+      Colors.amber,
+    ];
+    return colors[index % colors.length];
   }
 }

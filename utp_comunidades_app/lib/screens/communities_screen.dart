@@ -79,13 +79,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () =>
-            Navigator.of(context).pushNamed('/create_community'),
-        icon: const Icon(Icons.add),
-        label: const Text('Nueva'),
-        backgroundColor: AppTheme.colorPrimary,
-      ),
       body: Column(
         children: [
           // Buscador
@@ -216,17 +209,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: () =>
-                              Navigator.of(context).pushNamed(
-                                  '/create_community'),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Crear una'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.colorPrimary,
-                          ),
-                        ),
                       ],
                     ),
                   );
@@ -292,24 +274,37 @@ class CommunityCardGrid extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.colorSurface,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        boxShadow: [AppTheme.shadowCard],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           // Icono de comunidad circular
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Container(
-              width: 60,
-              height: 60,
+              width: 70,
+              height: 70,
               decoration: BoxDecoration(
                 color: _getColorForCommunity(community.id),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: _getColorForCommunity(community.id).withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Icon(
                 _getIconForCommunity(community.id),
                 color: AppTheme.colorTextWhite,
-                size: 32,
+                size: 36,
               ),
             ),
           ),
@@ -322,7 +317,7 @@ class CommunityCardGrid extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: AppTheme.fontSizeSm,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: AppTheme.colorTextPrimary,
                 height: 1.3,
               ),
@@ -349,34 +344,41 @@ class CommunityCardGrid extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: SizedBox(
               width: double.infinity,
-              height: 34,
-              child: OutlinedButton(
-                onPressed: () {
-                  Provider.of<CommunityProvider>(context, listen: false)
-                      .joinCommunity(community.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Te uniste a ${community.nombre}'),
-                      duration: const Duration(seconds: 2),
+              height: 40,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    Provider.of<CommunityProvider>(context, listen: false)
+                        .joinCommunity(community.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Te uniste a ${community.nombre}'),
+                        behavior: SnackBarBehavior.floating,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppTheme.colorPrimary,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                    color: AppTheme.colorPrimary,
-                    width: 1.5,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                ),
-                child: Text(
-                  'Unirse',
-                  style: TextStyle(
-                    fontSize: AppTheme.fontSizeSm,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.colorPrimary,
+                    child: const Center(
+                      child: Text(
+                        'Unirse',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.colorPrimary,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

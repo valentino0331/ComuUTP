@@ -14,9 +14,18 @@ class User {
   final bool esPremium;
   final DateTime? premiumHasta;
   final bool puedeCrearComunidad;
-  final int? asistenciasVerificadas;
+  final String? role; // 'user' or 'admin'
   final DateTime? fechaCreacion;
   final bool esAdmin;
+
+  // Preferencias y privacidad
+  final bool? notificacionesActivas;
+  final bool? emailNotificaciones;
+  final bool? notificacionesMenciones;
+  final bool? modoOscuro;
+  final bool? privacidadPerfilPublico;
+  final bool? privacidadMostrarEmail;
+  final String? idioma;
 
   User({
     required this.id,
@@ -34,9 +43,16 @@ class User {
     this.esPremium = false,
     this.premiumHasta,
     this.puedeCrearComunidad = false,
-    this.asistenciasVerificadas,
+    this.role,
     this.fechaCreacion,
     this.esAdmin = false,
+    this.notificacionesActivas,
+    this.emailNotificaciones,
+    this.notificacionesMenciones,
+    this.modoOscuro,
+    this.privacidadPerfilPublico,
+    this.privacidadMostrarEmail,
+    this.idioma,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -58,11 +74,18 @@ class User {
           ? DateTime.parse(json['premium_hasta']) 
           : null,
       puedeCrearComunidad: json['puede_crear_comunidad'] ?? json['puedeCrearComunidad'] ?? false,
-      asistenciasVerificadas: json['asistencias_verificadas'] ?? json['asistenciasVerificadas'] ?? 0,
+      role: json['role'] ?? 'user',
       fechaCreacion: json['fecha_creacion'] != null 
           ? DateTime.parse(json['fecha_creacion']) 
           : null,
-      esAdmin: json['es_admin'] ?? json['esAdmin'] ?? false,
+      esAdmin: (json['role'] == 'admin') || (json['es_admin'] ?? json['esAdmin'] ?? false),
+      notificacionesActivas: json['notificaciones_activas'],
+      emailNotificaciones: json['email_notificaciones'],
+      notificacionesMenciones: json['notificaciones_menciones'],
+      modoOscuro: json['modo_oscuro'],
+      privacidadPerfilPublico: json['privacidad_perfil_publico'],
+      privacidadMostrarEmail: json['privacidad_mostrar_email'],
+      idioma: json['idioma'],
     );
   }
 
@@ -83,7 +106,14 @@ class User {
       'es_premium': esPremium,
       'premium_hasta': premiumHasta?.toIso8601String(),
       'puede_crear_comunidad': puedeCrearComunidad,
-      'asistencias_verificadas': asistenciasVerificadas,
+      'role': role,
+      'notificaciones_activas': notificacionesActivas,
+      'email_notificaciones': emailNotificaciones,
+      'notificaciones_menciones': notificacionesMenciones,
+      'modo_oscuro': modoOscuro,
+      'privacidad_perfil_publico': privacidadPerfilPublico,
+      'privacidad_mostrar_email': privacidadMostrarEmail,
+      'idioma': idioma,
     };
   }
 }

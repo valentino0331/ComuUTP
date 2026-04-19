@@ -111,7 +111,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           ),
           IconButton(
             icon: const Icon(PhosphorIcons.dotsThreeVertical, color: Colors.white70),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Funcionalidad en desarrollo')), // Aquí puedes implementar acción real
+              );
+            },
           ),
         ],
       ),

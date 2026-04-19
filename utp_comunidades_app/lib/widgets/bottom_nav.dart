@@ -248,7 +248,11 @@ class _BottomNavState extends State<BottomNav>
   Widget _buildCenterButton() {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/create_post');
+        if (widget.onCreateTap != null) {
+          widget.onCreateTap!();
+        } else {
+          Navigator.pushNamed(context, '/create_post');
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

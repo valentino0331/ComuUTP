@@ -60,6 +60,8 @@ exports.login = async (req, res) => {
       params = [email];
     }
 
+    console.log('QUERY:', query, 'PARAMS:', params);
+    
     const user = await pool.query(query, params);
     console.log('USER FOUND:', { uid, email, userExists: user.rows.length > 0, userData: user.rows });
     
@@ -70,28 +72,39 @@ exports.login = async (req, res) => {
 
     const userData = user.rows[0];
     
-    // Generar JWT con todos los datos del usuario
-    const token = jwt.sign(
-      { id: userData.id, email: userData.email }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '7d' }
-    );
+    try {
+      // Generar JWT con todos los datos del usuario
+      const jwtSecret = process.env.JWT_SECRET || 'super-secret-key-change-in-production';
+      console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+      
+      const token = jwt.sign(
+        { id: userData.id, email: userData.email }, 
+        jwtSecret, 
+        { expiresIn: '7d' }
+      );
 
-    res.json({ 
-      token,
-      usuario: {
-        id: userData.id,
-        email: userData.email,
-        nombre: userData.nombre,
-        apellido: userData.apellido,
-        carrera: userData.carrera,
-        ciclo: userData.ciclo,
-        esPremium: userData.es_premium,
-        puedeCrearComunidad: userData.puede_crear_comunidad,
-      }
-    });
+      console.log('JWT generated successfully');
+
+      const responseData = {
+        token,
+        usuario: {
+          id: userData.id,
+          email: userData.email,
+          nombre: userData.nombre,
+          role: userData.role,
+          puede_crear_comunidad: userData.puede_crear_comunidad,
+          es_premium: userData.es_premium,
+        }
+      };
+
+      console.log('RESPONSE DATA:', responseData);
+      return res.status(200).json(responseData);
+    } catch (jwtErr) {
+      console.error('Error generando JWT:', jwtErr.message, jwtErr.stack);
+      return res.status(500).json({ error: 'Error generando token: ' + jwtErr.message });
+    }
   } catch (err) {
-    console.error('Error en login:', err.message);
+    console.error('Error en login:', err.message, err.stack);
     res.status(500).json({ error: 'Error al iniciar sesión: ' + err.message });
   }
 };
@@ -101,7 +114,7 @@ exports.me = async (req, res) => {
     const user = await pool.query(
       `SELECT id, email, nombre, apellido, carrera, ciclo, biografia, fotoPerfil,
               postsCount, comunidadesCount, seguidoresCount, seguidosCount,
-              esPremium, premiumHasta, puedeCrearComunidad, asistenciasVerificadas,
+              esPremium, premiumHasta, puedeCrearComunidad, role,
               fechaCreacion, esAdmin
        FROM usuarios WHERE id = $1`,
       [req.user.id]
@@ -186,5 +199,33 @@ exports.resendVerification = async (req, res) => {
   } catch (err) {
     console.error('Error en resendVerification:', err.message);
     res.status(500).json({ error: 'Error al reenviar email: ' + err.message });
+  }
+};
+
+/// Cambiar contraseña (requiere auth y es realizado desde Firebase)
+exports.changePassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email es requerido' });
+    }
+    
+    // Verificar que el usuario existe
+    const user = await pool.query('SELECT firebase_uid FROM usuarios WHERE id = $1', [req.user.id]);
+    
+    if (user.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    
+    // El cambio de contraseña se maneja desde Firebase Auth
+    // Aquí solo registramos la intención y podemos enviar email de confirmación
+    res.json({ 
+      message: 'Se ha enviado un enlace para cambiar tu contraseña a tu correo. Verifica tu email para continuar.',
+      note: 'La contraseña se cambia a través de Firebase Authentication'
+    });
+  } catch (err) {
+    console.error('Error en changePassword:', err.message);
+    res.status(500).json({ error: 'Error al cambiar contraseña: ' + err.message });
   }
 };

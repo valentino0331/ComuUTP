@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/community_provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/attendance_provider.dart';
 
 class CreateCommunityScreen extends StatefulWidget {
   const CreateCommunityScreen({super.key});
@@ -219,7 +218,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildAttendanceRequirement(),
+            _buildPermissionCard(),
             const SizedBox(height: 16),
             _buildTermsBanner(),
             const SizedBox(height: 24),
@@ -358,6 +357,74 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
             value: _isPrivate,
             onChanged: (v) => setState(() => _isPrivate = v),
             activeColor: colorPrimario,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPermissionCard() {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+    final hasPermission = user != null && (user.puedeCrearComunidad == true || user.esPremium == true);
+
+    return _buildCard(
+      title: 'Permisos',
+      icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.fill),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: hasPermission ? Colors.green.withAlpha(25) : Colors.amber.withAlpha(25),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: hasPermission ? Colors.green.withAlpha(77) : Colors.amber.withAlpha(77),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  hasPermission
+                      ? PhosphorIcons.checkCircle(PhosphorIconsStyle.fill)
+                      : PhosphorIcons.warning(PhosphorIconsStyle.fill),
+                  color: hasPermission ? Colors.green : Colors.amber,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hasPermission
+                            ? '✓ Tienes permiso para crear comunidades'
+                            : '✗ No tienes permiso para crear comunidades',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: hasPermission ? Colors.green[700] : Colors.amber[800],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        hasPermission
+                            ? user!.esPremium == true 
+                                ? 'Miembro premium - acceso completo'
+                                : 'Permiso otorgado por administrador'
+                            : 'Contacta a un administrador para obtener permiso',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          color: hasPermission ? Colors.green[600] : Colors.amber[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -608,18 +675,15 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
 
   Future<void> _createCommunity() async {
     if (_formKey.currentState!.validate()) {
-      // Verificar asistencias o premium
+      // Verificar permisos
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final attendanceProvider = Provider.of<AttendanceProvider>(context, listen: false);
-      
       final user = authProvider.user;
-      final canCreate = user?.esPremium == true || 
-                        attendanceProvider.canCreateCommunity ||
-                        (user?.puedeCrearComunidad == true);
+      
+      final canCreate = user != null && 
+                        (user.esPremium == true || user.puedeCrearComunidad == true);
       
       if (!canCreate) {
-        final remaining = attendanceProvider.remainingAttendances;
-        _showNeedAttendancesDialog(remaining);
+        _showPermissionDialog();
         return;
       }
       
@@ -662,32 +726,23 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
     }
   }
 
-  void _showNeedAttendancesDialog(int remaining) {
+  void _showPermissionDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(PhosphorIcons.lockKey(PhosphorIconsStyle.fill), color: Colors.orange),
+            Icon(PhosphorIcons.lockKey(PhosphorIconsStyle.fill), color: Colors.red),
             const SizedBox(width: 8),
-            const Text('Asistencias requeridas'),
+            const Text('Permiso requerido'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Necesitas 6 asistencias verificadas para crear una comunidad.',
+              'No tienes permiso para crear comunidades. Contacta a un administrador o actualiza a Premium.',
               style: const TextStyle(fontFamily: 'Montserrat'),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Te faltan $remaining asistencias.',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w700,
-                color: Colors.orange[800],
-              ),
             ),
             const SizedBox(height: 16),
             Container(
@@ -697,7 +752,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                'Ve a tu perfil y selecciona "Verificar asistencias" para subir tus evidencias.',
+                'Los administradores pueden otorgarte acceso a través del panel de administración.',
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   fontSize: 12,
@@ -709,18 +764,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/submit_attendance');
-            },
-            icon: Icon(PhosphorIcons.checkCircle(PhosphorIconsStyle.fill)),
-            label: const Text('Verificar asistencias'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB21132),
-            ),
+            child: const Text('Entendido'),
           ),
         ],
       ),

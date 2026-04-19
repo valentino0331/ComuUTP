@@ -23,4 +23,7 @@ router.get('/me', authMiddleware, authController.me);
 router.get('/verify-email', authController.verifyEmail);
 router.post('/resend-verification', authController.resendVerification);
 
+// Password management
+router.post('/change-password', authMiddleware, authController.changePassword);
+
 module.exports = router;

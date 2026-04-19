@@ -1,45 +1,7 @@
-// CORS FIX v5 - Force redeploy - Added forced headers middleware
-const express = require('express');
-const cors = require('cors');
-
-const app = express();
-
-// Handle OPTIONS preflight globally (MUST be first!)
-app.options('*', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.status(200).send();
-});
-
-// CORS global - permitir TODOS los orígenes
-app.use(cors({
-  origin: '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
-
-// Force CORS headers on EVERY response (middleware)
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-
+const app = require('./app');
 const initDatabase = require('./src/config/db-init');
 const { logger } = require('./src/utils/logger');
 const { LOG_MESSAGES } = require('./src/utils/constants');
-const routes = require('./src/routes');
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-// Cargar rutas después del CORS
-app.use('/api', routes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -47,47 +9,35 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 /**
  * Validar variables de entorno requeridas
- * Soporta DATABASE_URL (Neon) o variables individuales (local)
  */
 const validateEnvironment = () => {
-  // Verificar que tengamos DATABASE_URL o las variables individuales
-  const hasDatabaseUrl = !!process.env.DATABASE_URL;
-  const hasIndividualDb = !!(
-    process.env.DB_HOST && 
-    process.env.DB_USER && 
-    process.env.DB_PASSWORD && 
-    process.env.DB_NAME
-  );
+  // Aceptar DATABASE_URL O variables individuales
+  const hasIndividualVars = process.env.DB_HOST && process.env.DB_PORT && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME;
+  const hasDatabaseUrl = process.env.DATABASE_URL;
   
-  if (!hasDatabaseUrl && !hasIndividualDb) {
-    logger.error('ServerInit', 'Variables de entorno de base de datos faltantes', null, {
-      error: 'Se requiere DATABASE_URL o DB_HOST/DB_USER/DB_PASSWORD/DB_NAME'
+  if (!hasIndividualVars && !hasDatabaseUrl) {
+    const required = [
+      'DB_HOST',
+      'DB_PORT',
+      'DB_USER',
+      'DB_PASSWORD',
+      'DB_NAME',
+    ];
+    logger.error('ServerInit', 'Variables de entorno faltantes', null, {
+      missing: required.join(', ')
     });
-    console.error('❌ Error: Variables de entorno de base de datos faltantes');
-    console.error('   Opción 1 (Neon): DATABASE_URL=postgresql://...');
-    console.error('   Opción 2 (Local): DB_HOST, DB_USER, DB_PASSWORD, DB_NAME');
+    console.error('❌ Error: Variables de entorno requeridas faltantes:');
+    console.error(`   ${required.join(', ')} O DATABASE_URL`);
+    console.error('   Copiar .env.example a .env y completar los valores');
     process.exit(1);
   }
-  
-  // Verificar JWT_SECRET
+
+  // JWT_SECRET es opcional, usar default si no está
   if (!process.env.JWT_SECRET) {
-    logger.error('ServerInit', 'JWT_SECRET faltante');
-    console.error('❌ Error: JWT_SECRET es requerido');
-    process.exit(1);
+    console.warn('⚠️  JWT_SECRET no definido, usando valor por defecto (cambiar en producción)');
   }
 
-  // Validar JWT_SECRET en producción
-  if (process.env.JWT_SECRET.length < 32 && NODE_ENV === 'production') {
-    logger.warn('ServerInit', 'JWT_SECRET muy corto', {
-      nodeEnv: NODE_ENV,
-      length: process.env.JWT_SECRET.length
-    });
-    console.warn('⚠️  Advertencia: JWT_SECRET muy corto en producción (mínimo 32 caracteres)');
-  }
-
-  logger.debug('Environment', 'Validación de variables completada', {
-    usingNeon: hasDatabaseUrl
-  });
+  logger.debug('Environment', 'Validación de variables completada');
 };
 
 /**

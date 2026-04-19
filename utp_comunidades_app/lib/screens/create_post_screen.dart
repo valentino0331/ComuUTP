@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../providers/post_provider.dart';
 import '../providers/community_provider.dart';
 
@@ -13,10 +15,49 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _imagePicker = ImagePicker();
   String contenido = '';
   int? comunidadId;
   bool loading = false;
   String? error;
+  File? _selectedImage;
+  String? _imageFileName;
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+          _imageFileName = pickedFile.name;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Imagen seleccionada: ${pickedFile.name}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al seleccionar imagen: $e')),
+        );
+      }
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _selectedImage = null;
+      _imageFileName = null;
+    });
+  }
 
   Future<void> createPost() async {
     if (comunidadId == null) {
@@ -100,7 +141,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget _buildForm(List communities) {
     return Card(
       elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -222,23 +263,70 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 children: [
                   _buildAttachmentButton(
                     icon: PhosphorIcons.image(PhosphorIconsStyle.regular),
-                    label: 'Imagen',
-                    onTap: () {},
-                  ),
-                  const SizedBox(width: 12),
-                  _buildAttachmentButton(
-                    icon: PhosphorIcons.link(PhosphorIconsStyle.regular),
-                    label: 'Link',
-                    onTap: () {},
+                    label: 'Galería',
+                    onTap: () => _pickImage(ImageSource.gallery),
                   ),
                   const SizedBox(width: 12),
                   _buildAttachmentButton(
                     icon: PhosphorIcons.camera(PhosphorIconsStyle.regular),
                     label: 'Cámara',
-                    onTap: () {},
+                    onTap: () => _pickImage(ImageSource.camera),
                   ),
+                  const SizedBox(width: 12),
+                  if (_selectedImage != null)
+                    _buildAttachmentButton(
+                      icon: PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                      label: 'Limpiar',
+                      onTap: _removeImage,
+                    ),
                 ],
               ),
+              
+              // Preview de imagen seleccionada
+              if (_selectedImage != null) ...[
+                const SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[100],
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      children: [
+                        Image.file(
+                          _selectedImage!,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              _imageFileName ?? 'Imagen',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontFamily: 'Montserrat',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               
               const SizedBox(height: 24),
               
@@ -247,7 +335,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

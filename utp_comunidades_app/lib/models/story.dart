@@ -3,44 +3,38 @@ class Story {
   final int usuarioId;
   final String? nombreUsuario;
   final String? fotoPerfil;
-  final String tipoContenido; // 'imagen', 'video', 'texto'
-  final String? urlContenido;
-  final String? textoContenido;
-  final String? colorFondo;
-  final DateTime createdAt;
-  final DateTime expiraAt;
-  final int viewCount;
-  final bool hasViewed;
+  final String imagenUrl;
+  final String? contenido;
+  final DateTime fechaCreacion;
+  final DateTime fechaExpiracion;
+  final int totalVistas;
+  final bool yaVisto;
 
   Story({
     required this.id,
     required this.usuarioId,
     this.nombreUsuario,
     this.fotoPerfil,
-    required this.tipoContenido,
-    this.urlContenido,
-    this.textoContenido,
-    this.colorFondo,
-    required this.createdAt,
-    required this.expiraAt,
-    this.viewCount = 0,
-    this.hasViewed = false,
+    required this.imagenUrl,
+    this.contenido,
+    required this.fechaCreacion,
+    required this.fechaExpiracion,
+    this.totalVistas = 0,
+    this.yaVisto = false,
   });
 
   factory Story.fromJson(Map<String, dynamic> json) {
     return Story(
-      id: json['id'],
-      usuarioId: json['usuario_id'],
-      nombreUsuario: json['nombre_usuario'],
-      fotoPerfil: json['foto_perfil'],
-      tipoContenido: json['tipo_contenido'] ?? 'imagen',
-      urlContenido: json['url_contenido'],
-      textoContenido: json['texto_contenido'],
-      colorFondo: json['color_fondo'],
-      createdAt: DateTime.parse(json['created_at']),
-      expiraAt: DateTime.parse(json['expira_at']),
-      viewCount: json['view_count'] ?? 0,
-      hasViewed: json['has_viewed'] ?? false,
+      id: json['id'] as int,
+      usuarioId: json['usuario_id'] as int,
+      nombreUsuario: json['nombre_usuario'] as String?,
+      fotoPerfil: json['foto_perfil'] as String?,
+      imagenUrl: json['imagen_url'] as String,
+      contenido: json['contenido'] as String?,
+      fechaCreacion: DateTime.parse(json['fecha_creacion'] as String),
+      fechaExpiracion: DateTime.parse(json['fecha_expiracion'] as String),
+      totalVistas: json['total_vistas'] as int? ?? 0,
+      yaVisto: json['ya_visto'] as bool? ?? false,
     );
   }
 
@@ -50,20 +44,19 @@ class Story {
       'usuario_id': usuarioId,
       'nombre_usuario': nombreUsuario,
       'foto_perfil': fotoPerfil,
-      'tipo_contenido': tipoContenido,
-      'url_contenido': urlContenido,
-      'texto_contenido': textoContenido,
-      'color_fondo': colorFondo,
-      'created_at': createdAt.toIso8601String(),
-      'expira_at': expiraAt.toIso8601String(),
-      'view_count': viewCount,
+      'imagen_url': imagenUrl,
+      'contenido': contenido,
+      'fecha_creacion': fechaCreacion.toIso8601String(),
+      'fecha_expiracion': fechaExpiracion.toIso8601String(),
+      'total_vistas': totalVistas,
+      'ya_visto': yaVisto,
     };
   }
 
-  bool get isExpired => DateTime.now().isAfter(expiraAt);
+  bool get isExpired => DateTime.now().isAfter(fechaExpiracion);
   
   String get timeRemaining {
-    final remaining = expiraAt.difference(DateTime.now());
+    final remaining = fechaExpiracion.difference(DateTime.now());
     if (remaining.inHours > 0) {
       return '${remaining.inHours}h restantes';
     } else if (remaining.inMinutes > 0) {
@@ -71,5 +64,62 @@ class Story {
     } else {
       return 'Expira pronto';
     }
+  }
+}
+
+class StoryUser {
+  final int usuarioId;
+  final String nombreUsuario;
+  final String? fotoPerfil;
+  final List<Story> historias;
+
+  StoryUser({
+    required this.usuarioId,
+    required this.nombreUsuario,
+    this.fotoPerfil,
+    required this.historias,
+  });
+
+  factory StoryUser.fromJson(Map<String, dynamic> json) {
+    return StoryUser(
+      usuarioId: json['usuario_id'] as int,
+      nombreUsuario: json['nombre_usuario'] as String,
+      fotoPerfil: json['foto_perfil'] as String?,
+      historias: (json['historias'] as List)
+          .map((h) => Story.fromJson(h as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'usuario_id': usuarioId,
+      'nombre_usuario': nombreUsuario,
+      'foto_perfil': fotoPerfil,
+      'historias': historias.map((h) => h.toJson()).toList(),
+    };
+  }
+}
+
+class Viewer {
+  final int usuarioId;
+  final String nombre;
+  final String? fotoPerfil;
+  final DateTime fechaVista;
+
+  Viewer({
+    required this.usuarioId,
+    required this.nombre,
+    this.fotoPerfil,
+    required this.fechaVista,
+  });
+
+  factory Viewer.fromJson(Map<String, dynamic> json) {
+    return Viewer(
+      usuarioId: json['usuario_id'] as int,
+      nombre: json['nombre'] as String,
+      fotoPerfil: json['foto_perfil'] as String?,
+      fechaVista: DateTime.parse(json['fecha_vista'] as String),
+    );
   }
 }

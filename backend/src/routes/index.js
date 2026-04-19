@@ -10,5 +10,7 @@ router.use('/likes', require('./like.routes'));
 router.use('/reports', require('./report.routes'));
 router.use('/ban', require('./ban.routes'));
 router.use('/notifications', require('./notification.routes'));
+router.use('/stories', require('./story.routes'));
+router.use('/admin', require('./admin.routes'));
 
 module.exports = router;

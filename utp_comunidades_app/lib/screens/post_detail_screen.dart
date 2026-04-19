@@ -134,7 +134,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(PhosphorIcons.flag, color: Colors.white70),
+            icon: const Icon(Icons.flag_outlined, color: Colors.white70),
             onPressed: reportPost,
           ),
         ],

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
+import '../providers/post_provider.dart';
+import '../providers/community_provider.dart';
+import '../providers/follower_provider.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -41,6 +45,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     final user = widget.user;
     final currentUser = context.watch<AuthProvider>().user;
     final isCurrentUser = currentUser?.id == user.id;
+    final postProvider = context.watch<PostProvider>();
+    final communityProvider = context.watch<CommunityProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -96,17 +102,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 IconButton(
                   icon: Icon(
-                    PhosphorIcons.uploadSimple(PhosphorIconsStyle.bold),
-                    color: Colors.red,
-                  ),
-                  tooltip: 'Subir evidencias',
-                  onPressed: () => Navigator.pushNamed(context, '/submit_attendance'),
-                ),
-                IconButton(
-                  icon: Icon(
                     PhosphorIcons.list(PhosphorIconsStyle.bold),
                     color: Colors.black,
                   ),
+                  tooltip: 'Menú de usuario',
                   onPressed: () => _showSettingsMenu(context),
                 ),
               ],
@@ -130,11 +129,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             // Botones de acción (Editar perfil / Seguir)
             SliverToBoxAdapter(
               child: _buildActionButtons(user, isCurrentUser),
-            ),
-
-            // Indicador de comunidades
-            SliverToBoxAdapter(
-              child: _buildCommunitiesIndicator(user),
             ),
 
             // TabBar (Posts / Comunidades / Compartidos)
@@ -175,8 +169,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildPostsGrid(user),
-            _buildCommunitiesList(user),
+            _buildPostsGrid(context, user, postProvider),
+            _buildCommunitiesList(context, user, communityProvider),
             _buildSharedPosts(user),
           ],
         ),
@@ -186,22 +180,29 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildProfileHeader(User user, bool isCurrentUser) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Column(
         children: [
-          // Avatar simplificado
+          // Avatar mejorado
           Container(
-            width: 90,
-            height: 90,
+            width: 140,
+            height: 140,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                 color: user.esPremium ? const Color(0xFFB21132) : Colors.transparent,
-                width: 3,
+                width: 4,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: CircleAvatar(
-              radius: 43,
+              radius: 70,
               backgroundColor: Colors.grey[200],
               backgroundImage: user.fotoPerfil != null
                   ? NetworkImage(user.fotoPerfil!)
@@ -213,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           : 'U',
                       style: const TextStyle(
                         fontFamily: 'Montserrat',
-                        fontSize: 36,
+                        fontSize: 48,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFFB21132),
                       ),
@@ -221,82 +222,72 @@ class _ProfileScreenState extends State<ProfileScreen>
                   : null,
             ),
           ),
-          const SizedBox(width: 16),
-          // Info de usuario
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '@${user.email.split('@').first.toLowerCase()}',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+          const SizedBox(height: 20),
+          // User info
+          Column(
+            children: [
+              // Nombre - más grande y prominente
+              Text(
+                user.nombre,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
                 ),
-                const SizedBox(height: 4),
-                if (user.esPremium)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFB21132).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          PhosphorIcons.crown(PhosphorIconsStyle.fill),
-                          size: 12,
-                          color: const Color(0xFFB21132),
-                        ),
-                        const SizedBox(width: 4),
-                        const Text(
-                          'Premium',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFB21132),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (!user.puedeCrearComunidad && !user.esPremium)
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/submit_attendance'),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              // Username/Email
+              Text(
+                '@${user.email.split('@').first.toLowerCase()}',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Badges
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (user.esPremium)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
+                        color: const Color(0xFFB21132).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: const Color(0xFFB21132).withOpacity(0.3),
+                          width: 1,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            PhosphorIcons.lockKey(PhosphorIconsStyle.fill),
-                            size: 10,
-                            color: Colors.orange[800],
+                            PhosphorIcons.crown(PhosphorIconsStyle.fill),
+                            size: 14,
+                            color: const Color(0xFFB21132),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${6 - (user.asistenciasVerificadas ?? 0)} asistencias para comunidades',
+                          const SizedBox(width: 6),
+                          const Text(
+                            'Premium',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
-                              fontSize: 9,
-                              color: Colors.orange[800],
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFB21132),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -305,26 +296,37 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildStatsRow(User user) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStatColumn(
-            user.seguidosCount?.toString() ?? '0',
-            'Siguiendo',
-            () => _showFollowersList(context, 'Siguiendo'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.grey[200]!, width: 1),
+            bottom: BorderSide(color: Colors.grey[200]!, width: 1),
           ),
-          _buildStatColumn(
-            user.seguidoresCount?.toString() ?? '0',
-            'Seguidores',
-            () => _showFollowersList(context, 'Seguidores'),
-          ),
-          _buildStatColumn(
-            '0',
-            'Me gusta',
-            () {},
-          ),
-        ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildStatColumn(
+              user.seguidosCount?.toString() ?? '0',
+              'Siguiendo',
+              () => _showFollowersList(context, 'Siguiendo'),
+            ),
+            Container(width: 1, height: 40, color: Colors.grey[200]),
+            _buildStatColumn(
+              user.seguidoresCount?.toString() ?? '0',
+              'Seguidores',
+              () => _showFollowersList(context, 'Seguidores'),
+            ),
+            Container(width: 1, height: 40, color: Colors.grey[200]),
+            _buildStatColumn(
+              '0',
+              'Me gusta',
+              () {},
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -403,107 +405,158 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildActionButtons(User user, bool isCurrentUser) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
         children: [
-          if (isCurrentUser) ...[
+          if (isCurrentUser)
             Expanded(
-              flex: 4,
-              child: OutlinedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditProfileScreen(user: user)),
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFB21132), width: 2),
                 ),
-                icon: Icon(PhosphorIcons.pencilSimple(PhosphorIconsStyle.bold), size: 16),
-                label: const Text(
-                  'Editar perfil',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  side: BorderSide(color: Colors.grey[300]!),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  side: BorderSide(color: Colors.grey[300]!),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-                child: Icon(PhosphorIcons.userPlus(PhosphorIconsStyle.bold), size: 16),
-              ),
-            ),
-          ] else ...[
-            Expanded(
-              flex: 4,
-              child: _isFollowing
-                  ? OutlinedButton(
-                      onPressed: () => setState(() => _isFollowing = false),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        side: BorderSide(color: Colors.grey[300]!),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditProfileScreen(user: user)),
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          PhosphorIcons.pencilSimple(PhosphorIconsStyle.bold),
+                          size: 18,
+                          color: const Color(0xFFB21132),
                         ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Editar perfil',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: Color(0xFFB21132),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else ...[
+            Expanded(
+              flex: 4,
+              child: !_isFollowing
+                  ? Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFFB21132),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFB21132).withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Siguiendo',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() => _isFollowing = true);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Ahora sigues a este usuario'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: const Center(
+                            child: Text(
+                              'Seguir',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     )
-                  : ElevatedButton(
-                      onPressed: () => setState(() => _isFollowing = true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB21132),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
+                  : Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[300]!, width: 1),
                       ),
-                      child: const Text(
-                        'Seguir',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() => _isFollowing = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Has dejado de seguir a este usuario'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: const Center(
+                            child: Text(
+                              'Siguiendo',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  side: BorderSide(color: Colors.grey[300]!),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!, width: 1),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Funcionalidad de mensajes directos próximamente'),
+                        behavior: SnackBarBehavior.floating,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Center(
+                    child: Icon(
+                      PhosphorIcons.userPlus(PhosphorIconsStyle.bold),
+                      size: 20,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
-                child: Icon(PhosphorIcons.caretDown(PhosphorIconsStyle.bold), size: 16),
               ),
             ),
           ],
@@ -512,69 +565,18 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildCommunitiesIndicator(User user) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
-            size: 18,
-            color: Colors.grey[600],
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${user.comunidadesCount ?? 0} comunidades',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 13,
-                color: Colors.grey[700],
-              ),
-            ),
-          ),
-          if (!user.puedeCrearComunidad && !user.esPremium)
-            GestureDetector(
-              onTap: () => _showUpgradeToPremiumDialog(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB21132),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'Obtener Premium',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPostsGrid(User user) {
-    final List<Map<String, dynamic>> mockPosts = [];
-
-    if (mockPosts.isEmpty) {
+  Widget _buildPostsGrid(BuildContext context, User user, PostProvider postProvider) {
+    final posts = postProvider.posts.where((p) => p.usuarioId == user.id).toList();
+    if (postProvider.loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (posts.isEmpty) {
       return _buildEmptyState(
         icon: PhosphorIcons.camera(PhosphorIconsStyle.bold),
         title: 'Aún no hay publicaciones',
         subtitle: '¡Empieza a compartir tus ideas!',
       );
     }
-
     return GridView.builder(
       padding: const EdgeInsets.all(1),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -583,31 +585,26 @@ class _ProfileScreenState extends State<ProfileScreen>
         crossAxisSpacing: 1,
         mainAxisSpacing: 1,
       ),
-      itemCount: mockPosts.length,
+      itemCount: posts.length,
       itemBuilder: (context, index) {
-        final post = mockPosts[index];
+        final post = posts[index];
         return GestureDetector(
-          onTap: () {},
+          onTap: () {
+            Navigator.pushNamed(context, '/post_detail', arguments: post);
+          },
           child: Container(
             color: Colors.grey[200],
             child: Stack(
               fit: StackFit.expand,
               children: [
-                post['hasImage']
-                    ? Container(
-                        color: Colors.grey[300],
-                        child: Icon(
-                          PhosphorIcons.image(PhosphorIconsStyle.regular),
-                          color: Colors.grey[500],
-                          size: 32,
-                        ),
-                      )
+                (post.contenido.isNotEmpty && post.contenido.startsWith('http'))
+                    ? Image.network(post.contenido, fit: BoxFit.cover)
                     : Container(
                         color: const Color(0xFFB21132).withOpacity(0.1),
                         padding: const EdgeInsets.all(8),
                         child: Center(
                           child: Text(
-                            'Post de texto...',
+                            post.contenido,
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 11,
@@ -644,7 +641,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${post['likes']}',
+                          '${post.likes ?? 0}',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.white,
@@ -659,7 +656,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${post['comments']}',
+                          '${post.comentarios ?? 0}',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.white,
@@ -678,22 +675,23 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildCommunitiesList(User user) {
-    final mockCommunities = [];
-
-    if (mockCommunities.isEmpty) {
+  Widget _buildCommunitiesList(BuildContext context, User user, CommunityProvider communityProvider) {
+    final communities = communityProvider.communities.where((c) => c.esMiembro ?? false).toList();
+    if (communityProvider.loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (communities.isEmpty) {
       return _buildEmptyState(
         icon: PhosphorIcons.usersThree(PhosphorIconsStyle.bold),
         title: 'Aún no hay comunidades',
         subtitle: 'Únete o crea una comunidad',
       );
     }
-
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: mockCommunities.length,
+      itemCount: communities.length,
       itemBuilder: (context, index) {
-        final community = mockCommunities[index];
+        final community = communities[index];
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
@@ -703,9 +701,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Color(community['color'] as int),
+              backgroundColor: Colors.grey[400],
               child: Text(
-                (community['name'] as String).substring(0, 1),
+                community.nombre.isNotEmpty ? community.nombre[0].toUpperCase() : 'C',
                 style: const TextStyle(
                   fontFamily: 'Montserrat',
                   color: Colors.white,
@@ -714,14 +712,14 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
             title: Text(
-              community['name'] as String,
+              community.nombre,
               style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
-              community['role'] as String,
+              'Miembro',
               style: TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 12,
@@ -732,6 +730,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
               color: Colors.grey[400],
             ),
+            onTap: () {
+              Navigator.pushNamed(context, '/community_detail', arguments: community);
+            },
           ),
         );
       },
@@ -756,6 +757,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 16),
@@ -767,6 +769,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 fontWeight: FontWeight.w600,
                 color: Colors.grey[600],
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
@@ -785,69 +788,118 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _showFollowersList(BuildContext context, String type) {
+    final followerProvider = Provider.of<FollowerProvider>(context, listen: false);
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) {
-          return Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
+      builder: (context) {
+        // Cargar datos según el tipo
+        if (type == 'Seguidores') {
+          followerProvider.fetchFollowers(widget.user.id);
+        } else {
+          followerProvider.fetchFollowing(widget.user.id);
+        }
+
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  type,
-                  style: const TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(height: 16),
+                  Text(
+                    type,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.grey[200],
-                          child: Text('U$index'),
-                        ),
-                        title: Text('Usuario $index'),
-                        subtitle: Text('@usuario$index'),
-                        trailing: OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black87,
-                            side: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          child: const Text('Seguir'),
-                        ),
-                      );
-                    },
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: Consumer<FollowerProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.loading) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        final list = type == 'Seguidores' 
+                            ? provider.followers 
+                            : provider.following;
+
+                        if (list.isEmpty) {
+                          return _buildEmptyState(
+                            icon: PhosphorIcons.users(PhosphorIconsStyle.fill),
+                            title: 'Sin $type',
+                            subtitle: 'Aún no hay $type',
+                          );
+                        }
+
+                        return ListView.builder(
+                          controller: scrollController,
+                          itemCount: list.length,
+                          itemBuilder: (context, index) {
+                            final follower = list[index];
+                            final nombre = type == 'Seguidores'
+                                ? follower.seguidorNombre
+                                : follower.seguidoNombre;
+                            final fotoPerfil = type == 'Seguidores'
+                                ? follower.seguidorFotoPerfil
+                                : follower.seguidoFotoPerfil;
+
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.grey[200],
+                                backgroundImage: fotoPerfil != null
+                                    ? NetworkImage(fotoPerfil)
+                                    : null,
+                                child: fotoPerfil == null
+                                    ? Icon(PhosphorIcons.user(), color: Colors.grey[400],)
+                                    : null,
+                              ),
+                              title: Text(
+                                nombre ?? 'Usuario',
+                                style: const TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              trailing: OutlinedButton(
+                                onPressed: () {},
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.black87,
+                                  side: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                child: const Text('Seguir'),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -1301,68 +1353,246 @@ class _ProfileScreenState extends State<ProfileScreen>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
     
-    showGeneralDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      barrierColor: Colors.black.withOpacity(0.5),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Stack(
-          children: [
-            // Fondo semitransparente para cerrar al tocar fuera
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                color: Colors.transparent,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 20),
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
-            ),
-            // Drawer lateral
-            AnimatedBuilder(
-              animation: animation,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(-300 * (1 - animation.value), 0),
-                  child: child,
-                );
-              },
-              child: Container(
-                width: 300,
-                height: double.infinity,
-                color: Colors.white,
-                child: SafeArea(
+              
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: const Text(
+                  'Configuración',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Contenido - Single child scroll
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header con info del usuario
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFFB21132),
-                              Color(0xFFD32F5A),
-                            ],
+                      // SECCIÓN: Cuenta
+                      _buildSettingsSection(
+                        title: 'Cuenta',
+                        items: [
+                          (
+                            icon: PhosphorIcons.bell(PhosphorIconsStyle.bold),
+                            title: 'Notificaciones',
+                            subtitle: 'Gestiona tus alertas',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/notifications');
+                            },
                           ),
-                        ),
+                          (
+                            icon: PhosphorIcons.lock(PhosphorIconsStyle.bold),
+                            title: 'Cambiar contraseña',
+                            subtitle: 'Actualiza tu seguridad',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showChangePasswordDialog(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
+                      // SECCIÓN: Privacidad y Seguridad
+                      _buildSettingsSection(
+                        title: 'Privacidad y Seguridad',
+                        items: [
+                          (
+                            icon: PhosphorIcons.shield(PhosphorIconsStyle.bold),
+                            title: 'Privacidad',
+                            subtitle: 'Controla quién te ve',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showPrivacyDialog(context);
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.fingerprint(PhosphorIconsStyle.bold),
+                            title: 'Autenticación',
+                            subtitle: 'Autenticación de dos factores',
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Funcionalidad próximamente'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
+                      // SECCIÓN: Información
+                      _buildSettingsSection(
+                        title: 'Información',
+                        items: [
+                          (
+                            icon: PhosphorIcons.notepad(PhosphorIconsStyle.bold),
+                            title: 'Términos y Condiciones',
+                            subtitle: 'Lee nuestros términos',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showTermsDialog(context);
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.bookOpen(PhosphorIconsStyle.bold),
+                            title: 'Política de Privacidad',
+                            subtitle: 'Protegemos tus datos',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showPrivacyDialog(context);
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.question(PhosphorIconsStyle.bold),
+                            title: 'Ayuda y Soporte',
+                            subtitle: 'Preguntas frecuentes',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showHelpDialog(context);
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.info(PhosphorIconsStyle.bold),
+                            title: 'Acerca de',
+                            subtitle: 'Versión 1.0.0',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showAboutDialog(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
+                      // SECCIÓN: Peligro
+                      _buildSettingsSection(
+                        title: 'Peligro',
+                        color: Colors.red,
+                        items: [
+                          (
+                            icon: PhosphorIcons.signOut(PhosphorIconsStyle.bold),
+                            title: 'Cerrar sesión',
+                            subtitle: 'Salir de tu cuenta',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showLogoutDialog(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsSection({
+    required String title,
+    required List<({
+      IconData icon,
+      String title,
+      String subtitle,
+      VoidCallback onTap,
+    })> items,
+    Color color = const Color(0xFFB21132),
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: color,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!, width: 1),
+          ),
+          child: Column(
+            children: List.generate(
+              items.length,
+              (index) => Column(
+                children: [
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: items[index].onTap,
+                      borderRadius: index == 0
+                          ? const BorderRadius.vertical(top: Radius.circular(11))
+                          : index == items.length - 1
+                              ? const BorderRadius.vertical(bottom: Radius.circular(11))
+                              : BorderRadius.zero,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
                             Container(
-                              width: 60,
-                              height: 60,
+                              width: 44,
+                              height: 44,
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 3),
-                                color: Colors.white,
+                                color: color.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
+                              child: Center(
                                 child: Icon(
-                                  PhosphorIcons.user(PhosphorIconsStyle.fill),
-                                  color: const Color(0xFFB21132),
-                                  size: 30,
+                                  items[index].icon,
+                                  size: 22,
+                                  color: color,
                                 ),
                               ),
                             ),
@@ -1372,268 +1602,195 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    user?.nombre ?? 'Usuario',
+                                    items[index].title,
                                     style: const TextStyle(
                                       fontFamily: 'Montserrat',
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    user?.email ?? '',
+                                    items[index].subtitle,
                                     style: TextStyle(
                                       fontFamily: 'Montserrat',
-                                      fontSize: 13,
-                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.grey[500],
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                              onPressed: () => Navigator.pop(context),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.grey[400],
                             ),
                           ],
                         ),
                       ),
-                      
-                      // Título Configuración
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                        child: Text(
-                          'Configuración',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.grey[900],
-                            decoration: TextDecoration.none,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ),
-                      
-                      // Opciones del menú con scroll
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Column(
-                            children: [
-                              _buildDrawerItem(
-                                icon: Icon(
-                                  PhosphorIcons.bell(PhosphorIconsStyle.bold),
-                                  color: const Color(0xFFB21132),
-                                  size: 24,
-                                ),
-                                title: 'Notificaciones',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(context, '/notifications');
-                                },
-                              ),
-                              
-                              const SizedBox(height: 8),
-                            
-                              _buildDrawerItem(
-                                icon: Icon(
-                                  PhosphorIcons.shield(PhosphorIconsStyle.bold),
-                                  color: const Color(0xFFB21132),
-                                  size: 24,
-                                ),
-                                title: 'Privacidad',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  _showPrivacyDialog(context);
-                                },
-                              ),
-                              
-                              const SizedBox(height: 8),
-                            
-                              _buildDrawerItem(
-                                icon: Icon(
-                                  PhosphorIcons.notepad(PhosphorIconsStyle.bold),
-                                  color: const Color(0xFFB21132),
-                                  size: 24,
-                                ),
-                                title: 'Términos y Condiciones',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  _showTermsDialog(context);
-                                },
-                              ),
-                              
-                              const SizedBox(height: 8),
-                            
-                              _buildDrawerItem(
-                                icon: Icon(
-                                  PhosphorIcons.info(PhosphorIconsStyle.bold),
-                                  color: const Color(0xFFB21132),
-                                  size: 24,
-                                ),
-                                title: 'Acerca de',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  _showAboutDialog(context);
-                                },
-                              ),
-                              
-                              const SizedBox(height: 8),
-                            
-                              _buildDrawerItem(
-                                icon: Icon(
-                                  PhosphorIcons.question(PhosphorIconsStyle.bold),
-                                  color: const Color(0xFFB21132),
-                                  size: 24,
-                                ),
-                                title: 'Ayuda',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  _showHelpDialog(context);
-                                },
-                              ),
-                              
-                              const SizedBox(height: 12),
-                              Divider(
-                                height: 1,
-                                color: Colors.grey[200],
-                              ),
-                              const SizedBox(height: 12),
-                            
-                              _buildDrawerItem(
-                                icon: Icon(
-                                  PhosphorIcons.signOut(PhosphorIconsStyle.bold),
-                                  color: Colors.red,
-                                  size: 24,
-                                ),
-                                title: 'Cerrar sesión',
-                                color: Colors.red,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  _showLogoutDialog(context);
-                                },
-                              ),
-                              
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ),
-                      
-                      // Footer versión
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border(top: BorderSide(color: Colors.grey[200]!, width: 1)),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: Text(
-                            'Comunidades UTP v1.0.0',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[400],
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  if (index < items.length - 1)
+                    Divider(
+                      height: 1,
+                      color: Colors.grey[200],
+                      indent: 76,
+                      endIndent: 16,
+                    ),
+                ],
               ),
             ),
-          ],
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(-1, 0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          )),
-          child: child,
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildDrawerItem({
-    required Widget icon,
-    required String title,
-    required VoidCallback onTap,
-    String? subtitle,
-    Color color = const Color(0xFFB21132),
-    bool isAdmin = false,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: isAdmin ? const Color(0xFFB21132) : color.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(child: icon),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: isAdmin ? const Color(0xFFB21132) : Colors.grey[800],
-          ),
-        ),
-        subtitle: subtitle != null
-            ? Text(
-                subtitle,
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 12,
-                  color: Colors.grey[500],
-                ),
-              )
-            : null,
-        trailing: isAdmin
-            ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB21132),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'ADMIN',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Cambiar Contraseña'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: currentPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Contraseña actual',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              )
-            : null,
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        visualDensity: VisualDensity.compact,
-      ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Nueva contraseña',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Confirmar contraseña',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (newPasswordController.text != confirmPasswordController.text) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Las contraseñas no coinciden'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (newPasswordController.text.length < 6) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('La contraseña debe tener al menos 6 caracteres'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setState(() => isLoading = true);
+
+                      try {
+                        // Firebase password change
+                        final user = firebase_auth.FirebaseAuth.instance.currentUser;
+                        if (user != null && user.email != null) {
+                          // Re-authenticate user
+                          final credential = firebase_auth.EmailAuthProvider.credential(
+                            email: user.email!,
+                            password: currentPasswordController.text,
+                          );
+
+                          await user.reauthenticateWithCredential(credential);
+
+                          // Update password
+                          await user.updatePassword(newPasswordController.text);
+
+                          if (!context.mounted) return;
+                          Navigator.pop(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Contraseña actualizada exitosamente'),
+                              backgroundColor: Colors.green,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } on firebase_auth.FirebaseAuthException catch (e) {
+                        if (!context.mounted) return;
+                        setState(() => isLoading = false);
+
+                        String errorMessage = 'Error al cambiar la contraseña';
+                        if (e.code == 'wrong-password') {
+                          errorMessage = 'Contraseña actual incorrecta';
+                        } else if (e.code == 'weak-password') {
+                          errorMessage = 'La contraseña es muy débil';
+                        }
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(errorMessage),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB21132),
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('Cambiar', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1663,156 +1820,490 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _showAboutDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Acerca de'),
-        content: const SingleChildScrollView(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Comunidades UTP',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-              SizedBox(height: 8),
-              Text('Versión 1.0.0'),
-              SizedBox(height: 16),
-              Text(
-                'Una plataforma para estudiantes de UTP donde puedes compartir experiencias, conectar con otros estudiantes e intercambiar información.',
+              const SizedBox(height: 24),
+              Center(
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFB21132), Color(0xFFD32F5A)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      PhosphorIcons.info(PhosphorIconsStyle.fill),
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
               ),
-              SizedBox(height: 16),
-              Text(
-                '© 2024 UTP. Todos los derechos reservados.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              const SizedBox(height: 20),
+              Center(
+                child: Column(
+                  children: [
+                    const Text(
+                      'Comunidades UTP',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB21132).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Versión 1.0.0',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFB21132),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 24),
+              const Text(
+                'Acerca de',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Una plataforma revolucionaria para estudiantes de UTP donde puedes compartir experiencias, conectar con otros estudiantes, intercambiar información y construir comunidades sólidas.',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 13,
+                  color: Colors.grey,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Desarrollador',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'UTP Dev Team',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Última actualización',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Abril 2026',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: Text(
+                  '© 2024-2026 UTP. Todos los derechos reservados.',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 11,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
       ),
     );
   }
 
   void _showPrivacyDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Privacidad'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Controla quién puede ver tu perfil y tus publicaciones',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Perfil Público'),
-                subtitle: const Text('Cualquiera puede ver tu perfil'),
-                value: true,
-                onChanged: (value) {},
-                contentPadding: EdgeInsets.zero,
-              ),
-              SwitchListTile(
-                title: const Text('Publicaciones Públicas'),
-                subtitle: const Text('Todos pueden ver tus posts'),
-                value: true,
-                onChanged: (value) {},
-                contentPadding: EdgeInsets.zero,
-              ),
-              SwitchListTile(
-                title: const Text('Permitir Mensajes'),
-                subtitle: const Text('Otros usuarios pueden contactarte'),
-                value: true,
-                onChanged: (value) {},
-                contentPadding: EdgeInsets.zero,
-              ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 16),
-              const Text(
-                'Bloqueados',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text('No tienes usuarios bloqueados'),
-            ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Privacidad y Seguridad',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Controla quién puede ver tu perfil y contenido',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Configuración de Perfil',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildPrivacySwitch(
+                        title: 'Perfil Público',
+                        subtitle: 'Cualquiera puede descubrir y ver tu perfil',
+                        value: true,
+                        onChanged: (v) => setState(() {}),
+                      ),
+                      Divider(height: 1, color: Colors.grey[200]),
+                      _buildPrivacySwitch(
+                        title: 'Publicaciones Públicas',
+                        subtitle: 'Todos pueden ver tus posts y comentarios',
+                        value: true,
+                        onChanged: (v) => setState(() {}),
+                      ),
+                      Divider(height: 1, color: Colors.grey[200]),
+                      _buildPrivacySwitch(
+                        title: 'Permitir Mensajes',
+                        subtitle: 'Otros usuarios pueden enviarte mensajes directos',
+                        value: true,
+                        onChanged: (v) => setState(() {}),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Bloqueados',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'No tienes usuarios bloqueados',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Configuración de privacidad guardada'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFB21132),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Guardar',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
       ),
     );
   }
 
+  Widget _buildPrivacySwitch({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required Function(bool) onChanged,
+  }) {
+    return SwitchListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 12,
+          color: Colors.grey[600],
+        ),
+      ),
+      value: value,
+      activeColor: const Color(0xFFB21132),
+      onChanged: onChanged,
+    );
+  }
+
   void _showTermsDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Términos y Condiciones'),
-        content: SingleChildScrollView(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                '1. Aceptación de Términos',
-                style: TextStyle(fontWeight: FontWeight.bold),
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Al usar Comunidades UTP, aceptas estos términos y condiciones.',
+              const SizedBox(height: 24),
+              const Text(
+                'Términos y Condiciones',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
               ),
-              SizedBox(height: 16),
-              Text(
-                '2. Comportamiento del Usuario',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 24),
+              _buildTermSection(
+                title: '1. Aceptación de Términos',
+                content: 'Al usar Comunidades UTP, aceptas completamente estos términos y condiciones. Si no estás de acuerdo, por favor no utilices la plataforma.',
               ),
-              SizedBox(height: 8),
-              Text(
-                'No debes crear contenido ofensivo, discriminatorio o que viole los derechos de terceros.',
+              _buildTermSection(
+                title: '2. Comportamiento del Usuario',
+                content: 'No debes crear contenido ofensivo, discriminatorio, ilegal o que viole los derechos de terceros. Somos tolerantes cero con el acoso y el abuso.',
               ),
-              SizedBox(height: 16),
-              Text(
-                '3. Responsabilidad',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              _buildTermSection(
+                title: '3. Responsabilidad',
+                content: 'Eres responsable de todo contenido que publiques. No nos hacemos responsables por daños causados por tu uso de la plataforma.',
               ),
-              SizedBox(height: 8),
-              Text(
-                'El usuario es responsable de todo contenido que publique en la plataforma.',
+              _buildTermSection(
+                title: '4. Privacidad',
+                content: 'Tu información será protegida y procesada de acuerdo con nuestra política de privacidad. Solo usamos tus datos para mejorar tu experiencia.',
               ),
-              SizedBox(height: 16),
-              Text(
-                '4. Privacidad',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              _buildTermSection(
+                title: '5. Cambios en los Términos',
+                content: 'Nos reservamos el derecho de modificar estos términos. Te notificaremos sobre cambios importantes mediante la aplicación.',
               ),
-              SizedBox(height: 8),
-              Text(
-                'Tu información será protegida de acuerdo con nuestra política de privacidad.',
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFB21132),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Entendido',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Entendido'),
+      ),
+    );
+  }
+
+  Widget _buildTermSection({
+    required String title,
+    required String content,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content,
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 13,
+              color: Colors.grey[700],
+              height: 1.6,
+            ),
           ),
         ],
       ),
@@ -1820,59 +2311,165 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _showHelpDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Preguntas Frecuentes'),
-        content: SingleChildScrollView(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                '¿Cómo crear una comunidad?',
-                style: TextStyle(fontWeight: FontWeight.bold),
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Ve a la sección de Comunidades y selecciona "Crear Comunidad". Completa los detalles y listo.',
+              const SizedBox(height: 24),
+              const Text(
+                'Preguntas Frecuentes',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
               ),
-              SizedBox(height: 16),
-              Text(
-                '¿Cómo hacer una publicación?',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 24),
+              _buildFAQItem(
+                title: '¿Cómo crear una comunidad?',
+                content: 'Ve a la sección de Comunidades, presiona el botón "+" y completa los detalles de tu comunidad. Elige un nombre único, descripción y foto de portada.',
+                icon: PhosphorIcons.usersThree(PhosphorIconsStyle.bold),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Presiona el botón "+" en la barra de navegación inferior para crear un nuevo post.',
+              _buildFAQItem(
+                title: '¿Cómo hacer una publicación?',
+                content: 'Presiona el botón "+" en la barra de navegación inferior. Escribe tu contenido, agrega fotos, videos o enlaces, y presiona "Publicar".',
+                icon: PhosphorIcons.pencil(PhosphorIconsStyle.bold),
               ),
-              SizedBox(height: 16),
-              Text(
-                '¿Cómo seguir a usuarios?',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              _buildFAQItem(
+                title: '¿Cómo seguir a usuarios?',
+                content: 'Visita el perfil del usuario que deseas seguir y presiona el botón "Seguir". Verás sus publicaciones en tu feed.',
+                icon: PhosphorIcons.userPlus(PhosphorIconsStyle.bold),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Visita el perfil del usuario y presiona el botón "Seguir".',
+              _buildFAQItem(
+                title: '¿Cómo reportar contenido?',
+                content: 'Presiona los tres puntos en cualquier publicación o perfil, selecciona "Reportar" y describe el problema. Nuestro equipo lo revisará rápidamente.',
+                icon: PhosphorIcons.flag(PhosphorIconsStyle.bold),
               ),
-              SizedBox(height: 16),
-              Text(
-                '¿Cómo reportar contenido?',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              _buildFAQItem(
+                title: '¿Cómo cambiar mi privacidad?',
+                content: 'En la configuración, selecciona "Privacidad y Seguridad" para controlar quién puede ver tu perfil, publicaciones y mensajes.',
+                icon: PhosphorIcons.shield(PhosphorIconsStyle.bold),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Presiona los tres puntos en cualquier post o perfil y selecciona "Reportar".',
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB21132).withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFB21132).withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      PhosphorIcons.lightbulb(PhosphorIconsStyle.fill),
+                      color: const Color(0xFFB21132),
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '¿Necesitas más ayuda? Contacta a soporte a través de la app o envía un correo a support@utp.edu.pe',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          color: Colors.grey[700],
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
+      ),
+    );
+  }
+
+  Widget _buildFAQItem({
+    required String title,
+    required String content,
+    required IconData icon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFB21132).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      color: const Color(0xFFB21132),
+                      size: 18,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              content,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 13,
+                color: Colors.grey[700],
+                height: 1.6,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
