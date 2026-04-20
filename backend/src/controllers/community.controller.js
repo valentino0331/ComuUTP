@@ -119,19 +119,30 @@ exports.getMyCommunities = async (req, res) => {
 };
 
 exports.join = async (req, res) => {
+  console.log('JOIN ENDPOINT - Raw body:', JSON.stringify(req.body));
+  console.log('JOIN ENDPOINT - Headers:', req.headers);
   const { comunidad_id } = req.body;
+  
   try {
-    console.log('JOIN COMMUNITY:', { userId: req.user.id, comunidad_id });
+    console.log('JOIN COMMUNITY:', { userId: req.user.id, comunidad_id, bodyKeys: Object.keys(req.body) });
     
     if (!comunidad_id) {
-      return res.status(400).json({ error: 'ID de comunidad es requerido' });
+      console.error('❌ VALIDATION FAILED: comunidad_id is missing or invalid', { comunidad_id, type: typeof comunidad_id });
+      return res.status(400).json({ error: 'ID de comunidad es requerido', received: { comunidad_id, keys: Object.keys(req.body) } });
     }
 
+    console.log('✅ Validación OK. Buscando comunidad ID:', comunidad_id);
+    
     // Verificar que la comunidad exista
     const comunidad = await pool.query('SELECT * FROM comunidades WHERE id = $1', [comunidad_id]);
+    console.log('Community query result:', comunidad.rows.length, 'rows');
+    
     if (comunidad.rows.length === 0) {
+      console.error('❌ Community not found:', comunidad_id);
       return res.status(404).json({ error: 'Comunidad no encontrada' });
     }
+
+    console.log('✅ Community found:', comunidad.rows[0].nombre);
 
     // Verificar que no ya sea miembro
     const existingMember = await pool.query(
@@ -140,8 +151,11 @@ exports.join = async (req, res) => {
     );
 
     if (existingMember.rows.length > 0) {
+      console.warn('⚠️ User already member:', { userId: req.user.id, comunidad_id });
       return res.status(400).json({ error: 'Ya eres miembro de esta comunidad' });
     }
+
+    console.log('✅ User is not yet a member. Adding...');
 
     // Agregar como miembro
     const result = await pool.query(
@@ -149,13 +163,16 @@ exports.join = async (req, res) => {
       [req.user.id, comunidad_id]
     );
 
+    console.log('✅ Member inserted:', result.rows[0]);
+
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', 
       [req.user.id, 'unirse_comunidad', `Comunidad: ${comunidad_id}`]);
 
-    console.log('USER JOINED COMMUNITY:', result.rows[0]);
+    console.log('✅ USER JOINED COMMUNITY:', result.rows[0]);
     res.status(201).json({ message: 'Unido a la comunidad', miembro: result.rows[0] });
   } catch (err) {
-    console.error('Error joining community:', err.message);
+    console.error('❌ ERROR joining community:', err.message, err.code);
+    console.error('Stack:', err.stack);
     res.status(500).json({ error: 'Error al unirse a la comunidad', details: err.message });
   }
 };
