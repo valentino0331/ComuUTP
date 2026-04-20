@@ -61,13 +61,14 @@ class _HomeScreenState extends State<HomeScreen> {
           'LUTP',
           style: TextStyle(
             fontFamily: 'Montserrat',
-            fontSize: 26,
+            fontSize: 32,
             fontWeight: FontWeight.w900,
+            letterSpacing: 2.5,
             color: Colors.white,
           ),
         ),
       ),
-      centerTitle: false,
+      centerTitle: true,
       actions: [
         IconButton(
           icon: const Icon(Icons.favorite_border,
