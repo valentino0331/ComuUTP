@@ -46,25 +46,45 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Build AppBar con degradado profesional azul/morado
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      elevation: 0,
+      elevation: 2,
       backgroundColor: Colors.white,
-      title: ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: [
-            const Color(0xFFB21132), // Rojo primario
-            const Color(0xFFA00D24), // Rojo oscuro
+      title: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFB21132).withValues(alpha: 0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ).createShader(bounds),
-        child: const Text(
-          'LUTP',
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontSize: 32,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2.5,
-            color: Colors.white,
+        ),
+        child: ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [
+              const Color(0xFFB21132), // Rojo primario
+              const Color(0xFFA00D24), // Rojo oscuro
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: const Text(
+            'LUTP',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 36,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 3.2,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Color(0xFF2C0B14),
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
           ),
         ),
       ),
