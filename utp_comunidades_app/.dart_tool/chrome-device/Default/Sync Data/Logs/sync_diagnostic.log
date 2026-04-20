@@ -438,3 +438,21 @@
 2026-04-19 23:37:27.001: [INFO][SyncEngineBackend::DoStartSyncing] Start syncing
 2026-04-19 23:41:21.976: [INFO][Sync] Reset engine, reason: 0
 2026-04-19 23:41:21.976: [INFO][Sync] Reset engine with reason: 0
+2026-04-20 00:04:45.965: [INFO][Sync] SyncState after authenticated was: FeatureCanStart
+2026-04-20 00:04:47.543: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-20 00:04:47.543: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-20 00:04:47.543: [INFO][Sync] Credentials changed for: EdgeSyncKeyDataScope
+2026-04-20 00:04:51.589: [INFO][Sync] Try to start sync engine
+2026-04-20 00:04:51.601: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-20 00:04:51.601: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-20 00:04:51.601: [INFO][Sync] Credentials changed for: EdgeSyncScopeNew
+2026-04-20 00:04:51.603: [INFO][SyncManagerImpl::NudgeForInitialDownload] Initial download nudge for Encryption Keys
+2026-04-20 00:04:51.603: [INFO][SyncEngineBackend::LoadAndConnectNigoriController] Load and connect Nigori controller
+2026-04-20 00:04:51.604: [INFO][SyncEngineBackend::DoInitialize] Control Types added: Encryption Keys
+2026-04-20 00:04:51.604: [INFO][SyncManagerImpl::ConfigureSyncer] Types to download: Encryption Keys with reason: 3
+2026-04-20 00:04:51.604: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-20 00:04:51.605: [INFO][SyncEngineBackend::DoUpdateCredentials] Update credentials
+2026-04-20 00:04:51.605: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-20 00:04:51.605: [INFO][SyncSchedulerImpl::DoConfigurationSyncCycleJob] Blocked types:  and types to download: Encryption Keys
+2026-04-20 00:09:41.378: [INFO][Sync] Reset engine, reason: 0
+2026-04-20 00:09:41.378: [INFO][Sync] Reset engine with reason: 0

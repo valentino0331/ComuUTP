@@ -112,17 +112,34 @@ exports.login = async (req, res) => {
 exports.me = async (req, res) => {
   try {
     const user = await pool.query(
-      `SELECT id, email, nombre, apellido, carrera, ciclo, biografia, fotoPerfil,
+      `SELECT id, email, nombre, apellido, carrera, ciclo, biografia, foto_perfil,
               postsCount, comunidadesCount, seguidoresCount, seguidosCount,
-              esPremium, premiumHasta, puedeCrearComunidad, role,
-              fechaCreacion, esAdmin
+              es_premium, premium_hasta, puede_crear_comunidad, role,
+              created_at, es_admin
        FROM usuarios WHERE id = $1`,
       [req.user.id]
     );
     if (user.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    res.json(user.rows[0]);
+    
+    const userData = user.rows[0];
+    res.json({
+      id: userData.id,
+      email: userData.email,
+      nombre: userData.nombre,
+      apellido: userData.apellido,
+      carrera: userData.carrera,
+      ciclo: userData.ciclo,
+      biografia: userData.biografia,
+      fotoPerfil: userData.foto_perfil,
+      esPremium: userData.es_premium,
+      premiumHasta: userData.premium_hasta,
+      puedeCrearComunidad: userData.puede_crear_comunidad,
+      role: userData.role,
+      fechaCreacion: userData.created_at,
+      esAdmin: userData.es_admin || userData.role === 'admin'
+    });
   } catch (err) {
     console.error('Error en me:', err.message);
     res.status(500).json({ error: 'Error al obtener usuario: ' + err.message });

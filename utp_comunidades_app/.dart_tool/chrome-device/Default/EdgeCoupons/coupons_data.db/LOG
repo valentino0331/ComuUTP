@@ -1,9 +1,19 @@
-2026/04/19-18:37:37.456 58cc Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.77eb4f68\flutter_tools_chrome_device.9c940a06\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/19-18:37:37.457 58cc Recovering log #13
-2026/04/19-18:37:37.457 58cc Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.77eb4f68\flutter_tools_chrome_device.9c940a06\Default\EdgeCoupons/coupons_data.db/000013.log 
-2026/04/19-18:37:37.458 58cc Delete type=0 #4
-2026/04/19-18:37:37.458 58cc Delete type=0 #7
-2026/04/19-18:37:37.458 58cc Delete type=0 #10
-2026/04/19-18:37:37.617 4a14 Level-0 table #17: started
-2026/04/19-18:37:37.621 4a14 Level-0 table #17: 682280 bytes OK
-2026/04/19-18:37:37.622 4a14 Delete type=0 #13
+2026/04/19-19:04:53.026 30a4 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.43ce8cce\flutter_tools_chrome_device.d5e7ef9d\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/19-19:04:53.027 30a4 Recovering log #16
+2026/04/19-19:04:53.028 30a4 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.43ce8cce\flutter_tools_chrome_device.d5e7ef9d\Default\EdgeCoupons/coupons_data.db/000016.log 
+2026/04/19-19:04:53.028 30a4 Delete type=0 #4
+2026/04/19-19:04:53.028 30a4 Delete type=0 #7
+2026/04/19-19:04:53.028 30a4 Delete type=0 #10
+2026/04/19-19:04:53.028 30a4 Delete type=0 #13
+2026/04/19-19:04:58.870 5cb8 Level-0 table #20: started
+2026/04/19-19:04:58.874 5cb8 Level-0 table #20: 682280 bytes OK
+2026/04/19-19:04:58.876 5cb8 Delete type=0 #16
+2026/04/19-19:04:58.877 5cb8 Compacting 4@0 + 1@1 files
+2026/04/19-19:04:58.879 5cb8 Generated table #21@0: 4 keys, 682187 bytes
+2026/04/19-19:04:58.879 5cb8 Compacted 4@0 + 1@1 files => 682187 bytes
+2026/04/19-19:04:58.880 5cb8 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/19-19:04:58.881 5cb8 Delete type=2 #8
+2026/04/19-19:04:58.881 5cb8 Delete type=2 #11
+2026/04/19-19:04:58.881 5cb8 Delete type=2 #14
+2026/04/19-19:04:58.881 5cb8 Delete type=2 #17
+2026/04/19-19:04:58.881 5cb8 Delete type=2 #20
