@@ -43,50 +43,72 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Build AppBar con degradado profesional azul/morado
+  /// Build AppBar con rectángulo decorativo gris y LUTP enorme
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      elevation: 2,
+      elevation: 0,
       backgroundColor: Colors.white,
-      title: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFB21132).withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [
-              const Color(0xFFB21132), // Rojo primario
-              const Color(0xFFA00D24), // Rojo oscuro
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(bounds),
-          child: const Text(
-            'LUTP',
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 64,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 4.0,
-              color: Colors.white,
+      toolbarHeight: 280,
+      title: Stack(
+        children: [
+          // Rectángulo gris decorativo (como en captura 3)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 213,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+          // LUTP texto enorme centrado en el medio del rectángulo
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: [
+                    const Color(0xFFB21132),
+                    const Color(0xFFA00D24),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: const Text(
+                  'LUTP',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 72,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 4.5,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       centerTitle: true,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.favorite_border,
-              color: Colors.black87, size: 26),
-          onPressed: () {},
+        Padding(
+          padding: const EdgeInsets.only(right: 16, top: 60),
+          child: IconButton(
+            icon: const Icon(Icons.favorite_border,
+                color: Colors.black87, size: 26),
+            onPressed: () {},
+          ),
         ),
       ],
     );
