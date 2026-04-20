@@ -97,47 +97,17 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           ),
                           child: Column(
                             children: [
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 10),
                               
-                              // Ícono PROMINENTE - escalado al 89% del contenedor circular, eliminando marco blanco
-                              Container(
-                                height: 280,
-                                width: 280,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.95),
-                                      Colors.white.withValues(alpha: 0.85),
-                                    ],
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.15),
-                                      blurRadius: 24,
-                                      offset: const Offset(0, 12),
-                                      spreadRadius: 2,
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Image.asset(
-                                    'icon.png',
-                                    height: 250,
-                                    width: 250,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
+                              // Ícono PROMINENTE - sin círculo, tamaño gigante
+                              Image.asset(
+                                'icon.png',
+                                height: 440,
+                                width: 440,
+                                fit: BoxFit.contain,
                               ),
 
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 5),
 
                               // Etiqueta: Correo o Código UTP
                               const Align(
