@@ -1,5 +1,4 @@
-2026/04/19-19:37:06.942 333c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.32159f9\flutter_tools_chrome_device.44dd5e66\Default\Asset Store\assets.db/MANIFEST-000001
-2026/04/19-19:37:06.952 333c Recovering log #3
-2026/04/19-19:37:06.959 333c Level-0 table #3: started
-2026/04/19-19:37:06.988 333c Level-0 table #3: 338889 bytes OK
-2026/04/19-19:37:07.003 333c Delete type=0 #3
+2026/04/19-19:45:21.828 6c30 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.5b2f820d\flutter_tools_chrome_device.9e847821\Default\Asset Store\assets.db/MANIFEST-000001
+2026/04/19-19:45:21.835 6c30 Recovering log #4
+2026/04/19-19:45:21.838 6c30 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.5b2f820d\flutter_tools_chrome_device.9e847821\Default\Asset Store\assets.db/000004.log 
+2026/04/19-19:45:21.839 6c30 Delete type=0 #3

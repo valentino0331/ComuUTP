@@ -90,3 +90,18 @@
 2026-04-20 00:37:04.706: [INFO] BookmarkNodeAdded, ABU: 0
 2026-04-20 00:37:04.706: [INFO] BookmarkModelLoaded, ids_reassigned: 0
 2026-04-20 00:37:04.706: [INFO] OnDoneLoading sync enabled: 1
+2026-04-20 00:39:27.768: [INFO] VisibilityChanged: 0
+2026-04-20 00:39:27.929: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 00:39:27.930: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 00:39:27.931: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 00:39:27.931: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-20 00:39:27.931: [INFO] OnDoneLoading sync enabled: 0
+2026-04-20 00:39:28.491: [INFO] Primary account changed.
+2026-04-20 00:39:28.491: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-04-20 00:39:34.661: [INFO] Sync initialization duration: 6725ms
+2026-04-20 00:45:14.009: [INFO] VisibilityChanged: 0
+2026-04-20 00:45:14.139: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 00:45:14.140: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 00:45:14.140: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 00:45:14.140: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-20 00:45:14.140: [INFO] OnDoneLoading sync enabled: 1

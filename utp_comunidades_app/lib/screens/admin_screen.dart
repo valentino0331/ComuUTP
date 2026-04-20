@@ -485,7 +485,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
             PhosphorIconsRegular.chartPie,
             Colors.purple,
             () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Total: ${_stats['communities']} comunidades activas')),
+              SnackBar(content: Text('Total: ${_stats['communities']} comunidades activas')),
             ),
           ),
           _buildToolCard(

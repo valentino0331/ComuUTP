@@ -74,8 +74,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
               onPressed: _showCreateCommunity,
-              label: const Text('Crear Comunidad'),
-              icon: const Icon(Icons.add),
+              label: const Text(
+                'Crear Comunidad',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              icon: const Icon(Icons.add, color: Colors.white),
               backgroundColor: AppTheme.colorPrimary,
             )
           : null,
