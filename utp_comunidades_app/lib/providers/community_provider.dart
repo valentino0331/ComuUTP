@@ -38,11 +38,24 @@ class CommunityProvider with ChangeNotifier {
 
   Future<bool> joinCommunity(int comunidadId) async {
     final res = await ApiService.post('/communities/join', {'comunidad_id': comunidadId}, auth: true);
-    if (res.statusCode == 200) {
+    if (res.statusCode == 200 || res.statusCode == 201) {
       await fetchCommunities();
       return true;
     }
     return false;
+  }
+
+  Future<List<Community>> getMyCommunities() async {
+    try {
+      final res = await ApiService.get('/communities/my-communities', auth: true);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body)['comunidades'] as List;
+        return data.map((c) => Community.fromJson(c)).toList();
+      }
+    } catch (e) {
+      print('Error getting my communities: $e');
+    }
+    return [];
   }
 
   Future<bool> createCommunity(String nombre, String descripcion) async {

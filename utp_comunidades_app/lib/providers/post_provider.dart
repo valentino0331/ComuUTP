@@ -139,7 +139,7 @@ class PostProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final res = await ApiService.get('/posts');
+      final res = await ApiService.get('/posts', auth: true);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body)['publicaciones'] as List;
         _posts = data.map((p) => Post.fromJson(p)).toList();
@@ -147,6 +147,7 @@ class PostProvider with ChangeNotifier {
         _posts = [];
       }
     } catch (e) {
+      print('Error fetching posts: $e');
       _posts = [];
     }
     

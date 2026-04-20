@@ -676,64 +676,80 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildCommunitiesList(BuildContext context, User user, CommunityProvider communityProvider) {
-    final communities = communityProvider.communities.where((c) => c.esMiembro ?? false).toList();
-    if (communityProvider.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (communities.isEmpty) {
-      return _buildEmptyState(
-        icon: PhosphorIcons.usersThree(PhosphorIconsStyle.bold),
-        title: 'Aún no hay comunidades',
-        subtitle: 'Únete o crea una comunidad',
-      );
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: communities.length,
-      itemBuilder: (context, index) {
-        final community = communities[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.grey[400],
-              child: Text(
-                community.nombre.isNotEmpty ? community.nombre[0].toUpperCase() : 'C',
-                style: const TextStyle(
-                  fontFamily: 'Montserrat',
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+    return FutureBuilder<List<Community>>(
+      future: communityProvider.getMyCommunities(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        
+        if (snapshot.hasError) {
+          return _buildEmptyState(
+            icon: PhosphorIcons.warning(PhosphorIconsStyle.bold),
+            title: 'Error al cargar',
+            subtitle: 'No se pudieron cargar tus comunidades',
+          );
+        }
+
+        final communities = snapshot.data ?? [];
+        
+        if (communities.isEmpty) {
+          return _buildEmptyState(
+            icon: PhosphorIcons.usersThree(PhosphorIconsStyle.bold),
+            title: 'Aún no hay comunidades',
+            subtitle: 'Únete o crea una comunidad',
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: communities.length,
+          itemBuilder: (context, index) {
+            final community = communities[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.grey[400],
+                  child: Text(
+                    community.nombre.isNotEmpty ? community.nombre[0].toUpperCase() : 'C',
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
+                title: Text(
+                  community.nombre,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  'Miembro',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                trailing: Icon(
+                  PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
+                  color: Colors.grey[400],
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, '/community_detail', arguments: community);
+                },
               ),
-            ),
-            title: Text(
-              community.nombre,
-              style: const TextStyle(
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            subtitle: Text(
-              'Miembro',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-            trailing: Icon(
-              PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
-              color: Colors.grey[400],
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, '/community_detail', arguments: community);
-            },
-          ),
+            );
+          },
         );
       },
     );
