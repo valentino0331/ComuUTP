@@ -240,8 +240,27 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
+                    onPressed: () async {
+                      final result = await Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
+                      if (!context.mounted) return;
+                      
+                      if (result) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('¡Te uniste a la comunidad!'),
+                            backgroundColor: Colors.green,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Error al unirse a la comunidad'),
+                            backgroundColor: Colors.red,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.colorPrimary,
