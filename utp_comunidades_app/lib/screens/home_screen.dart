@@ -186,7 +186,9 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: postProvider.posts.length,
               itemBuilder: (context, index) {
                 final post = postProvider.posts[index];
-                final isAuthor = post.usuarioId == 1; // TODO: Usar usuario actual
+                final authProvider = context.read<AuthProvider>();
+                final currentUserId = authProvider.user?.id;
+                final isAuthor = post.usuarioId == currentUserId;
                 return PostCard(
                   post: post,
                   isAuthor: isAuthor,
@@ -614,10 +616,12 @@ class _StorySection extends StatelessWidget {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              itemCount: 8,
+              itemCount: 1, // Solo mostrar la opción de crear historia del usuario actual
               itemBuilder: (context, index) {
                 return StoryItem(
                   index: index,
+                  userName: 'Mi historia',
+                  isCurrentUser: true,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -639,16 +643,18 @@ class _StorySection extends StatelessWidget {
 class StoryItem extends StatelessWidget {
   final int index;
   final VoidCallback onTap;
+  final String userName;
+  final bool isCurrentUser;
 
   const StoryItem({
     required this.index,
     required this.onTap,
+    required this.userName,
+    this.isCurrentUser = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isFirstStory = index == 0;
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -668,17 +674,17 @@ class StoryItem extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isFirstStory
+                        color: isCurrentUser
                             ? const Color(0xFFB21132)
                             : const Color(0xFFB21132).withOpacity(0.3),
-                        width: isFirstStory ? 3 : 2,
+                        width: isCurrentUser ? 3 : 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isFirstStory
+                          color: isCurrentUser
                               ? const Color(0xFFB21132).withOpacity(0.3)
                               : Colors.black.withOpacity(0.08),
-                          blurRadius: isFirstStory ? 12 : 6,
+                          blurRadius: isCurrentUser ? 12 : 6,
                           offset: const Offset(0, 3),
                         ),
                       ],
@@ -690,7 +696,7 @@ class StoryItem extends StatelessWidget {
                     height: 90,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: isFirstStory
+                      gradient: isCurrentUser
                           ? LinearGradient(
                               colors: [
                                 const Color(0xFFED1C24).withOpacity(0.1),
@@ -708,15 +714,15 @@ class StoryItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          isFirstStory
+                          isCurrentUser
                               ? PhosphorIcons.plus(PhosphorIconsStyle.bold)
                               : PhosphorIcons.image(PhosphorIconsStyle.fill),
-                          color: isFirstStory
+                          color: isCurrentUser
                               ? const Color(0xFFB21132)
                               : Colors.grey[400],
-                          size: isFirstStory ? 40 : 32,
+                          size: isCurrentUser ? 40 : 32,
                         ),
-                        if (isFirstStory) ...[
+                        if (isCurrentUser) ...[
                           const SizedBox(height: 4),
                           Text(
                             'Crear',
@@ -731,21 +737,6 @@ class StoryItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Badge de online
-                  if (!isFirstStory)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.green,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -754,15 +745,15 @@ class StoryItem extends StatelessWidget {
           SizedBox(
             width: 96,
             child: Text(
-              isFirstStory ? 'Tu historia' : 'Usuario ${index}',
+              userName,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: isFirstStory ? 12 : 11,
+                fontSize: isCurrentUser ? 12 : 11,
                 fontFamily: 'Montserrat',
-                color: isFirstStory ? Colors.black87 : Colors.grey[600],
-                fontWeight: isFirstStory ? FontWeight.w700 : FontWeight.w500,
+                color: isCurrentUser ? Colors.black87 : Colors.grey[600],
+                fontWeight: isCurrentUser ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ),
@@ -905,6 +896,23 @@ class _PostHeader extends StatelessWidget {
     this.isAuthor = false,
   });
 
+  String _getTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inSeconds < 60) {
+      return 'Hace poco';
+    } else if (difference.inMinutes < 60) {
+      return 'Hace ${difference.inMinutes}m';
+    } else if (difference.inHours < 24) {
+      return 'Hace ${difference.inHours}h';
+    } else if (difference.inDays < 7) {
+      return 'Hace ${difference.inDays}d';
+    } else {
+      return 'Hace ${(difference.inDays / 7).floor()}s';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -930,7 +938,7 @@ class _PostHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  post.nombreUsuario ?? 'Usuario ${post.usuarioId}',
+                  post.nombreUsuario ?? 'Usuario',
                   style: const TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 14,
@@ -939,7 +947,7 @@ class _PostHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Hace 2 horas',
+                  _getTimeAgo(post.fecha),
                   style: TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 12,
@@ -949,46 +957,188 @@ class _PostHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (isAuthor)
-            PopupMenuButton(
-              icon: Icon(
-                PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
-                color: Colors.grey[600],
-                size: 20,
-              ),
-              itemBuilder: (BuildContext context) => [
+          PopupMenuButton(
+            icon: Icon(
+              PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
+              color: Colors.grey[600],
+              size: 20,
+            ),
+            itemBuilder: (BuildContext context) {
+              final items = <PopupMenuEntry>[];
+
+              // Opción de compartir (todos)
+              items.add(
                 PopupMenuItem(
                   child: Row(
                     children: [
                       Icon(
-                        PhosphorIcons.trash(PhosphorIconsStyle.regular),
-                        color: Colors.red,
+                        PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
+                        color: const Color(0xFFB21132),
                         size: 18,
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        'Eliminar',
+                        'Compartir',
                         style: TextStyle(
-                          color: Colors.red,
+                          color: Color(0xFFB21132),
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  onTap: onDeleteTap,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(
+                              PhosphorIcons.checkCircle(
+                                PhosphorIconsStyle.fill,
+                              ),
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              'Enlace copiado',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            )
-          else
-            IconButton(
-              icon: Icon(
-                PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
-                color: Colors.grey[600],
-                size: 20,
-              ),
-              onPressed: onMenuTap,
-            ),
+              );
+
+              // Opción de reportar (todos)
+              items.add(
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.flag(PhosphorIconsStyle.regular),
+                        color: Colors.orange,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Reportar',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text(
+                          'Reportar publicación',
+                          style: TextStyle(fontFamily: 'Montserrat'),
+                        ),
+                        content: const Text(
+                          '¿Por qué deseas reportar esta publicación?',
+                          style: TextStyle(fontFamily: 'Montserrat'),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        PhosphorIcons.checkCircle(
+                                          PhosphorIconsStyle.fill,
+                                        ),
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Text(
+                                        'Reporte enviado',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              'Reportar',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+
+              // Opción de eliminar (solo autor)
+              if (isAuthor) {
+                items.add(
+                  PopupMenuDivider(),
+                );
+                items.add(
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        Icon(
+                          PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                          color: Colors.red,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Eliminar',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: onDeleteTap,
+                  ),
+                );
+              }
+
+              return items;
+            },
+          ),
         ],
       ),
     );

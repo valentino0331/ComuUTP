@@ -24,3 +24,9 @@
 2026-04-20 17:09:18.994: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
 2026-04-20 17:09:19.026: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
 2026-04-20 17:09:25.515: [INFO] Sync initialization duration: 6240ms
+2026-04-20 17:30:07.721: [INFO] VisibilityChanged: 0
+2026-04-20 17:30:07.885: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 17:30:07.887: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 17:30:07.888: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-20 17:30:07.888: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-20 17:30:07.888: [INFO] OnDoneLoading sync enabled: 1

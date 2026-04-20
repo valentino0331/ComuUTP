@@ -86,6 +86,145 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     }
   }
 
+  Future<void> _showRoleSelectionDialog(
+    String userId,
+    String currentRole,
+    bool currentPuedeCrearComunidad,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Seleccionar Rol',
+          style: TextStyle(fontFamily: 'Montserrat'),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildRoleOption(
+              context,
+              'Usuario Normal',
+              'Sin permisos especiales',
+              currentRole == 'user' && !currentPuedeCrearComunidad,
+              () async {
+                Navigator.pop(context);
+                await ApiService.patch('/admin/usuarios/$userId', {
+                  'role': 'user',
+                  'puede_crear_comunidad': false,
+                }, auth: true);
+                _loadData();
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildRoleOption(
+              context,
+              'Crear Comunidades',
+              'Permiso para crear 1 comunidad',
+              currentPuedeCrearComunidad && currentRole != 'admin',
+              () async {
+                Navigator.pop(context);
+                await ApiService.patch('/admin/usuarios/$userId', {
+                  'role': 'user',
+                  'puede_crear_comunidad': true,
+                }, auth: true);
+                _loadData();
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildRoleOption(
+              context,
+              'Administrador',
+              'Acceso total al sistema',
+              currentRole == 'admin',
+              () async {
+                Navigator.pop(context);
+                await ApiService.patch('/admin/usuarios/$userId', {
+                  'role': 'admin',
+                  'puede_crear_comunidad': true,
+                }, auth: true);
+                _loadData();
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(fontFamily: 'Montserrat'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoleOption(
+    BuildContext context,
+    String title,
+    String subtitle,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? AppTheme.colorPrimary : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? AppTheme.colorPrimary.withOpacity(0.1) : Colors.transparent,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? AppTheme.colorPrimary : Colors.grey[400]!,
+                  width: 2,
+                ),
+                color: isSelected ? AppTheme.colorPrimary : Colors.transparent,
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check, color: Colors.white, size: 12)
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: isSelected ? AppTheme.colorPrimary : Colors.black87,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -274,10 +413,14 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                                         color: AppTheme.colorPrimary,
                                       ),
                                       const SizedBox(width: 8),
-                                      Text(role == 'admin' ? 'Remover admin' : 'Hacer admin'),
+                                      const Text('Cambiar rol'),
                                     ],
                                   ),
-                                  onTap: () => _toggleUserRole(id, role),
+                                  onTap: () => _showRoleSelectionDialog(
+                                    id,
+                                    role,
+                                    puedeCrearComunidad,
+                                  ),
                                 ),
                               ],
                             ),

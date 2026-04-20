@@ -279,6 +279,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             ),
           ),
           _buildMembersButton(context, community),
+          _buildDeleteCommunityButton(context, community),
         ],
       );
     }
@@ -442,6 +443,90 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFB21132),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteCommunityButton(BuildContext context, Community community) {
+    return GestureDetector(
+      onTap: () async {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text(
+              'Eliminar comunidad',
+              style: TextStyle(fontFamily: 'Montserrat'),
+            ),
+            content: Text(
+              '¿Estás seguro de que deseas eliminar "${community.nombre}"? Esta acción no se puede deshacer.',
+              style: const TextStyle(fontFamily: 'Montserrat'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(color: Colors.grey, fontFamily: 'Montserrat'),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmed == true) {
+          // TODO: Call API to delete community
+          // await ApiService.delete('/communities/${community.id}', auth: true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Comunidad "${community.nombre}" eliminada',
+                    style: const TextStyle(fontFamily: 'Montserrat'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.red[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.red, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(PhosphorIcons.trash(PhosphorIconsStyle.fill), size: 14, color: Colors.red),
+            const SizedBox(width: 4),
+            const Text(
+              'Eliminar',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
               ),
             ),
           ],

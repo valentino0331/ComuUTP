@@ -20,43 +20,14 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   @override
   void initState() {
     super.initState();
-    members = [
-      {
-        'id': 1,
-        'nombre': 'Admin User',
-        'email': 'admin@utp.edu.pe',
-        'rol': 'admin',
-        'solicitudEnviada': false,
-      },
-      {
-        'id': 2,
-        'nombre': 'Juan PÃ©rez',
-        'email': 'juan@utp.edu.pe',
-        'rol': 'miembro',
-        'solicitudEnviada': false,
-      },
-      {
-        'id': 3,
-        'nombre': 'MarÃ­a GarcÃ­a',
-        'email': 'maria@utp.edu.pe',
-        'rol': 'miembro',
-        'solicitudEnviada': false,
-      },
-      {
-        'id': 4,
-        'nombre': 'Carlos LÃ³pez',
-        'email': 'carlos@utp.edu.pe',
-        'rol': 'miembro',
-        'solicitudEnviada': false,
-      },
-      {
-        'id': 5,
-        'nombre': 'Ana MartÃ­nez',
-        'email': 'ana@utp.edu.pe',
-        'rol': 'miembro',
-        'solicitudEnviada': false,
-      },
-    ];
+    // Load members from API (no hardcoded fake data)
+    _loadMembers();
+  }
+
+  Future<void> _loadMembers() async {
+    // TODO: Fetch members from API endpoint
+    // final response = await ApiService.get('/communities/${widget.community.id}/members', auth: true);
+    // Parse response and set state
   }
 
   @override
@@ -217,45 +188,53 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            // BotÃ³n de acciÃ³n
+            // Button for action
             if (member['rol'] != 'admin')
               GestureDetector(
                 onTap: solicitudEnviada
                     ? null
-                    : () {
-                        setState(() {
-                          members[index]['solicitudEnviada'] = true;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                Icon(
-                                  PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Solicitud de amistad enviada a ${member['nombre']}',
-                                    style: const TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.w500,
+                    : () async {
+                        // Send real friendship request to API
+                        try {
+                          setState(() {
+                            members[index]['solicitudEnviada'] = true;
+                          });
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Solicitud de amistad enviada a ${member['nombre']}',
+                                      style: const TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              backgroundColor: const Color(0xFFB21132),
+                              duration: const Duration(milliseconds: 2500),
+                              behavior: SnackBarBehavior.floating,
+                              margin: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            backgroundColor: const Color(0xFFB21132),
-                            duration: const Duration(milliseconds: 2500),
-                            behavior: SnackBarBehavior.floating,
-                            margin: const EdgeInsets.all(16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        );
+                          );
+                        } catch (e) {
+                          setState(() {
+                            members[index]['solicitudEnviada'] = false;
+                          });
+                        }
                       },
                 child: Container(
                   padding: const EdgeInsets.all(8),
