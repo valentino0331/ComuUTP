@@ -4,6 +4,7 @@ const postController = require('../controllers/post.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 router.post('/', authMiddleware, postController.create);
+router.get('/', authMiddleware, postController.list);
 router.get('/community/:id', postController.listByCommunity);
 
 module.exports = router;

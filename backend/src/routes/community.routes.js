@@ -12,7 +12,18 @@ router.options('*', (req, res) => {
 });
 
 router.post('/', authMiddleware, communityController.create);
-router.get('/', communityController.list);
+router.get('/', (req, res) => {
+  // Pasar el usuario si está autenticado, pero no requerir autenticación
+  if (req.headers.authorization) {
+    authMiddleware(req, res, () => {
+      communityController.list(req, res);
+    });
+  } else {
+    communityController.list(req, res);
+  }
+});
+router.get('/my-communities', authMiddleware, communityController.getMyCommunities);
 router.post('/join', authMiddleware, communityController.join);
+router.get('/is-member/:comunidad_id', authMiddleware, communityController.isMember);
 
 module.exports = router;
