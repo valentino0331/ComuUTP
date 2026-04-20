@@ -99,22 +99,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             children: [
                               const SizedBox(height: 32),
                               
-                              // Solo el icono con efecto de sombra
-                              Container(
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.2),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: Image.asset(
-                                  'icon.png',
-                                  height: 140,
-                                  width: 140,
-                                ),
+                              // Solo el icono limpio
+                              Image.asset(
+                                'icon.png',
+                                height: 120,
+                                width: 120,
+                                fit: BoxFit.contain,
                               ),
 
                               const SizedBox(height: 40),
