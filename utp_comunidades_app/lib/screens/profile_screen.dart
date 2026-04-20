@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user.dart';
+import '../models/community.dart';
 import '../providers/auth_provider.dart';
 import '../providers/post_provider.dart';
 import '../providers/community_provider.dart';
