@@ -99,10 +99,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             children: [
                               const SizedBox(height: 32),
                               
-                              // Ícono GRANDE - círculo pequeño
+                              // Ícono ENORME - círculo pequeño
                               Container(
-                                height: 200,
-                                width: 200,
+                                height: 220,
+                                width: 220,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: LinearGradient(
@@ -130,8 +130,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                 child: Center(
                                   child: Image.asset(
                                     'icon.png',
-                                    height: 240,
-                                    width: 240,
+                                    height: 300,
+                                    width: 300,
                                     fit: BoxFit.contain,
                                   ),
                                 ),
