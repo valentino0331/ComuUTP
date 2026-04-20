@@ -23,15 +23,15 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-      id: json['id'],
-      usuarioId: json['usuario_id'],
-      comunidadId: json['comunidad_id'],
+      id: json['id'] is String ? int.parse(json['id']) : json['id'],
+      usuarioId: json['usuario_id'] is String ? int.parse(json['usuario_id']) : json['usuario_id'],
+      comunidadId: json['comunidad_id'] is String ? int.parse(json['comunidad_id']) : json['comunidad_id'],
       contenido: json['contenido'],
       fecha: DateTime.parse(json['fecha'] ?? DateTime.now().toIso8601String()),
       nombreUsuario: json['nombre_usuario'] ?? 'Usuario',
       nombreComunidad: json['nombre_comunidad'] ?? 'Comunidad',
-      likes: json['likes'] ?? 0,
-      comentarios: json['comentarios'] ?? 0,
+      likes: json['likes'] is String ? int.parse(json['likes']) : (json['likes'] ?? 0),
+      comentarios: json['comentarios'] is String ? int.parse(json['comentarios']) : (json['comentarios'] ?? 0),
     );
   }
 }

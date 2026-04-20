@@ -239,44 +239,90 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final result = await Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
-                      if (!context.mounted) return;
-                      
-                      if (result) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('¡Te uniste a la comunidad!'),
-                            backgroundColor: Colors.green,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Error al unirse a la comunidad'),
-                            backgroundColor: Colors.red,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.colorPrimary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Unirse'),
-                  ),
+                  _buildCommunityButton(context, community, authProvider),
                 ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCommunityButton(BuildContext context, Community community, AuthProvider authProvider) {
+    final currentUserId = authProvider.user?.id;
+    final isCreator = community.usuarioCreadorId == currentUserId;
+    final isMember = community.esMiembro ?? false;
+
+    if (isCreator) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.blue[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.blue, width: 1),
+        ),
+        child: const Text(
+          'Administrador',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.blue,
+          ),
+        ),
+      );
+    }
+
+    if (isMember) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.green, width: 1),
+        ),
+        child: const Text(
+          'Miembro',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.green,
+          ),
+        ),
+      );
+    }
+
+    return ElevatedButton(
+      onPressed: () async {
+        final result = await Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
+        if (!context.mounted) return;
+        
+        if (result) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('¡Te uniste a la comunidad!'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Error al unirse a la comunidad'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppTheme.colorPrimary,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: const Text('Unirse'),
     );
   }
 

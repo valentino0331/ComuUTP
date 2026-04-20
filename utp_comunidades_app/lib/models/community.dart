@@ -7,6 +7,7 @@ class Community {
   final int? posts;
   final bool? esMiembro;
   final String? creador;
+  final int? usuarioCreadorId;
   final DateTime? fechaCreacion;
 
   Community({
@@ -18,6 +19,7 @@ class Community {
     this.posts,
     this.esMiembro,
     this.creador,
+    this.usuarioCreadorId,
     this.fechaCreacion,
   });
 
@@ -27,13 +29,14 @@ class Community {
       nombre: json['nombre'],
       descripcion: json['descripcion'],
       imagen: json['imagen'],
-      miembros: json['miembros'] ?? 0,
-      posts: json['posts'] ?? 0,
-      esMiembro: json['esMiembro'] ?? false,
+      miembros: json['total_miembros'] ?? json['miembros'] ?? 0,
+      posts: json['total_posts'] ?? json['posts'] ?? 0,
+      esMiembro: json['es_miembro'] ?? json['esMiembro'] ?? false,
       creador: json['creador'],
-      fechaCreacion: json['fechaCreacion'] != null 
-          ? DateTime.parse(json['fechaCreacion']) 
-          : null,
+      usuarioCreadorId: json['usuario_creador_id'],
+      fechaCreacion: json['created_at'] != null 
+          ? DateTime.parse(json['created_at']) 
+          : (json['fechaCreacion'] != null ? DateTime.parse(json['fechaCreacion']) : null),
     );
   }
 }
