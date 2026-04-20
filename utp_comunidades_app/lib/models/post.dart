@@ -22,16 +22,28 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      id: json['id'] is String ? int.parse(json['id']) : json['id'],
-      usuarioId: json['usuario_id'] is String ? int.parse(json['usuario_id']) : json['usuario_id'],
-      comunidadId: json['comunidad_id'] is String ? int.parse(json['comunidad_id']) : json['comunidad_id'],
-      contenido: json['contenido'],
-      fecha: DateTime.parse(json['fecha'] ?? DateTime.now().toIso8601String()),
-      nombreUsuario: json['nombre_usuario'] ?? 'Usuario',
-      nombreComunidad: json['nombre_comunidad'] ?? 'Comunidad',
-      likes: json['likes'] is String ? int.parse(json['likes']) : (json['likes'] ?? 0),
-      comentarios: json['comentarios'] is String ? int.parse(json['comentarios']) : (json['comentarios'] ?? 0),
-    );
+    try {
+      int parseToInt(dynamic value) {
+        if (value == null) return 0;
+        if (value is int) return value;
+        if (value is String) return int.tryParse(value) ?? 0;
+        return 0;
+      }
+
+      return Post(
+        id: parseToInt(json['id']),
+        usuarioId: parseToInt(json['usuario_id']),
+        comunidadId: parseToInt(json['comunidad_id']),
+        contenido: json['contenido']?.toString() ?? 'Sin contenido',
+        fecha: DateTime.parse(json['fecha']?.toString() ?? DateTime.now().toIso8601String()),
+        nombreUsuario: json['nombre_usuario']?.toString() ?? 'Usuario',
+        nombreComunidad: json['nombre_comunidad']?.toString() ?? 'Comunidad',
+        likes: parseToInt(json['likes']),
+        comentarios: parseToInt(json['comentarios']),
+      );
+    } catch (e) {
+      print('Error parsing post: $e, json: $json');
+      rethrow;
+    }
   }
 }

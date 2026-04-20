@@ -251,8 +251,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   Widget _buildCommunityButton(BuildContext context, Community community, AuthProvider authProvider) {
     final currentUserId = authProvider.user?.id;
-    final isCreator = community.usuarioCreadorId == currentUserId;
+    final isCreator = community.usuarioCreadorId != null && community.usuarioCreadorId == currentUserId;
     final isMember = community.esMiembro ?? false;
+
+    print('Community: ${community.nombre}, creatorId: ${community.usuarioCreadorId}, currentId: $currentUserId, isCreator: $isCreator, isMember: $isMember');
 
     if (isCreator) {
       return Container(

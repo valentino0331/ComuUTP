@@ -24,19 +24,26 @@ class Community {
   });
 
   factory Community.fromJson(Map<String, dynamic> json) {
+    int parseToInt(dynamic value) {
+      if (value == null) return 0;
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value) ?? 0;
+      return 0;
+    }
+
     return Community(
-      id: json['id'],
-      nombre: json['nombre'],
-      descripcion: json['descripcion'],
+      id: parseToInt(json['id']),
+      nombre: json['nombre']?.toString() ?? 'Sin nombre',
+      descripcion: json['descripcion']?.toString() ?? '',
       imagen: json['imagen'],
-      miembros: json['total_miembros'] ?? json['miembros'] ?? 0,
-      posts: json['total_posts'] ?? json['posts'] ?? 0,
+      miembros: parseToInt(json['total_miembros'] ?? json['miembros']),
+      posts: parseToInt(json['total_posts'] ?? json['posts']),
       esMiembro: json['es_miembro'] ?? json['esMiembro'] ?? false,
       creador: json['creador'],
-      usuarioCreadorId: json['usuario_creador_id'],
+      usuarioCreadorId: parseToInt(json['usuario_creador_id']),
       fechaCreacion: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
-          : (json['fechaCreacion'] != null ? DateTime.parse(json['fechaCreacion']) : null),
+          ? DateTime.parse(json['created_at'].toString()) 
+          : (json['fechaCreacion'] != null ? DateTime.parse(json['fechaCreacion'].toString()) : null),
     );
   }
 }
