@@ -66,6 +66,20 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Título principal "Bienvenido a UTP Comunidades"
+                      const Text(
+                        'Bienvenido a\nUTP Comunidades',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          height: 1.3,
+                          color: primaryRed,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
                       // Rectángulo rojo principal con animación de shake
                       AnimatedBuilder(
                         animation: _shakeController,
@@ -97,22 +111,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           ),
                           child: Column(
                             children: [
-                              const SizedBox(height: 44),
-                              
-                              // Título "Bienvenido a UTP Comunidades"
-                              const Text(
-                                'Bienvenido a UTP\nComunidades',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.3,
-                                  color: primaryRed,
-                                ),
-                              ),
-
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 24),
 
                               // Etiqueta: Correo o Código UTP
                               const Align(

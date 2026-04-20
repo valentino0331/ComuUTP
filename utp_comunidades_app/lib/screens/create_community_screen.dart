@@ -321,6 +321,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         title,
+        textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
