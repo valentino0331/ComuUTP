@@ -1,7 +1,5 @@
-2026/04/19-19:29:37.484 6e64 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.e699a89f\flutter_tools_chrome_device.f8818ae5\Default\Sync Data\LevelDB/MANIFEST-000001
-2026/04/19-19:29:37.486 6e64 Recovering log #4
-2026/04/19-19:29:37.489 6e64 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.e699a89f\flutter_tools_chrome_device.f8818ae5\Default\Sync Data\LevelDB/000004.log 
-2026/04/19-19:29:37.490 6e64 Delete type=0 #3
-2026/04/19-19:29:47.613 5b80 Level-0 table #8: started
-2026/04/19-19:29:47.617 5b80 Level-0 table #8: 128110 bytes OK
-2026/04/19-19:29:47.619 5b80 Delete type=0 #4
+2026/04/19-19:37:04.375 4a0c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.32159f9\flutter_tools_chrome_device.44dd5e66\Default\Sync Data\LevelDB/MANIFEST-000001
+2026/04/19-19:37:04.379 4a0c Recovering log #7
+2026/04/19-19:37:04.380 4a0c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.32159f9\flutter_tools_chrome_device.44dd5e66\Default\Sync Data\LevelDB/000007.log 
+2026/04/19-19:37:04.381 4a0c Delete type=0 #3
+2026/04/19-19:37:04.381 4a0c Delete type=0 #4

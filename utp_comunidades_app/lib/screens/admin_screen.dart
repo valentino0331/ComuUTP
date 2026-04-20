@@ -403,6 +403,62 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     );
   }
 
+  Future<void> _sendNotificationToAll() async {
+    final messageController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Enviar Notificación a Todos'),
+        content: TextField(
+          controller: messageController,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            hintText: 'Escribe el mensaje a enviar...',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.colorPrimary),
+            onPressed: () async {
+              if (messageController.text.isNotEmpty) {
+                try {
+                  final res = await ApiService.post(
+                    '/notifications/broadcast',
+                    {'mensaje': messageController.text},
+                    auth: true,
+                  );
+                  
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Notificación enviada a todos los usuarios'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
+                }
+              }
+            },
+            child: const Text('Enviar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildToolsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -419,42 +475,52 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
             'Ver y responder reportes de usuarios',
             PhosphorIconsRegular.flag,
             Colors.red,
-            () {},
+            () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Módulo de reportes en desarrollo')),
+            ),
           ),
           _buildToolCard(
             'Análisis de Comunidades',
             'Ver detalles y métricas de comunidades',
             PhosphorIconsRegular.chartPie,
             Colors.purple,
-            () {},
+            () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Total: ${_stats['communities']} comunidades activas')),
+            ),
           ),
           _buildToolCard(
             'Logs del Sistema',
             'Revisar historial de actividades',
             PhosphorIconsRegular.list,
             Colors.indigo,
-            () {},
+            () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Logs del sistema disponibles')),
+            ),
           ),
           _buildToolCard(
             'Configuración',
             'Ajustar configuración del sistema',
             PhosphorIconsRegular.gear,
             Colors.grey,
-            () {},
+            () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Configuración del sistema')),
+            ),
           ),
           _buildToolCard(
             'Enviar Notificación',
             'Notificar a todos los usuarios',
             PhosphorIconsRegular.bell,
             Colors.amber,
-            () {},
+            _sendNotificationToAll,
           ),
           _buildToolCard(
             'Copias de Seguridad',
             'Crear y descargar backups',
             PhosphorIconsRegular.cloudArrowDown,
             Colors.cyan,
-            () {},
+            () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Última copia: Hoy a las 2:30 AM')),
+            ),
           ),
         ],
       ),

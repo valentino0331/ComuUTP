@@ -134,8 +134,10 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 _buildSectionTitle('Nombre de la Comunidad'),
                 TextFormField(
                   controller: _nameController,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Ej: Programadores UTP',
+                    hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: Icon(PhosphorIconsRegular.textAa, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -144,6 +146,8 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.grey),
                     ),
+                    fillColor: Colors.white10,
+                    filled: true,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().length < 3) {
@@ -161,6 +165,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 _buildSectionTitle('Categoría'),
                 DropdownButtonFormField<String>(
                   value: _selectedCategory,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     prefixIcon: Icon(PhosphorIconsRegular.list, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
@@ -170,11 +175,13 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.grey),
                     ),
+                    fillColor: Colors.white10,
+                    filled: true,
                   ),
                   items: _categories.map((category) {
                     return DropdownMenuItem(
                       value: category,
-                      child: Text(category),
+                      child: Text(category, style: const TextStyle(color: Colors.black)),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -189,8 +196,10 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                   controller: _shortDescController,
                   maxLines: 2,
                   maxLength: 100,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Una frase que resuma el propósito de la comunidad',
+                    hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: Icon(PhosphorIconsRegular.textT, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -199,6 +208,8 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.grey),
                     ),
+                    fillColor: Colors.white10,
+                    filled: true,
                     counterText: '',
                   ),
                   validator: (value) {
@@ -215,8 +226,10 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 TextFormField(
                   controller: _descriptionController,
                   maxLines: 5,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Explica qué hace tu comunidad, quiénes son bienvenidos, y qué esperas lograr',
+                    hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: Icon(PhosphorIconsRegular.notepad, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -225,6 +238,8 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.grey),
                     ),
+                    fillColor: Colors.white10,
+                    filled: true,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().length < 20) {
@@ -240,8 +255,10 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 TextFormField(
                   controller: _rulesController,
                   maxLines: 4,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: '1. Sé respetuoso con los demás\n2. No compartas contenido inapropiado\n3. Participa activamente',
+                    hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: Icon(PhosphorIconsRegular.shieldCheck, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -250,6 +267,8 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.grey),
                     ),
+                    fillColor: Colors.white10,
+                    filled: true,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().length < 10) {
@@ -265,8 +284,10 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 TextFormField(
                   controller: _scheduleController,
                   maxLines: 3,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Ej: Lunes a viernes 5-6 PM, Reuniones el sábado a las 3 PM',
+                    hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: Icon(PhosphorIconsRegular.clock, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -275,6 +296,8 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.grey),
                     ),
+                    fillColor: Colors.white10,
+                    filled: true,
                   ),
                 ),
                 const SizedBox(height: 32),
