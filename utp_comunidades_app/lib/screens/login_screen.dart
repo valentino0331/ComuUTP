@@ -57,12 +57,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               // Fondo blanco
               Container(color: Colors.white),
               
-              // Overlay rojo semi-transparente
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB21132).withValues(alpha: 0.34),
-                ),
-              ),
+              // Sin overlay rojo
 
               // Contenido principal
               Center(

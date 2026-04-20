@@ -40,8 +40,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    // final isTeacher = authProvider.user?.rolId == 2;
-    const isTeacher = false;
+    // Mostrar botÃ³n si el usuario es admin
+    final isAdmin = authProvider.user?.role == 'admin';
 
     final filteredCommunities = widget.communities.where((c) {
       // if (_selectedFilter != 'Todas' && c.categoria != _selectedFilter) return false;
@@ -51,11 +51,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.colorPrimary.withOpacity(0.1),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Comunidades UTP'),
         actions: [
-          if (isTeacher)
+          if (isAdmin)
             IconButton(
               icon: const Icon(Icons.add_circle_outline),
               onPressed: _showCreateCommunity,
@@ -78,7 +78,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ),
         ],
       ),
-      floatingActionButton: isTeacher
+      floatingActionButton: isAdmin
           ? FloatingActionButton.extended(
               onPressed: _showCreateCommunity,
               label: const Text('Crear Comunidad'),
@@ -114,7 +114,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: AppTheme.colorPrimary.withOpacity(0.1),
+              fillColor: Colors.grey[100],
             ),
             onChanged: (value) => setState(() {}),
           ),
@@ -124,9 +124,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             child: Row(
               children: [
                 'Todas',
-                'Académica',
+                'AcadÃ©mica',
                 'Deportes',
-                'Tecnología',
+                'TecnologÃ­a',
                 'Arte',
                 'Social'
               ].map((filter) {
@@ -279,9 +279,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Académica': return PhosphorIconsRegular.bookOpen;
+      case 'Acadï¿½mica': return PhosphorIconsRegular.bookOpen;
       case 'Deportes': return PhosphorIconsRegular.basketball;
-      case 'Tecnología': return PhosphorIconsRegular.cpu;
+      case 'Tecnologï¿½a': return PhosphorIconsRegular.cpu;
       case 'Arte': return PhosphorIconsRegular.palette;
       default: return PhosphorIconsRegular.users;
     }
