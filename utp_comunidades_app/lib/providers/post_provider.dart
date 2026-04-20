@@ -22,9 +22,8 @@ class PostProvider with ChangeNotifier {
   bool isPostLiked(int postId) => _likedPosts.contains(postId);
 
   int getCommentCount(int postId) {
-    final mockCount = MockData.getComments().where((c) => c.publicacionId == postId).length;
     final userCount = _userAddedComments.where((c) => c.publicacionId == postId).length;
-    return mockCount + userCount;
+    return userCount;
   }
 
   Future<void> fetchPostsByCommunity(int comunidadId) async {
@@ -38,10 +37,10 @@ class PostProvider with ChangeNotifier {
         final data = jsonDecode(res.body)['publicaciones'] as List;
         _posts = data.map((p) => Post.fromJson(p)).toList();
       } else {
-        _posts = MockData.getPosts().where((p) => p.comunidadId == comunidadId).toList();
+        _posts = [];
       }
     } catch (e) {
-      _posts = MockData.getPosts().where((p) => p.comunidadId == comunidadId).toList();
+      _posts = [];
     }
     
     _loading = false;
@@ -128,9 +127,8 @@ class PostProvider with ChangeNotifier {
 
   void loadCommentsForPost(int postId) {
     _currentPostId = postId;
-    final mockComments = MockData.getComments().where((c) => c.publicacionId == postId).toList();
     final userComments = _userAddedComments.where((c) => c.publicacionId == postId).toList();
-    _comments = [...mockComments, ...userComments];
+    _comments = userComments;
     _comments.sort((a, b) => b.fecha.compareTo(a.fecha)); // Newest first
     notifyListeners();
   }
@@ -146,10 +144,10 @@ class PostProvider with ChangeNotifier {
         final data = jsonDecode(res.body)['publicaciones'] as List;
         _posts = data.map((p) => Post.fromJson(p)).toList();
       } else {
-        _posts = MockData.getPosts();
+        _posts = [];
       }
     } catch (e) {
-      _posts = MockData.getPosts();
+      _posts = [];
     }
     
     _loading = false;

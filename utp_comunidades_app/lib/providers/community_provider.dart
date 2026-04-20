@@ -24,12 +24,12 @@ class CommunityProvider with ChangeNotifier {
         final data = jsonDecode(res.body)['comunidades'] as List;
         _communities = data.map((c) => Community.fromJson(c)).toList();
       } else {
-        // Si falla, usar datos mock
-        _communities = MockData.getCommunities();
+        // Si falla, usar lista vacía
+        _communities = [];
       }
     } catch (e) {
-      // Si hay error de conexión, usar datos mock
-      _communities = MockData.getCommunities();
+      // Si hay error de conexión, usar lista vacía
+      _communities = [];
     }
     
     _loading = false;

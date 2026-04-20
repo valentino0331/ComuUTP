@@ -26,12 +26,12 @@ class NotificationProvider with ChangeNotifier {
         final data = jsonDecode(res.body)['notificaciones'] as List;
         _notifications = data.map((n) => NotificationModel.fromJson(n)).toList();
       } else {
-        // Si falla, usar datos mock
-        _notifications = MockData.getNotifications();
+        // Si falla, usar lista vacía
+        _notifications = [];
       }
     } catch (e) {
-      // Si hay error de conexión, usar datos mock
-      _notifications = MockData.getNotifications();
+      // Si hay error de conexión, usar lista vacía
+      _notifications = [];
     }
     
     _loading = false;

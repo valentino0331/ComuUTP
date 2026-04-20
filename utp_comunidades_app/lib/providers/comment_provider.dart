@@ -23,12 +23,12 @@ class CommentProvider with ChangeNotifier {
         final data = jsonDecode(res.body)['comentarios'] as List;
         _comments = data.map((c) => Comment.fromJson(c)).toList();
       } else {
-        // Si falla, filtrar comentarios mock por publicación
-        _comments = MockData.getComments().where((c) => c.publicacionId == publicacionId).toList();
+        // Si falla, usar lista vacía
+        _comments = [];
       }
     } catch (e) {
-      // Si hay error de conexión, usar datos mock filtrados
-      _comments = MockData.getComments().where((c) => c.publicacionId == publicacionId).toList();
+      // Si hay error de conexión, usar lista vacía
+      _comments = [];
     }
     
     _loading = false;
