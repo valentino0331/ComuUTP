@@ -134,7 +134,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 _buildSectionTitle('Nombre de la Comunidad'),
                 TextFormField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Ej: Programadores UTP',
                     hintStyle: const TextStyle(color: Colors.grey),
@@ -165,7 +165,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 _buildSectionTitle('Categoría'),
                 DropdownButtonFormField<String>(
                   value: _selectedCategory,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     prefixIcon: Icon(PhosphorIconsRegular.list, color: AppTheme.colorPrimary),
                     border: OutlineInputBorder(
@@ -196,7 +196,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                   controller: _shortDescController,
                   maxLines: 2,
                   maxLength: 100,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Una frase que resuma el propósito de la comunidad',
                     hintStyle: const TextStyle(color: Colors.grey),
@@ -226,7 +226,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 TextFormField(
                   controller: _descriptionController,
                   maxLines: 5,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Explica qué hace tu comunidad, quiénes son bienvenidos, y qué esperas lograr',
                     hintStyle: const TextStyle(color: Colors.grey),
@@ -255,7 +255,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 TextFormField(
                   controller: _rulesController,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: '1. Sé respetuoso con los demás\n2. No compartas contenido inapropiado\n3. Participa activamente',
                     hintStyle: const TextStyle(color: Colors.grey),
@@ -284,7 +284,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 TextFormField(
                   controller: _scheduleController,
                   maxLines: 3,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Ej: Lunes a viernes 5-6 PM, Reuniones el sábado a las 3 PM',
                     hintStyle: const TextStyle(color: Colors.grey),

@@ -3,6 +3,13 @@ const pool = require('../config/db');
 exports.create = async (req, res) => {
   const { nombre, descripcion } = req.body;
   try {
+    console.log('CREATE COMMUNITY REQUEST:', { nombre, descripcion, userId: req.user.id });
+    
+    // Validar que los campos no estén vacíos
+    if (!nombre || !descripcion) {
+      return res.status(400).json({ error: 'Nombre y descripción son requeridos' });
+    }
+
     // Check if user has permission to create community
     const user = await pool.query('SELECT puede_crear_comunidad FROM usuarios WHERE id = $1', [req.user.id]);
     
@@ -20,11 +27,16 @@ exports.create = async (req, res) => {
       'INSERT INTO comunidades (nombre, descripcion, usuario_creador_id) VALUES ($1, $2, $3) RETURNING *',
       [nombre, descripcion, req.user.id]
     );
+    
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_comunidad', `Comunidad: ${nombre}`]);
+    
+    console.log('COMMUNITY CREATED:', result.rows[0]);
     res.status(201).json({ comunidad: result.rows[0] });
   } catch (err) {
-    console.error('Error creating community:', err.message);
-    res.status(500).json({ error: 'Error al crear comunidad' });
+    console.error('Error creating community - FULL ERROR:', err);
+    console.error('Error message:', err.message);
+    console.error('Error code:', err.code);
+    res.status(500).json({ error: 'Error al crear comunidad', details: err.message });
   }
 };
 
