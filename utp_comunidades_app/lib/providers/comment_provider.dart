@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/comment.dart';
 import '../services/api_service.dart';
-import '../utils/mock_data.dart';
 import 'dart:convert';
 
 class CommentProvider with ChangeNotifier {

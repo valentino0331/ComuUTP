@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/notification.dart';
-import '../utils/mock_data.dart';
 import 'dart:convert';
 
 class NotificationProvider with ChangeNotifier {
