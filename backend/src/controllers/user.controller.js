@@ -8,15 +8,36 @@ exports.profile = async (req, res) => {
         modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma
       FROM usuarios WHERE id = $1
     `, [req.user.id]);
+    
     if (user.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    res.json({ user: user.rows[0] });
+
+    // Obtener comunidades del usuario
+    const comunidades = await pool.query(`
+      SELECT 
+        c.id,
+        c.nombre,
+        c.descripcion,
+        c.usuario_creador_id,
+        mc.fecha_union,
+        (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros,
+        (SELECT COUNT(*) FROM publicaciones WHERE comunidad_id = c.id) as total_posts
+      FROM comunidades c
+      JOIN miembros_comunidad mc ON c.id = mc.comunidad_id
+      WHERE mc.usuario_id = $1
+      ORDER BY mc.fecha_union DESC
+    `, [req.user.id]);
+
+    res.json({ 
+      usuario: user.rows[0],
+      comunidades: comunidades.rows,
+      total_comunidades: comunidades.rows.length
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Error al obtener perfil' });
+    console.error('Error al obtener perfil:', err.message);
+    res.status(500).json({ error: 'Error al obtener perfil', details: err.message });
   }
-    // Exponer preferencias y privacidad en el endpoint de perfil
-    // y permitir actualización desde el frontend
 };
 
 // Actualizar perfil del usuario
