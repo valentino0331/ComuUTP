@@ -15,7 +15,8 @@ class CommunityMembersScreen extends StatefulWidget {
 }
 
 class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
-  late List<Map<String, dynamic>> members;
+  late List<Map<String, dynamic>> members = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -25,9 +26,24 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   }
 
   Future<void> _loadMembers() async {
-    // TODO: Fetch members from API endpoint
-    // final response = await ApiService.get('/communities/${widget.community.id}/members', auth: true);
-    // Parse response and set state
+    setState(() => _isLoading = true);
+    try {
+      // TODO: Fetch members from API endpoint
+      // final response = await ApiService.get('/communities/${widget.community.id}/members', auth: true);
+      // if (response.statusCode == 200) {
+      //   final data = jsonDecode(response.body);
+      //   setState(() {
+      //     members = (data['members'] as List).cast<Map<String, dynamic>>();
+      //   });
+      // }
+      setState(() {
+        members = []; // Empty list for now - will be populated from API
+      });
+    } catch (e) {
+      print('Error loading members: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override

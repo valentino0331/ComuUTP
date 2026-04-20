@@ -44,8 +44,13 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     // Mostrar botón si el usuario es admin
     final isAdmin = authProvider.user?.role == 'admin';
 
-    final filteredCommunities = widget.communities.where((c) {
-      // if (_selectedFilter != 'Todas' && c.categoria != _selectedFilter) return false;
+    // Filtrar SOLO comunidades reales donde el usuario es miembro
+    final allCommunities = widget.communities;
+    
+    final filteredCommunities = allCommunities.where((c) {
+      // Solo mostrar comunidades donde el usuario es miembro
+      if (c.esMiembro != true) return false;
+      // Filtro de búsqueda
       if (_searchController.text.isNotEmpty && 
           !c.nombre.toLowerCase().contains(_searchController.text.toLowerCase())) return false;
       return true;
@@ -233,14 +238,18 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Por: Comunidad',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
+                  const Expanded(
+                    child: Text(
+                      'Por: Comunidad',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
-                  _buildCommunityButton(context, community),
+                  Flexible(
+                    child: _buildCommunityButton(context, community),
+                  ),
                 ],
               ),
             ],

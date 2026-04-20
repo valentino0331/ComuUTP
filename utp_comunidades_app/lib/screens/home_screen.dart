@@ -790,17 +790,15 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.only(bottom: 1),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[200]!,
+            width: 1,
           ),
-        ],
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1207,29 +1205,43 @@ class _PostActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      child: Column(
         children: [
-          _ActionButton(
-            icon: isLiked
-                ? PhosphorIcons.heart(PhosphorIconsStyle.fill)
-                : PhosphorIcons.heart(PhosphorIconsStyle.regular),
-            label: 'Me gusta',
-            color: isLiked ? const Color(0xFFB21132) : Colors.grey[600]!,
-            onTap: onLikeTap,
-          ),
-          _ActionButton(
-            icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.regular),
-            label: 'Comentar',
-            color: Colors.grey[600]!,
-            onTap: onCommentTap,
-          ),
-          _ActionButton(
-            icon: PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
-            label: 'Compartir',
-            color: Colors.grey[600]!,
-            onTap: onShareTap,
+          Divider(height: 1, color: Colors.grey[200]),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: _ActionButton(
+                    icon: isLiked
+                        ? PhosphorIcons.heart(PhosphorIconsStyle.fill)
+                        : PhosphorIcons.heart(PhosphorIconsStyle.regular),
+                    label: 'Me gusta',
+                    color: isLiked ? const Color(0xFFB21132) : Colors.grey[600]!,
+                    onTap: onLikeTap,
+                  ),
+                ),
+                Expanded(
+                  child: _ActionButton(
+                    icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.regular),
+                    label: 'Comentar',
+                    color: Colors.grey[600]!,
+                    onTap: onCommentTap,
+                  ),
+                ),
+                Expanded(
+                  child: _ActionButton(
+                    icon: PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
+                    label: 'Compartir',
+                    color: Colors.grey[600]!,
+                    onTap: onShareTap,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
