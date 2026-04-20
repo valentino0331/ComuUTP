@@ -43,26 +43,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Build AppBar simple - solo LUTP centrado
+  /// Build AppBar profesional - Rojo con LUTP blanco
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      elevation: 2,
-      backgroundColor: Colors.white,
-      title: const Text(
-        'LUTP',
-        style: TextStyle(
-          fontFamily: 'Montserrat',
-          fontSize: 64,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 4.0,
-          color: Color(0xFFB21132),
-        ),
+      elevation: 4,
+      backgroundColor: const Color(0xFFB21132),
+      toolbarHeight: 100,
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'LUTP',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 48,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 3.5,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Red Social UTP',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: Colors.white.withValues(alpha: 0.85),
+              letterSpacing: 1.0,
+            ),
+          ),
+        ],
       ),
       centerTitle: true,
       actions: [
         IconButton(
           icon: const Icon(Icons.favorite_border,
-              color: Colors.black87, size: 26),
+              color: Colors.white, size: 26),
           onPressed: () {},
         ),
       ],
