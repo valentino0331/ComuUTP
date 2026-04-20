@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FollowerProvider()),
       ],
       child: MaterialApp(
-        title: 'UTP Comunidades',
+        title: 'LUTP',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.red,

@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
           end: Alignment.bottomRight,
         ).createShader(bounds),
         child: const Text(
-          'UTP Comunidades',
+          'LUTP',
           style: TextStyle(
             fontFamily: 'Montserrat',
             fontSize: 26,

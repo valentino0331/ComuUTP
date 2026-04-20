@@ -99,9 +99,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             children: [
                               const SizedBox(height: 32),
                               
-                              // Título "Bienvenido a UTP Comunidades"
+                              // Título "Bienvenido a LUTP"
                               const Text(
-                                'Bienvenido a\nUTP Comunidades',
+                                'Bienvenido a\nLUTP',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: 'Montserrat',
