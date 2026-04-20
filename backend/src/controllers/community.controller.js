@@ -23,11 +23,26 @@ exports.create = async (req, res) => {
       });
     }
 
+    // Crear la comunidad
     const result = await pool.query(
       'INSERT INTO comunidades (nombre, descripcion, usuario_creador_id) VALUES ($1, $2, $3) RETURNING *',
       [nombre, descripcion, req.user.id]
     );
     
+    const comunidadId = result.rows[0].id;
+    
+    // Agregar al creador automáticamente como miembro
+    try {
+      await pool.query(
+        'INSERT INTO miembros_comunidad (usuario_id, comunidad_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [req.user.id, comunidadId]
+      );
+      console.log('User added as member of created community');
+    } catch (err) {
+      console.log('Error adding user as member:', err.message);
+    }
+    
+    // Log the action
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_comunidad', `Comunidad: ${nombre}`]);
     
     console.log('COMMUNITY CREATED:', result.rows[0]);
