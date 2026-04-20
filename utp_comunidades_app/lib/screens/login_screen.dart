@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                               
                               // Icono + Nombre LUTP estilo Instagram
                               Image.asset(
-                                'assets/lutp_icon.png',
+                                'assets/icon.png',
                                 height: 120,
                                 width: 120,
                               ),
