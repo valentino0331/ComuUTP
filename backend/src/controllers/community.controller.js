@@ -152,7 +152,7 @@ exports.join = async (req, res) => {
 
     if (existingMember.rows.length > 0) {
       console.warn('⚠️ User already member:', { userId: req.user.id, comunidad_id });
-      return res.status(400).json({ error: 'Ya eres miembro de esta comunidad' });
+      return res.status(409).json({ error: 'Ya eres miembro de esta comunidad' });
     }
 
     console.log('✅ User is not yet a member. Adding...');
