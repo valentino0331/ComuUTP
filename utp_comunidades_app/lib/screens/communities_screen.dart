@@ -255,7 +255,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final isCreator = community.usuarioCreadorId != null && community.usuarioCreadorId == currentUserId;
     final isMember = community.esMiembro ?? false;
 
-    print('Community: ${community.nombre}, creatorId: ${community.usuarioCreadorId}, currentId: $currentUserId, isCreator: $isCreator, isMember: $isMember');
+    print('Community: ${community.nombre}, creatorId: ${community.usuarioCreadorId}, currentId: $currentUserId, isCreator: $isCreator, isMember: $isMember, esMiembroRaw: ${community.esMiembro}');
 
     if (isCreator) {
       return Container(

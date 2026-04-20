@@ -31,6 +31,14 @@ class Community {
       return 0;
     }
 
+    bool parseBool(dynamic value) {
+      if (value == null) return false;
+      if (value is bool) return value;
+      if (value is int) return value != 0;
+      if (value is String) return value.toLowerCase() == 'true' || value == '1';
+      return false;
+    }
+
     return Community(
       id: parseToInt(json['id']),
       nombre: json['nombre']?.toString() ?? 'Sin nombre',
@@ -38,7 +46,7 @@ class Community {
       imagen: json['imagen'],
       miembros: parseToInt(json['total_miembros'] ?? json['miembros']),
       posts: parseToInt(json['total_posts'] ?? json['posts']),
-      esMiembro: json['es_miembro'] ?? json['esMiembro'] ?? false,
+      esMiembro: parseBool(json['es_miembro'] ?? json['esMiembro']),
       creador: json['creador'],
       usuarioCreadorId: parseToInt(json['usuario_creador_id']),
       fechaCreacion: json['created_at'] != null 

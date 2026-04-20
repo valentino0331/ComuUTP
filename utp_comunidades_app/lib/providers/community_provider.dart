@@ -37,12 +37,28 @@ class CommunityProvider with ChangeNotifier {
   }
 
   Future<bool> joinCommunity(int comunidadId) async {
-    final res = await ApiService.post('/communities/join', {'comunidad_id': comunidadId}, auth: true);
-    if (res.statusCode == 200 || res.statusCode == 201) {
-      await fetchCommunities();
-      return true;
+    try {
+      final res = await ApiService.post('/communities/join', {'comunidad_id': comunidadId}, auth: true);
+      
+      // 200/201 = join exitoso, 409 = ya eres miembro (no es error)
+      if (res.statusCode == 200 || res.statusCode == 201 || res.statusCode == 409) {
+        print('✅ Join exitoso, refrescando comunidades...');
+        // Force clear y reload
+        _communities.clear();
+        notifyListeners();
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+        await fetchCommunities();
+        
+        print('✅ Comunidades refrescadas. Ahora tienes ${_communities.where((c) => c.esMiembro).length} comunidades');
+        return true;
+      }
+      print('❌ Join falló con status ${res.statusCode}');
+      return false;
+    } catch (e) {
+      print('Error joining community: $e');
+      return false;
     }
-    return false;
   }
 
   Future<List<Community>> getMyCommunities() async {
