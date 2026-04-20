@@ -330,9 +330,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                       duration: const Duration(seconds: 2),
                     ),
                   );
-                  setState(() {
-                    community.esMiembro = false;
-                  });
+                  setState(() {});
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
