@@ -99,15 +99,15 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             children: [
                               const SizedBox(height: 10),
                               
-                              // Ícono PROMINENTE - sin círculo, tamaño gigante
+                              // Ícono PROMINENTE - sin círculo visible, tamaño grande
                               Image.asset(
                                 'icon.png',
-                                height: 440,
-                                width: 440,
+                                height: 280,
+                                width: 280,
                                 fit: BoxFit.contain,
                               ),
 
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 10),
 
                               // Etiqueta: Correo o Código UTP
                               const Align(

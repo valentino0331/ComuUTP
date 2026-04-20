@@ -217,6 +217,50 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 12),
+                    
+                    // Mostrar imagen SOLO si existe
+                    if (widget.post.imagen != null && 
+                        widget.post.imagen!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          widget.post.imagen!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 200,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              width: double.infinity,
+                              height: 200,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: double.infinity,
+                              height: 200,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  color: Colors.grey,
+                                  size: 48,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      
+                    if (widget.post.imagen != null && 
+                        widget.post.imagen!.isNotEmpty)
+                      const SizedBox(height: 12),
                   ],
                 ),
               ),
