@@ -1,16 +1,17 @@
-2026/04/19-19:13:57.976 445c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.441a521d\flutter_tools_chrome_device.e9c69ac\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/19-19:13:57.977 445c Recovering log #23
-2026/04/19-19:13:57.978 445c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.441a521d\flutter_tools_chrome_device.e9c69ac\Default\EdgeCoupons/coupons_data.db/000023.log 
-2026/04/19-19:13:57.979 445c Delete type=0 #4
-2026/04/19-19:13:57.979 445c Delete type=0 #7
-2026/04/19-19:13:57.979 445c Delete type=2 #8
-2026/04/19-19:13:57.979 445c Delete type=0 #10
-2026/04/19-19:13:57.979 445c Delete type=2 #11
-2026/04/19-19:13:57.979 445c Delete type=0 #13
-2026/04/19-19:13:57.979 445c Delete type=2 #14
-2026/04/19-19:13:57.992 445c Delete type=0 #16
-2026/04/19-19:13:57.992 445c Delete type=2 #17
-2026/04/19-19:13:57.992 445c Delete type=0 #19
-2026/04/19-19:13:58.069 6e38 Level-0 table #27: started
-2026/04/19-19:13:58.073 6e38 Level-0 table #27: 682280 bytes OK
-2026/04/19-19:13:58.075 6e38 Delete type=0 #23
+2026/04/19-19:29:50.801 130c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.e699a89f\flutter_tools_chrome_device.f8818ae5\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/19-19:29:50.802 130c Recovering log #26
+2026/04/19-19:29:50.802 130c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.e699a89f\flutter_tools_chrome_device.f8818ae5\Default\EdgeCoupons/coupons_data.db/000026.log 
+2026/04/19-19:29:50.803 130c Delete type=0 #4
+2026/04/19-19:29:50.803 130c Delete type=0 #7
+2026/04/19-19:29:50.803 130c Delete type=2 #8
+2026/04/19-19:29:50.803 130c Delete type=0 #10
+2026/04/19-19:29:50.803 130c Delete type=2 #11
+2026/04/19-19:29:50.803 130c Delete type=0 #13
+2026/04/19-19:29:50.803 130c Delete type=2 #14
+2026/04/19-19:29:50.822 130c Delete type=0 #16
+2026/04/19-19:29:50.822 130c Delete type=2 #17
+2026/04/19-19:29:50.838 130c Delete type=0 #19
+2026/04/19-19:29:50.839 130c Delete type=0 #23
+2026/04/19-19:29:51.563 45b8 Level-0 table #30: started
+2026/04/19-19:29:51.569 45b8 Level-0 table #30: 682280 bytes OK
+2026/04/19-19:29:51.571 45b8 Delete type=0 #26
