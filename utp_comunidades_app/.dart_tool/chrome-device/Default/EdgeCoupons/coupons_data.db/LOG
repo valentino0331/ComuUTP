@@ -1,15 +1,16 @@
-2026/04/19-19:10:14.655 7a8c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.4745b3ae\flutter_tools_chrome_device.81e5dc2f\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/19-19:10:14.656 7a8c Recovering log #19
-2026/04/19-19:10:14.656 7a8c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.4745b3ae\flutter_tools_chrome_device.81e5dc2f\Default\EdgeCoupons/coupons_data.db/000019.log 
-2026/04/19-19:10:14.657 7a8c Delete type=0 #4
-2026/04/19-19:10:14.657 7a8c Delete type=0 #7
-2026/04/19-19:10:14.657 7a8c Delete type=2 #8
-2026/04/19-19:10:14.658 7a8c Delete type=0 #10
-2026/04/19-19:10:14.658 7a8c Delete type=2 #11
-2026/04/19-19:10:14.658 7a8c Delete type=0 #13
-2026/04/19-19:10:14.658 7a8c Delete type=2 #14
-2026/04/19-19:10:14.683 7a8c Delete type=0 #16
-2026/04/19-19:10:14.699 7a8c Delete type=2 #17
-2026/04/19-19:10:20.443 5adc Level-0 table #24: started
-2026/04/19-19:10:20.447 5adc Level-0 table #24: 682280 bytes OK
-2026/04/19-19:10:20.450 5adc Delete type=0 #19
+2026/04/19-19:13:57.976 445c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.441a521d\flutter_tools_chrome_device.e9c69ac\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/19-19:13:57.977 445c Recovering log #23
+2026/04/19-19:13:57.978 445c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.441a521d\flutter_tools_chrome_device.e9c69ac\Default\EdgeCoupons/coupons_data.db/000023.log 
+2026/04/19-19:13:57.979 445c Delete type=0 #4
+2026/04/19-19:13:57.979 445c Delete type=0 #7
+2026/04/19-19:13:57.979 445c Delete type=2 #8
+2026/04/19-19:13:57.979 445c Delete type=0 #10
+2026/04/19-19:13:57.979 445c Delete type=2 #11
+2026/04/19-19:13:57.979 445c Delete type=0 #13
+2026/04/19-19:13:57.979 445c Delete type=2 #14
+2026/04/19-19:13:57.992 445c Delete type=0 #16
+2026/04/19-19:13:57.992 445c Delete type=2 #17
+2026/04/19-19:13:57.992 445c Delete type=0 #19
+2026/04/19-19:13:58.069 6e38 Level-0 table #27: started
+2026/04/19-19:13:58.073 6e38 Level-0 table #27: 682280 bytes OK
+2026/04/19-19:13:58.075 6e38 Delete type=0 #23
