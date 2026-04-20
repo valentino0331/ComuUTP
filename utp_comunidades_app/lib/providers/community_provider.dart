@@ -18,8 +18,8 @@ class CommunityProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      // Intentar cargar desde API primero
-      final res = await ApiService.get('/communities');
+      // Intentar cargar desde API primero - CON AUTH para obtener es_miembro correctamente
+      final res = await ApiService.get('/communities', auth: true);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body)['comunidades'] as List;
         _communities = data.map((c) => Community.fromJson(c)).toList();
