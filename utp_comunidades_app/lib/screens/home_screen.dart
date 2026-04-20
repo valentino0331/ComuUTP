@@ -186,11 +186,86 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: postProvider.posts.length,
               itemBuilder: (context, index) {
                 final post = postProvider.posts[index];
+                final isAuthor = post.usuarioId == 1; // TODO: Usar usuario actual
                 return PostCard(
                   post: post,
+                  isAuthor: isAuthor,
                   onLikeTap: () => postProvider.toggleLike(post.id),
                   onCommentTap: () => _showCommentSheet(context, post),
                   onShareTap: () => _showShareMessage(context),
+                  onDeleteTap: isAuthor
+                      ? () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(
+                                '¿Eliminar publicación?',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              content: const Text(
+                                'Esta acción no se puede deshacer.',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text(
+                                    'Cancelar',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, true),
+                                  child: const Text(
+                                    'Eliminar',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed == true) {
+                            final success =
+                                await postProvider.deletePost(post.id);
+                            if (success && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        PhosphorIcons.checkCircle(
+                                          PhosphorIconsStyle.fill,
+                                        ),
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Text(
+                                        'Publicación eliminada',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      : null,
                 );
               },
             ),
@@ -478,35 +553,64 @@ class _StorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header mejorado
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  PhosphorIcons.image(PhosphorIconsStyle.fill),
-                  color: const Color(0xFFB21132),
-                  size: 24,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB21132).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        PhosphorIcons.clock(PhosphorIconsStyle.fill),
+                        color: const Color(0xFFB21132),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Historias (24h)',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Historias',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFB21132).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '8 activas',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFB21132),
+                      fontFamily: 'Montserrat',
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           SizedBox(
-            height: 130,
+            height: 140,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -554,103 +658,101 @@ class StoryItem extends StatelessWidget {
             onTap: onTap,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: isFirstStory
-                          ? const Color(0xFFB21132).withOpacity(0.4)
-                          : Colors.black.withOpacity(0.08),
-                      blurRadius: isFirstStory ? 12 : 6,
-                      offset: const Offset(0, 3),
-                      spreadRadius: isFirstStory ? 2 : 0,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Border decorativo
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isFirstStory
+                            ? const Color(0xFFB21132)
+                            : const Color(0xFFB21132).withOpacity(0.3),
+                        width: isFirstStory ? 3 : 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isFirstStory
+                              ? const Color(0xFFB21132).withOpacity(0.3)
+                              : Colors.black.withOpacity(0.08),
+                          blurRadius: isFirstStory ? 12 : 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
+                  ),
+                  // Contenido
+                  Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: isFirstStory
+                          ? LinearGradient(
+                              colors: [
+                                const Color(0xFFED1C24).withOpacity(0.1),
+                                const Color(0xFFB21132).withOpacity(0.05),
+                              ],
+                            )
+                          : LinearGradient(
+                              colors: [
+                                Colors.grey[100]!,
+                                Colors.grey[50]!,
+                              ],
+                            ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          isFirstStory
+                              ? PhosphorIcons.plus(PhosphorIconsStyle.bold)
+                              : PhosphorIcons.image(PhosphorIconsStyle.fill),
                           color: isFirstStory
                               ? const Color(0xFFB21132)
-                              : Colors.grey[300]!,
-                          width: isFirstStory ? 3 : 2,
+                              : Colors.grey[400],
+                          size: isFirstStory ? 40 : 32,
                         ),
-                        color: isFirstStory
-                            ? const Color(0xFFB21132).withOpacity(0.08)
-                            : Colors.grey[100],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isFirstStory
-                                ? PhosphorIcons.plus(PhosphorIconsStyle.bold)
-                                : PhosphorIcons.image(
-                                    PhosphorIconsStyle.fill),
-                            color: isFirstStory
-                                ? const Color(0xFFB21132)
-                                : Colors.grey[400],
-                            size: isFirstStory ? 36 : 28,
-                          ),
-                          if (isFirstStory) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              'Añade',
-                              style: TextStyle(
-                                color: const Color(0xFFB21132),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Montserrat',
-                              ),
+                        if (isFirstStory) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Crear',
+                            style: TextStyle(
+                              color: const Color(0xFFB21132),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat',
                             ),
-                          ]
-                        ],
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                  // Badge de online
+                  if (!isFirstStory)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.green,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
                       ),
                     ),
-                    if (isFirstStory)
-                      Positioned(
-                        bottom: -2,
-                        right: -2,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFFB21132),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFB21132)
-                                    .withOpacity(0.5),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            PhosphorIcons.plus(PhosphorIconsStyle.bold),
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           SizedBox(
-            width: 80,
+            width: 96,
             child: Text(
               isFirstStory ? 'Tu historia' : 'Usuario ${index}',
               textAlign: TextAlign.center,
@@ -660,7 +762,7 @@ class StoryItem extends StatelessWidget {
                 fontSize: isFirstStory ? 12 : 11,
                 fontFamily: 'Montserrat',
                 color: isFirstStory ? Colors.black87 : Colors.grey[600],
-                fontWeight: isFirstStory ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: isFirstStory ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ),
@@ -675,12 +777,16 @@ class PostCard extends StatefulWidget {
   final VoidCallback onLikeTap;
   final VoidCallback onCommentTap;
   final VoidCallback onShareTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
 
   const PostCard({
     required this.post,
     required this.onLikeTap,
     required this.onCommentTap,
     required this.onShareTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
   });
 
   @override
@@ -711,6 +817,8 @@ class _PostCardState extends State<PostCard> {
           _PostHeader(
             post: widget.post,
             onMenuTap: widget.onShareTap,
+            onDeleteTap: widget.onDeleteTap,
+            isAuthor: widget.isAuthor,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -787,10 +895,14 @@ class _PostCardState extends State<PostCard> {
 class _PostHeader extends StatelessWidget {
   final dynamic post;
   final VoidCallback onMenuTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
 
   const _PostHeader({
     required this.post,
     required this.onMenuTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
   });
 
   @override
@@ -818,7 +930,7 @@ class _PostHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Usuario ${post.usuarioId}',
+                  post.nombreUsuario ?? 'Usuario ${post.usuarioId}',
                   style: const TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 14,
@@ -837,14 +949,46 @@ class _PostHeader extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(
-              PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
-              color: Colors.grey[600],
-              size: 20,
+          if (isAuthor)
+            PopupMenuButton(
+              icon: Icon(
+                PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
+                color: Colors.grey[600],
+                size: 20,
+              ),
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                        color: Colors.red,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Eliminar',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: onDeleteTap,
+                ),
+              ],
+            )
+          else
+            IconButton(
+              icon: Icon(
+                PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
+                color: Colors.grey[600],
+                size: 20,
+              ),
+              onPressed: onMenuTap,
             ),
-            onPressed: onMenuTap,
-          ),
         ],
       ),
     );
