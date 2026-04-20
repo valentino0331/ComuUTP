@@ -50,7 +50,7 @@ class CommunityProvider with ChangeNotifier {
         await Future.delayed(const Duration(milliseconds: 100));
         await fetchCommunities();
         
-        print('✅ Comunidades refrescadas. Ahora tienes ${_communities.where((c) => c.esMiembro).length} comunidades');
+        print('✅ Comunidades refrescadas. Ahora tienes ${_communities.where((c) => c.esMiembro ?? false).length} comunidades');
         return true;
       }
       print('❌ Join falló con status ${res.statusCode}');
