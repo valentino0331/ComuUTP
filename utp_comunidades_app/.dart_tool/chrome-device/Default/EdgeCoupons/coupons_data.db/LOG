@@ -1,24 +1,35 @@
-2026/04/19-19:45:21.804 633c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.5b2f820d\flutter_tools_chrome_device.9e847821\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/19-19:45:21.806 633c Recovering log #36
-2026/04/19-19:45:21.806 633c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.5b2f820d\flutter_tools_chrome_device.9e847821\Default\EdgeCoupons/coupons_data.db/000036.log 
-2026/04/19-19:45:21.807 633c Delete type=0 #4
-2026/04/19-19:45:21.807 633c Delete type=0 #7
-2026/04/19-19:45:21.807 633c Delete type=2 #8
-2026/04/19-19:45:21.807 633c Delete type=0 #10
-2026/04/19-19:45:21.807 633c Delete type=2 #11
-2026/04/19-19:45:21.807 633c Delete type=0 #13
-2026/04/19-19:45:21.807 633c Delete type=2 #14
-2026/04/19-19:45:21.808 633c Delete type=0 #16
-2026/04/19-19:45:21.808 633c Delete type=2 #17
-2026/04/19-19:45:21.808 633c Delete type=0 #19
-2026/04/19-19:45:21.808 633c Delete type=2 #21
-2026/04/19-19:45:21.808 633c Delete type=0 #23
-2026/04/19-19:45:21.809 633c Delete type=2 #24
-2026/04/19-19:45:21.809 633c Delete type=0 #26
-2026/04/19-19:45:21.809 633c Delete type=2 #27
-2026/04/19-19:45:21.809 633c Delete type=0 #29
-2026/04/19-19:45:21.809 633c Delete type=2 #30
-2026/04/19-19:45:21.809 633c Delete type=0 #32
-2026/04/19-19:45:28.256 1ee4 Level-0 table #40: started
-2026/04/19-19:45:28.259 1ee4 Level-0 table #40: 682280 bytes OK
-2026/04/19-19:45:28.260 1ee4 Delete type=0 #36
+2026/04/19-19:55:07.416 ba0 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.896a91ab\flutter_tools_chrome_device.dd07d849\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/19-19:55:07.418 ba0 Recovering log #42
+2026/04/19-19:55:07.418 ba0 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.896a91ab\flutter_tools_chrome_device.dd07d849\Default\EdgeCoupons/coupons_data.db/000042.log 
+2026/04/19-19:55:07.420 ba0 Delete type=0 #4
+2026/04/19-19:55:07.420 ba0 Delete type=0 #7
+2026/04/19-19:55:07.420 ba0 Delete type=2 #8
+2026/04/19-19:55:07.420 ba0 Delete type=0 #10
+2026/04/19-19:55:07.420 ba0 Delete type=2 #11
+2026/04/19-19:55:07.420 ba0 Delete type=0 #13
+2026/04/19-19:55:07.421 ba0 Delete type=2 #14
+2026/04/19-19:55:07.421 ba0 Delete type=0 #16
+2026/04/19-19:55:07.443 ba0 Delete type=2 #17
+2026/04/19-19:55:07.443 ba0 Delete type=0 #19
+2026/04/19-19:55:07.443 ba0 Delete type=2 #21
+2026/04/19-19:55:07.443 ba0 Delete type=0 #23
+2026/04/19-19:55:07.443 ba0 Delete type=2 #24
+2026/04/19-19:55:07.444 ba0 Delete type=0 #26
+2026/04/19-19:55:07.444 ba0 Delete type=2 #27
+2026/04/19-19:55:07.444 ba0 Delete type=0 #29
+2026/04/19-19:55:07.444 ba0 Delete type=2 #30
+2026/04/19-19:55:07.444 ba0 Delete type=0 #32
+2026/04/19-19:55:07.444 ba0 Delete type=0 #36
+2026/04/19-19:55:07.445 ba0 Delete type=0 #39
+2026/04/19-19:55:07.802 57b0 Level-0 table #46: started
+2026/04/19-19:55:07.806 57b0 Level-0 table #46: 682280 bytes OK
+2026/04/19-19:55:07.807 57b0 Delete type=0 #42
+2026/04/19-19:55:07.807 57b0 Compacting 4@0 + 1@1 files
+2026/04/19-19:55:07.810 57b0 Generated table #47@0: 4 keys, 682187 bytes
+2026/04/19-19:55:07.810 57b0 Compacted 4@0 + 1@1 files => 682187 bytes
+2026/04/19-19:55:07.811 57b0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/19-19:55:07.811 57b0 Delete type=2 #34
+2026/04/19-19:55:07.812 57b0 Delete type=2 #37
+2026/04/19-19:55:07.812 57b0 Delete type=2 #40
+2026/04/19-19:55:07.812 57b0 Delete type=2 #43
+2026/04/19-19:55:07.812 57b0 Delete type=2 #46

@@ -99,15 +99,23 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             children: [
                               const SizedBox(height: 32),
                               
-                              // Título "Bienvenido a LUTP"
+                              // Icono + Nombre LUTP estilo Instagram
+                              Image.asset(
+                                'assets/lutp_icon.png',
+                                height: 120,
+                                width: 120,
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
                               const Text(
-                                'Bienvenido a\nLUTP',
+                                'LUTP',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: 'Montserrat',
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.3,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 2,
                                   color: Colors.white,
                                 ),
                               ),
