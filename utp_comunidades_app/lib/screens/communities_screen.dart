@@ -6,6 +6,7 @@ import '../providers/community_provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import './create_community_screen.dart';
+import './community_members_screen.dart';
 
 class CommunitiesScreen extends StatefulWidget {
   final List<Community> communities;
@@ -258,40 +259,116 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     print('Community: ${community.nombre}, creatorId: ${community.usuarioCreadorId}, currentId: $currentUserId, isCreator: $isCreator, isMember: $isMember, esMiembroRaw: ${community.esMiembro}');
 
     if (isCreator) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.blue[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.blue, width: 1),
-        ),
-        child: const Text(
-          'Administrador',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.blue,
+      return Wrap(
+        spacing: 8,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue, width: 1),
+            ),
+            child: const Text(
+              'Administrador',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue,
+              ),
+            ),
           ),
-        ),
+          _buildMembersButton(context, community),
+        ],
       );
     }
 
     if (isMember) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.green[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.green, width: 1),
-        ),
-        child: const Text(
-          'Miembro',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.green,
+      return Wrap(
+        spacing: 8,
+        children: [
+          _buildMembersButton(context, community),
+          GestureDetector(
+            onTap: () async {
+              final confirmLeave = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Salir de comunidad'),
+                  content: Text('¿Estás seguro de que quieres salir de ${community.nombre}?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Salir', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmLeave == true && context.mounted) {
+                final result = await Provider.of<CommunityProvider>(context, listen: false).leaveCommunity(community.id);
+                if (!context.mounted) return;
+
+                if (result) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          Icon(
+                            PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Saliste de la comunidad'),
+                        ],
+                      ),
+                      backgroundColor: Colors.orange,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                  setState(() {
+                    community.esMiembro = false;
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Error al salir de la comunidad'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red, width: 1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(PhosphorIcons.signOut(PhosphorIconsStyle.fill), size: 14, color: Colors.red),
+                  const SizedBox(width: 4),
+                  const Text(
+                    'Salir',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
@@ -303,17 +380,27 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         if (result) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('¡Te uniste a la comunidad!'),
+              content: Row(
+                children: [
+                  Icon(
+                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('¡Te uniste a la comunidad!'),
+                ],
+              ),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Error al unirse a la comunidad'),
+            const SnackBar(
+              content: Text('Error al unirse a la comunidad'),
               backgroundColor: Colors.red,
-              duration: const Duration(seconds: 2),
+              duration: Duration(seconds: 2),
             ),
           );
         }
@@ -326,6 +413,42 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         ),
       ),
       child: const Text('Unirse'),
+    );
+  }
+
+  Widget _buildMembersButton(BuildContext context, Community community) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CommunityMembersScreen(community: community),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFB21132).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFB21132), width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(PhosphorIcons.usersThree(PhosphorIconsStyle.fill), size: 14, color: const Color(0xFFB21132)),
+            const SizedBox(width: 4),
+            const Text(
+              'Ver Miembros',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFB21132),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
