@@ -54,13 +54,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Comunidades UTP'),
-        actions: [
-          if (isAdmin)
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              onPressed: _showCreateCommunity,
-            ),
-        ],
       ),
       body: Column(
         children: [

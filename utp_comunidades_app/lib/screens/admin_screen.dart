@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'dart:convert';
 import 'package:utp_comunidades_app/services/api_service.dart';
+import 'package:utp_comunidades_app/theme/app_theme.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -40,16 +41,18 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
-      final usersResponse = await ApiService.get('/users', auth: true);
+      final usersResponse = await ApiService.get('/admin/usuarios', auth: true);
       if (usersResponse.statusCode == 200) {
-        final List<dynamic> data = json.decode(usersResponse.body);
+        final data = jsonDecode(usersResponse.body);
+        final List<dynamic> users = data['usuarios'] ?? [];
+        
         if (mounted) {
           setState(() {
-            _users = data;
-            _stats['users'] = data.length;
-            _stats['communities'] = 12;
-            _stats['posts'] = 156;
-            _stats['reports'] = 4;
+            _users = users;
+            _stats['users'] = users.length;
+            _stats['communities'] = data['total_comunidades'] ?? 0;
+            _stats['posts'] = data['total_posts'] ?? 0;
+            _stats['reports'] = data['total_reportes'] ?? 0;
           });
         }
       }
@@ -62,10 +65,23 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
 
   Future<void> _toggleUserRole(String userId, String currentRole) async {
     try {
-      _loadData(); 
+      final newRole = currentRole == 'admin' ? 'user' : 'admin';
+      
+      await ApiService.patch('/admin/usuarios/$userId', {'role': newRole}, auth: true);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Usuario actualizado a $newRole'),
+          backgroundColor: AppTheme.colorPrimary,
+        ),
+      );
+      
+      _loadData();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
       }
     }
   }
@@ -73,15 +89,57 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Admin Panel'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.people), text: 'Users'),
-            Tab(icon: Icon(Icons.bar_chart), text: 'Stats'),
-            Tab(icon: Icon(Icons.build), text: 'Tools'),
-          ],
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Panel de Administración',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: AppTheme.colorPrimary,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: AppTheme.colorPrimary,
+              tabs: [
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(PhosphorIconsRegular.users),
+                      const SizedBox(width: 8),
+                      const Text('Usuarios'),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(PhosphorIconsRegular.chartBar),
+                      const SizedBox(width: 8),
+                      const Text('Estadísticas'),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(PhosphorIconsRegular.wrench),
+                      const SizedBox(width: 8),
+                      const Text('Herramientas'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -97,116 +155,333 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
 
   Widget _buildUsersTab() {
     final filteredUsers = _users.where((user) {
-      final name = user['name']?.toString().toLowerCase() ?? '';
-      return name.contains(_searchController.text.toLowerCase());
+      final name = (user['nombre'] ?? user['name'] ?? '').toString().toLowerCase();
+      final email = (user['email'] ?? '').toString().toLowerCase();
+      final searchTerm = _searchController.text.toLowerCase();
+      return name.contains(searchTerm) || email.contains(searchTerm);
     }).toList();
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: Colors.white,
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Search users...',
-              prefixIcon: Icon(PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold)),
-              border: const OutlineInputBorder(),
+              hintText: 'Buscar usuarios por nombre o correo...',
+              prefixIcon: Icon(PhosphorIconsRegular.magnifyingGlass, color: AppTheme.colorPrimary),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
             ),
             onChanged: (value) => setState(() {}),
           ),
         ),
         Expanded(
-          child: _isLoading 
-            ? const Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemCount: filteredUsers.length,
-                itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
-                  final String name = user['name']?.toString() ?? 'Unknown';
-                  final String email = user['email']?.toString() ?? '';
-                  final String role = user['role']?.toString() ?? 'user';
-                  final String id = user['id']?.toString() ?? '';
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : filteredUsers.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(PhosphorIconsRegular.users, size: 64, color: Colors.grey),
+                          const SizedBox(height: 16),
+                          const Text('No hay usuarios', style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredUsers.length,
+                      itemBuilder: (context, index) {
+                        final user = filteredUsers[index];
+                        final String nombre = user['nombre'] ?? user['name'] ?? 'Sin nombre';
+                        final String email = user['email'] ?? '';
+                        final String role = user['role'] ?? 'user';
+                        final String id = user['id']?.toString() ?? '';
+                        final bool puedeCrearComunidad = user['puede_crear_comunidad'] ?? false;
 
-                  return ListTile(
-                    leading: CircleAvatar(child: Text(name.isNotEmpty ? name[0] : 'U')),
-                    title: Text(name),
-                    subtitle: Text(email),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            role == 'admin' 
-                              ? PhosphorIcons.shieldCheck(PhosphorIconsStyle.fill)
-                              : PhosphorIcons.shield(PhosphorIconsStyle.bold)
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: AppTheme.colorPrimary,
+                              child: Text(
+                                nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            title: Text(
+                              nombre,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(email, style: const TextStyle(fontSize: 12)),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: role == 'admin' ? AppTheme.colorPrimary : Colors.grey,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        role == 'admin' ? 'Administrador' : 'Usuario',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    if (puedeCrearComunidad)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Text(
+                                          'Crea comunidades',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            trailing: PopupMenuButton(
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        role == 'admin'
+                                            ? PhosphorIconsRegular.shieldCheck
+                                            : PhosphorIconsRegular.shield,
+                                        color: AppTheme.colorPrimary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(role == 'admin' ? 'Remover admin' : 'Hacer admin'),
+                                    ],
+                                  ),
+                                  onTap: () => _toggleUserRole(id, role),
+                                ),
+                              ],
+                            ),
                           ),
-                          onPressed: () => _toggleUserRole(id, role),
-                        ),
-                        IconButton(
-                          icon: Icon(PhosphorIcons.lock(PhosphorIconsStyle.bold)),
-                          onPressed: () {},
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
         ),
       ],
     );
   }
 
   Widget _buildStatsTab() {
-    return GridView.count(
-      crossAxisCount: 2,
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      children: [
-        _statCard('Users', _stats['users'].toString(), PhosphorIcons.users(PhosphorIconsStyle.bold), Colors.blue),
-        _statCard('Communities', _stats['communities'].toString(), PhosphorIcons.browser(PhosphorIconsStyle.bold), Colors.green),
-        _statCard('Posts', _stats['posts'].toString(), PhosphorIcons.chatTeardropDots(PhosphorIconsStyle.bold), Colors.orange),
-        _statCard('Reports', _stats['reports'].toString(), PhosphorIcons.warningCircle(PhosphorIconsStyle.bold), Colors.red),
-      ],
-    );
-  }
-
-  Widget _statCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 4,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 40, color: color),
-          const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text(title),
+          const Text(
+            'Estadísticas del Sistema',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            children: [
+              _buildStatCard(
+                'Usuarios',
+                _stats['users'].toString(),
+                PhosphorIconsRegular.users,
+                Colors.blue,
+              ),
+              _buildStatCard(
+                'Comunidades',
+                _stats['communities'].toString(),
+                PhosphorIconsRegular.users,
+                Colors.green,
+              ),
+              _buildStatCard(
+                'Publicaciones',
+                _stats['posts'].toString(),
+                PhosphorIconsRegular.fileText,
+                Colors.orange,
+              ),
+              _buildStatCard(
+                'Reportes',
+                _stats['reports'].toString(),
+                PhosphorIconsRegular.flag,
+                Colors.red,
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'Información del Sistema',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  SizedBox(height: 8),
+                  Text('Versión: 1.0.0', style: TextStyle(fontSize: 14)),
+                  SizedBox(height: 8),
+                  Text('Estado: Activo', style: TextStyle(fontSize: 14, color: Colors.green)),
+                  SizedBox(height: 8),
+                  Text('Última actualización: Hoy', style: TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [color.withOpacity(0.3), color.withOpacity(0.1)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 32, color: color),
+              const SizedBox(height: 12),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildToolsTab() {
-    return ListView(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      children: [
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: Icon(PhosphorIcons.trash(PhosphorIconsStyle.bold)),
-          label: const Text('Delete Inactive Users'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Herramientas de Administración',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildToolCard(
+            'Gestión de Reportes',
+            'Ver y responder reportes de usuarios',
+            PhosphorIconsRegular.flag,
+            Colors.red,
+            () {},
+          ),
+          _buildToolCard(
+            'Análisis de Comunidades',
+            'Ver detalles y métricas de comunidades',
+            PhosphorIconsRegular.chartPie,
+            Colors.purple,
+            () {},
+          ),
+          _buildToolCard(
+            'Logs del Sistema',
+            'Revisar historial de actividades',
+            PhosphorIconsRegular.list,
+            Colors.indigo,
+            () {},
+          ),
+          _buildToolCard(
+            'Configuración',
+            'Ajustar configuración del sistema',
+            PhosphorIconsRegular.gear,
+            Colors.grey,
+            () {},
+          ),
+          _buildToolCard(
+            'Enviar Notificación',
+            'Notificar a todos los usuarios',
+            PhosphorIconsRegular.bell,
+            Colors.amber,
+            () {},
+          ),
+          _buildToolCard(
+            'Copias de Seguridad',
+            'Crear y descargar backups',
+            PhosphorIconsRegular.cloudArrowDown,
+            Colors.cyan,
+            () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToolCard(String title, String description, IconData icon, Color color, VoidCallback onTap) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color),
         ),
-        const SizedBox(height: 12),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: Icon(PhosphorIcons.megaphone(PhosphorIconsStyle.bold)),
-          label: const Text('Send Global Notification'),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: Icon(PhosphorIcons.database(PhosphorIconsStyle.bold)),
-          label: const Text('Backup Database'),
-        ),
-      ],
+        subtitle: Text(description),
+        trailing: Icon(PhosphorIconsRegular.caretRight, color: Colors.grey),
+        onTap: onTap,
+      ),
     );
   }
 }
