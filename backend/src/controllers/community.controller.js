@@ -57,13 +57,19 @@ exports.create = async (req, res) => {
 
 exports.list = async (req, res) => {
   try {
-    console.log('LIST COMMUNITIES');
-    
     const userId = req.user?.id;
+    console.log('📋 LIST COMMUNITIES - userId:', userId);
     
     // Si hay usuario autenticado, incluir si ya es miembro
     let result;
     if (userId) {
+      // Primero, verificar qué comunidades tiene el usuario
+      const userCommunities = await pool.query(
+        `SELECT usuario_id, comunidad_id FROM miembros_comunidad WHERE usuario_id = $1`,
+        [userId]
+      );
+      console.log('👤 User communities:', userCommunities.rows);
+
       result = await pool.query(
         `SELECT 
           c.*,
@@ -74,6 +80,14 @@ exports.list = async (req, res) => {
         ORDER BY c.id DESC`,
         [userId]
       );
+      
+      console.log('🔍 Communities with membership:', result.rows.map(r => ({
+        id: r.id,
+        nombre: r.nombre,
+        usuario_creador_id: r.usuario_creador_id,
+        es_miembro: r.es_miembro,
+        total_miembros: r.total_miembros
+      })));
     } else {
       result = await pool.query(
         `SELECT 
@@ -85,7 +99,7 @@ exports.list = async (req, res) => {
       );
     }
     
-    console.log('COMMUNITIES FOUND:', result.rows.length);
+    console.log('✅ COMMUNITIES FOUND:', result.rows.length);
     res.json({ comunidades: result.rows });
   } catch (err) {
     console.error('Error listing communities:', err.message);
