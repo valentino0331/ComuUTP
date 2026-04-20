@@ -239,7 +239,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  _buildCommunityButton(context, community, authProvider),
+                  _buildCommunityButton(context, community),
                 ],
               ),
             ],
@@ -249,7 +249,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     );
   }
 
-  Widget _buildCommunityButton(BuildContext context, Community community, AuthProvider authProvider) {
+  Widget _buildCommunityButton(BuildContext context, Community community) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final currentUserId = authProvider.user?.id;
     final isCreator = community.usuarioCreadorId != null && community.usuarioCreadorId == currentUserId;
     final isMember = community.esMiembro ?? false;
