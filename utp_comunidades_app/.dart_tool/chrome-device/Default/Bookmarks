@@ -1,8 +1,41 @@
 {
-   "checksum": "ad68ba26a5300405759f682a5ab4f3b0",
+   "checksum": "c53365d685ae92b542899daaf3f828b3",
    "roots": {
       "bookmark_bar": {
          "children": [ {
+            "date_added": "13421121359140857",
+            "date_last_used": "0",
+            "guid": "f38a2928-b54c-4018-a7af-b953294da939",
+            "id": "29",
+            "name": "Express VPN",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=expressvpn&c=*&locale=en_us&pf=*&s=*&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13421121359140156",
+            "date_last_used": "0",
+            "guid": "ad3085ac-a397-41e9-9cbc-9e7b0c88168f",
+            "id": "28",
+            "name": "McAfee Security",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/hp.html",
+            "visit_count": 0
+         }, {
+            "date_added": "13421121359139232",
+            "date_last_used": "0",
+            "guid": "7a8cc5c1-a1ab-4e20-b7f1-90a1c7be9715",
+            "id": "27",
+            "name": "LastPass password manager",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=lastpass&c=222&locale=*&pf=*&tp=edge&TYPE=3",
+            "visit_count": 0
+         }, {
             "date_added": "13421120849789689",
             "date_last_used": "0",
             "guid": "5a3d2678-2a8c-4ded-aba5-7f9e8f11bad1",
@@ -170,7 +203,7 @@
          } ],
          "date_added": "13421114339048299",
          "date_last_used": "0",
-         "date_modified": "13421120849789689",
+         "date_modified": "13421121359140857",
          "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
          "id": "1",
          "name": "Barra de favoritos",
@@ -211,6 +244,6 @@
          "type": "folder"
       }
    },
-   "sync_metadata": "CkEKHgiIgQISCGYwaaidAQAAKg4QABgBIAAoBTAAOABAABIAKhhSZ2NHb3VwMHF6cnd6OVBZR2NueTlRPT1IA6AGDBKOAQgFEokBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiQ5OTE3ODRiZS05OTY4LTUzMzctOTVlMS1kMWQzMjIzODE0Y2YYACAAKAAwi4v2jaIzOOyL9o2iM0Dsi/aNojNKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1aAGUAAAAAwj4CYAASjgEIAhKJAQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRIkNGY3Nzk2NGYtNzY5OC01ZGQyLTlmMjAtMzQ3N2EzZjQ0OTBiGAAgACgAMN3bxq37LjjlgMXT7C9A5YDF0+wvShxvUFZraHdCUmJWNjVLQ1dSMitJT05IV29PdTg9WgBlAAAAAMI+AmAAEo4BCAESiQEKHHl4Si82ZnZrZWNyN2twNUVRekI0dFdMcGRiRT0SJGZlNjdlNTQyLTJkNmItNWEwYi05NmEzLTE4YmU1MTBhMzUwOBgAIAAoADDc28at+y44xoDF0+wvQMaAxdPsL0ocYVJDV0xnaEY5YjVJbnFLSUR2dUovanZRa0ZjPVoAZQAAAADCPgJgABKOAQgDEokBChxuamdEdTg4ZUNydlhwODZwRDdmSEdjcUZwODg9EiRiODBlYzRkMC1lNDFkLTU3ZTYtOTcyNi0wMjQ1ZTQ0ZGJlOWEYACAAKAAw4dvGrfsuOIGCxdPsL0CBgsXT7C9KHHl6TkIwMWNuNTRBN2NSVTB1VCsvUGdtVHRVbz1aAGUAAAAAwj4CYAAwADgA",
+   "sync_metadata": "CkEKHgiIgQISCEv1cKidAQAAKg4QABgBIAAoBTAAOABAABIAKhhSZ2NHb3VwMHF6cnd6OVBZR2NueTlRPT1IA6AGDBKOAQgFEokBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiQ5OTE3ODRiZS05OTY4LTUzMzctOTVlMS1kMWQzMjIzODE0Y2YYACAAKAAwi4v2jaIzOOyL9o2iM0Dsi/aNojNKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1aAGUAAAAAwj4CYAASjgEIAhKJAQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRIkNGY3Nzk2NGYtNzY5OC01ZGQyLTlmMjAtMzQ3N2EzZjQ0OTBiGAAgACgAMN3bxq37LjjlgMXT7C9A5YDF0+wvShxvUFZraHdCUmJWNjVLQ1dSMitJT05IV29PdTg9WgBlAAAAAMI+AmAAEo4BCAESiQEKHHl4Si82ZnZrZWNyN2twNUVRekI0dFdMcGRiRT0SJGZlNjdlNTQyLTJkNmItNWEwYi05NmEzLTE4YmU1MTBhMzUwOBgAIAAoADDc28at+y44xoDF0+wvQMaAxdPsL0ocYVJDV0xnaEY5YjVJbnFLSUR2dUovanZRa0ZjPVoAZQAAAADCPgJgABKOAQgDEokBChxuamdEdTg4ZUNydlhwODZwRDdmSEdjcUZwODg9EiRiODBlYzRkMC1lNDFkLTU3ZTYtOTcyNi0wMjQ1ZTQ0ZGJlOWEYACAAKAAw4dvGrfsuOIGCxdPsL0CBgsXT7C9KHHl6TkIwMWNuNTRBN2NSVTB1VCsvUGdtVHRVbz1aAGUAAAAAwj4CYAAwADgA",
    "version": 1
 }

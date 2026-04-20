@@ -73,9 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
             'LUTP',
             style: TextStyle(
               fontFamily: 'Montserrat',
-              fontSize: 48,
+              fontSize: 64,
               fontWeight: FontWeight.w900,
-              letterSpacing: 3.2,
+              letterSpacing: 4.0,
               color: Colors.white,
             ),
           ),

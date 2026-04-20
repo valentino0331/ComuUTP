@@ -99,12 +99,42 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             children: [
                               const SizedBox(height: 32),
                               
-                              // Solo el icono limpio
-                              Image.asset(
-                                'icon.png',
-                                height: 120,
-                                width: 120,
-                                fit: BoxFit.contain,
+                              // Ícono con efecto profesional - círculo con sombra elegante
+                              Container(
+                                height: 150,
+                                width: 150,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.95),
+                                      Colors.white.withValues(alpha: 0.85),
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.15),
+                                      blurRadius: 24,
+                                      offset: const Offset(0, 12),
+                                      spreadRadius: 2,
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'icon.png',
+                                    height: 110,
+                                    width: 110,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
                               ),
 
                               const SizedBox(height: 40),
