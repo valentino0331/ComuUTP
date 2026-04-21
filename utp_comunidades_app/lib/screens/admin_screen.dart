@@ -11,6 +11,30 @@ class AdminScreen extends StatefulWidget {
   State<AdminScreen> createState() => _AdminScreenState();
 }
 
+// Gradient colors for different stat types
+final Map<String, LinearGradient> _statGradients = {
+  'users': LinearGradient(
+    colors: [const Color(0xFF6366F1).withOpacity(0.3), const Color(0xFF4F46E5).withOpacity(0.1)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  ),
+  'communities': LinearGradient(
+    colors: [const Color(0xFF10B981).withOpacity(0.3), const Color(0xFF059669).withOpacity(0.1)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  ),
+  'posts': LinearGradient(
+    colors: [const Color(0xFFF59E0B).withOpacity(0.3), const Color(0xFFD97706).withOpacity(0.1)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  ),
+  'reports': LinearGradient(
+    colors: [const Color(0xFFEF4444).withOpacity(0.3), const Color(0xFFDC2626).withOpacity(0.1)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  ),
+};
+
 class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
@@ -228,29 +252,56 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Panel de Administración',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Panel de Administración',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w900,
+                fontSize: 22,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Bienvenido, Administrador',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+          ],
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(70),
           child: Container(
             color: Colors.white,
             child: TabBar(
               controller: _tabController,
               labelColor: AppTheme.colorPrimary,
-              unselectedLabelColor: Colors.grey,
+              unselectedLabelColor: Colors.grey[500],
               indicatorColor: AppTheme.colorPrimary,
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Montserrat',
+                fontSize: 13,
+              ),
               tabs: [
                 Tab(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(PhosphorIconsRegular.users),
+                      Icon(PhosphorIconsRegular.users, size: 18),
                       const SizedBox(width: 8),
                       const Text('Usuarios'),
                     ],
@@ -260,7 +311,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(PhosphorIconsRegular.chartBar),
+                      Icon(PhosphorIconsRegular.chartBar, size: 18),
                       const SizedBox(width: 8),
                       const Text('Estadísticas'),
                     ],
@@ -270,7 +321,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(PhosphorIconsRegular.wrench),
+                      Icon(PhosphorIconsRegular.wrench, size: 18),
                       const SizedBox(width: 8),
                       const Text('Herramientas'),
                     ],
@@ -303,37 +354,83 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: Colors.white,
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Buscar usuarios por nombre o correo...',
-              prefixIcon: Icon(PhosphorIconsRegular.magnifyingGlass, color: AppTheme.colorPrimary),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.grey),
+              hintStyle: TextStyle(
+                color: Colors.grey[500],
+                fontFamily: 'Montserrat',
               ),
+              prefixIcon: Icon(
+                PhosphorIconsRegular.magnifyingGlass,
+                color: AppTheme.colorPrimary,
+                size: 20,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.transparent),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.grey[300]!,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppTheme.colorPrimary,
+                  width: 2,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
             onChanged: (value) => setState(() {}),
           ),
         ),
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
               : filteredUsers.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(PhosphorIconsRegular.users, size: 64, color: Colors.grey),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              PhosphorIconsRegular.users,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                          ),
                           const SizedBox(height: 16),
-                          const Text('No hay usuarios', style: TextStyle(color: Colors.grey)),
+                          Text(
+                            'No hay usuarios',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
                         ],
                       ),
                     )
                   : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       itemCount: filteredUsers.length,
                       itemBuilder: (context, index) {
                         final user = filteredUsers[index];
@@ -344,85 +441,178 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                         final bool puedeCrearComunidad = user['puede_crear_comunidad'] ?? false;
 
                         return Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: AppTheme.colorPrimary,
-                              child: Text(
-                                nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U',
-                                style: const TextStyle(color: Colors.white),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                          color: Colors.white,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.grey[200]!,
+                                width: 1,
                               ),
                             ),
-                            title: Text(
-                              nombre,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(email, style: const TextStyle(fontSize: 12)),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: role == 'admin' ? AppTheme.colorPrimary : Colors.grey,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        role == 'admin' ? 'Administrador' : 'Usuario',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(14),
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      AppTheme.colorPrimary.withOpacity(0.8),
+                                      AppTheme.colorPrimary.withOpacity(0.4),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 20,
                                     ),
-                                    const SizedBox(width: 8),
-                                    if (puedeCrearComunidad)
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                nombre,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                  fontFamily: 'Montserrat',
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    email,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius: BorderRadius.circular(4),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
                                         ),
-                                        child: const Text(
-                                          'Crea comunidades',
+                                        decoration: BoxDecoration(
+                                          color: role == 'admin'
+                                              ? const Color(0xFFB21132).withOpacity(0.15)
+                                              : Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          role == 'admin' ? '👑 Admin' : '👤 Usuario',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
+                                            color: role == 'admin'
+                                                ? const Color(0xFFB21132)
+                                                : Colors.grey[700],
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            fontFamily: 'Montserrat',
                                           ),
                                         ),
                                       ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            trailing: PopupMenuButton(
-                              itemBuilder: (context) => [
-                                PopupMenuItem(
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        role == 'admin'
-                                            ? PhosphorIconsRegular.shieldCheck
-                                            : PhosphorIconsRegular.shield,
-                                        color: AppTheme.colorPrimary,
-                                      ),
                                       const SizedBox(width: 8),
-                                      const Text('Cambiar rol'),
+                                      if (puedeCrearComunidad)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF10B981).withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: const Text(
+                                            '✨ Creator',
+                                            style: TextStyle(
+                                              color: Color(0xFF10B981),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: 'Montserrat',
+                                            ),
+                                          ),
+                                        ),
                                     ],
                                   ),
-                                  onTap: () => _showRoleSelectionDialog(
-                                    id,
-                                    role,
-                                    puedeCrearComunidad,
+                                ],
+                              ),
+                              trailing: PopupMenuButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(
+                                    child: Container(
+                                      width: 200,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.colorPrimary
+                                                  .withOpacity(0.15),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              PhosphorIconsRegular.shieldCheck,
+                                              color: AppTheme.colorPrimary,
+                                              size: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          const Expanded(
+                                            child: Text(
+                                              'Cambiar rol',
+                                              style: TextStyle(
+                                                fontFamily: 'Montserrat',
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    onTap: () => _showRoleSelectionDialog(
+                                      id,
+                                      role,
+                                      puedeCrearComunidad,
+                                    ),
+                                  ),
+                                ],
+                                icon: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    PhosphorIconsRegular.dotsThreeVertical,
+                                    color: AppTheme.colorPrimary,
+                                    size: 18,
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         );
@@ -439,65 +629,121 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           const Text(
             'Estadísticas del Sistema',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Montserrat',
+              color: Colors.black,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          Text(
+            'Resumen general de tu comunidad',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Stats Grid
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.1,
             children: [
               _buildStatCard(
                 'Usuarios',
                 _stats['users'].toString(),
                 PhosphorIconsRegular.users,
-                Colors.blue,
+                const Color(0xFF6366F1),
+                'usuarios',
               ),
               _buildStatCard(
                 'Comunidades',
                 _stats['communities'].toString(),
                 PhosphorIconsRegular.users,
-                Colors.green,
+                const Color(0xFF10B981),
+                'communities',
               ),
               _buildStatCard(
                 'Publicaciones',
                 _stats['posts'].toString(),
                 PhosphorIconsRegular.fileText,
-                Colors.orange,
+                const Color(0xFFF59E0B),
+                'posts',
               ),
               _buildStatCard(
                 'Reportes',
                 _stats['reports'].toString(),
                 PhosphorIconsRegular.flag,
-                Colors.red,
+                const Color(0xFFEF4444),
+                'reports',
               ),
             ],
           ),
           const SizedBox(height: 32),
-          const Text(
-            'Información del Sistema',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  SizedBox(height: 8),
-                  Text('Versión: 1.0.0', style: TextStyle(fontSize: 14)),
-                  SizedBox(height: 8),
-                  Text('Estado: Activo', style: TextStyle(fontSize: 14, color: Colors.green)),
-                  SizedBox(height: 8),
-                  Text('Última actualización: Hoy', style: TextStyle(fontSize: 14)),
-                ],
-              ),
+
+          // System Info Section
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey[200]!, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        PhosphorIconsRegular.info,
+                        color: Color(0xFF6366F1),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Información del Sistema',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildInfoRow('Versión', '1.0.0'),
+                const SizedBox(height: 12),
+                _buildInfoRow('Estado', '✓ Activo', Colors.green),
+                const SizedBox(height: 12),
+                _buildInfoRow('Base de Datos', '🔐 PostgreSQL'),
+                const SizedBox(height: 12),
+                _buildInfoRow('Última actualización', 'Hoy'),
+              ],
             ),
           ),
         ],
@@ -505,39 +751,117 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildInfoRow(String label, String value, [Color? valueColor]) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+            fontFamily: 'Montserrat',
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: valueColor ?? Colors.black,
+            fontFamily: 'Montserrat',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    String key,
+  ) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.white,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.3), color.withOpacity(0.1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.grey[200]!,
+            width: 1.5,
           ),
+          gradient: _statGradients[key],
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 32, color: color),
-              const SizedBox(height: 12),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, size: 24, color: color),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      '↑ 12%',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.green,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-                textAlign: TextAlign.center,
+              const SizedBox(height: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: color,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -608,61 +932,96 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           const Text(
             'Herramientas de Administración',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Montserrat',
+              color: Colors.black,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          Text(
+            'Gestiona tu comunidad y usuarios',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Tools Grid
           _buildToolCard(
             'Gestión de Reportes',
             'Ver y responder reportes de usuarios',
             PhosphorIconsRegular.flag,
-            Colors.red,
+            const Color(0xFFEF4444),
             () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Módulo de reportes en desarrollo')),
+              const SnackBar(
+                content: Text('Módulo de reportes en desarrollo'),
+                backgroundColor: Color(0xFFEF4444),
+              ),
             ),
           ),
           _buildToolCard(
             'Análisis de Comunidades',
             'Ver detalles y métricas de comunidades',
             PhosphorIconsRegular.chartPie,
-            Colors.purple,
+            const Color(0xFF8B5CF6),
             () => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Total: ${_stats['communities']} comunidades activas')),
+              SnackBar(
+                content: Text(
+                  'Total: ${_stats['communities']} comunidades activas',
+                ),
+                backgroundColor: const Color(0xFF8B5CF6),
+              ),
             ),
           ),
           _buildToolCard(
             'Logs del Sistema',
             'Revisar historial de actividades',
             PhosphorIconsRegular.list,
-            Colors.indigo,
+            const Color(0xFF3B82F6),
             () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Logs del sistema disponibles')),
+              const SnackBar(
+                content: Text('Logs del sistema disponibles'),
+                backgroundColor: Color(0xFF3B82F6),
+              ),
             ),
           ),
           _buildToolCard(
             'Configuración',
             'Ajustar configuración del sistema',
             PhosphorIconsRegular.gear,
-            Colors.grey,
+            const Color(0xFF6B7280),
             () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Configuración del sistema')),
+              const SnackBar(
+                content: Text('Configuración del sistema'),
+                backgroundColor: Color(0xFF6B7280),
+              ),
             ),
           ),
           _buildToolCard(
             'Enviar Notificación',
             'Notificar a todos los usuarios',
             PhosphorIconsRegular.bell,
-            Colors.amber,
+            const Color(0xFFFCD34D),
             _sendNotificationToAll,
           ),
           _buildToolCard(
             'Copias de Seguridad',
             'Crear y descargar backups',
             PhosphorIconsRegular.cloudArrowDown,
-            Colors.cyan,
+            const Color(0xFF06B6D4),
             () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Última copia: Hoy a las 2:30 AM')),
+              const SnackBar(
+                content: Text('Última copia: Hoy a las 2:30 AM'),
+                backgroundColor: Color(0xFF06B6D4),
+              ),
             ),
           ),
         ],
@@ -670,26 +1029,90 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildToolCard(String title, String description, IconData icon, Color color, VoidCallback onTap) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
+  Widget _buildToolCard(
+    String title,
+    String description,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 0,
+        color: Colors.white,
+        child: Container(
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Colors.grey[200]!,
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: Icon(icon, color: color),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                // Icon Container
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(width: 16),
+
+                // Text Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          fontFamily: 'Montserrat',
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Arrow Icon
+                Icon(
+                  PhosphorIconsRegular.caretRight,
+                  color: Colors.grey[400],
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
         ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(description),
-        trailing: Icon(PhosphorIconsRegular.caretRight, color: Colors.grey),
-        onTap: onTap,
       ),
     );
   }
