@@ -685,6 +685,56 @@ class _PostHeader extends StatelessWidget {
                 ),
               );
 
+              // Opción de guardar
+              items.add(
+                PopupMenuItem(
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                  child: Container(
+                    width: 180,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            PhosphorIcons.bookmark(PhosphorIconsStyle.regular),
+                            color: Colors.blue,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Guardar',
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Guardado en tus favoritos',
+                          style: TextStyle(fontFamily: 'Montserrat'),
+                        ),
+                        duration: Duration(milliseconds: 800),
+                      ),
+                    );
+                  },
+                ),
+              );
+
               // Opción de reportar (todos)
               items.add(
                 PopupMenuItem(

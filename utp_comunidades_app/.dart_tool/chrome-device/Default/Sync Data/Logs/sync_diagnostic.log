@@ -132,3 +132,32 @@
 2026-04-21 05:41:59.304: [INFO][SyncEngineBackend::DoStartSyncing] Start syncing
 2026-04-21 05:43:48.123: [INFO][Sync] Reset engine, reason: 0
 2026-04-21 05:43:48.124: [INFO][Sync] Reset engine with reason: 0
+2026-04-21 06:22:13.866: [INFO][Sync] SyncState after authenticated was: FeatureCanStart
+2026-04-21 06:22:14.235: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-21 06:22:14.235: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-21 06:22:14.235: [INFO][Sync] Credentials changed for: EdgeSyncKeyDataScope
+2026-04-21 06:22:19.619: [INFO][Sync] Try to start sync engine
+2026-04-21 06:22:19.634: [INFO][SyncManagerImpl::NudgeForInitialDownload] Initial download nudge for Encryption Keys
+2026-04-21 06:22:19.634: [INFO][SyncEngineBackend::LoadAndConnectNigoriController] Load and connect Nigori controller
+2026-04-21 06:22:19.634: [INFO][SyncEngineBackend::DoInitialize] Control Types added: Encryption Keys
+2026-04-21 06:22:19.634: [INFO][SyncManagerImpl::ConfigureSyncer] Types to download: Encryption Keys with reason: 3
+2026-04-21 06:22:19.634: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-21 06:22:19.634: [INFO][SyncSchedulerImpl::DoConfigurationSyncCycleJob] Configure job was blocked
+2026-04-21 06:22:19.640: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-21 06:22:19.640: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-21 06:22:19.640: [INFO][Sync] Credentials changed for: EdgeSyncScopeNew
+2026-04-21 06:22:19.640: [INFO][SyncEngineBackend::DoUpdateCredentials] Update credentials
+2026-04-21 06:22:19.640: [INFO][SyncSchedulerImpl::DoConfigurationSyncCycleJob] Blocked types:  and types to download: Encryption Keys
+2026-04-21 06:22:20.021: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-21 06:22:20.731: [INFO][Sync] Connection status changed to: 2
+2026-04-21 06:22:21.985: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-21 06:22:21.985: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-21 06:22:21.985: [INFO][Sync] Credentials changed for: EdgeSyncKeyDataScope
+2026-04-21 06:22:21.985: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-21 06:22:21.988: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-21 06:22:21.988: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-21 06:22:21.988: [INFO][Sync] Credentials changed for: EdgeSyncScopeNew
+2026-04-21 06:22:21.989: [INFO][SyncEngineBackend::DoUpdateCredentials] Update credentials
+2026-04-21 06:22:21.989: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-21 06:24:50.783: [INFO][Sync] Reset engine, reason: 0
+2026-04-21 06:24:50.783: [INFO][Sync] Reset engine with reason: 0

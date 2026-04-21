@@ -21,17 +21,25 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'El usuario ya existe' });
     }
 
-    // Insertar el nuevo usuario con firebase_uid
+    // Generar token de verificación
+    const verificationToken = uid; // Usar Firebase UID como token
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+
+    // Insertar el nuevo usuario con email_verificado = FALSE
     const result = await pool.query(
-      `INSERT INTO usuarios (firebase_uid, email, nombre, apellido, carrera, ciclo, email_verificado) 
-       VALUES ($1, $2, $3, $4, $5, $6, true) 
-       RETURNING id, firebase_uid, email, nombre, apellido, carrera, ciclo`,
+      `INSERT INTO usuarios (firebase_uid, email, nombre, apellido, carrera, ciclo, email_verificado, role, puede_crear_comunidad) 
+       VALUES ($1, $2, $3, $4, $5, $6, false, 'user', false) 
+       RETURNING id, firebase_uid, email, nombre, apellido, carrera, ciclo, role, email_verificado`,
       [uid, email, nombre, apellido || null, carrera || null, ciclo || null]
     );
 
+    // TODO: Aquí enviaría un email con el link de verificación
+    console.log(`Email verification link: ${verificationLink}`);
+
     res.status(201).json({ 
-      message: 'Usuario registrado exitosamente',
-      usuario: result.rows[0] 
+      message: 'Usuario registrado. Verifica tu email para continuar.',
+      usuario: result.rows[0],
+      verificationLink: verificationLink // En producción, NO devolver el link
     });
   } catch (err) {
     console.error('Error en registro:', err.message);
@@ -71,6 +79,15 @@ exports.login = async (req, res) => {
     }
 
     const userData = user.rows[0];
+
+    // ✅ VERIFICAR QUE EL EMAIL ESTÉ VERIFICADO
+    if (!userData.email_verificado) {
+      return res.status(403).json({ 
+        error: 'Email no verificado. Verifica tu email para continuar.',
+        needsEmailVerification: true,
+        email: userData.email
+      });
+    }
     
     try {
       // Generar JWT con todos los datos del usuario
@@ -178,17 +195,30 @@ exports.verifyEmail = async (req, res) => {
       return res.status(400).json({ error: 'Email es requerido' });
     }
     
-    // Actualizar usuario como verificado
-    const result = await pool.query(
-      'UPDATE usuarios SET emailVerified = true WHERE email = $1 RETURNING id, email, nombre',
+    // Verificar que el usuario exista y aún no esté verificado
+    const user = await pool.query(
+      'SELECT id, email_verificado FROM usuarios WHERE email = $1',
       [email]
     );
     
-    if (result.rows.length === 0) {
+    if (user.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
+
+    if (user.rows[0].email_verificado === true) {
+      return res.status(400).json({ message: 'El email ya estaba verificado' });
+    }
     
-    res.json({ message: 'Email verificado exitosamente', usuario: result.rows[0] });
+    // Actualizar usuario como verificado
+    const result = await pool.query(
+      'UPDATE usuarios SET email_verificado = true, updated_at = CURRENT_TIMESTAMP WHERE email = $1 RETURNING id, email, nombre, role, puede_crear_comunidad',
+      [email]
+    );
+    
+    res.json({ 
+      message: 'Email verificado exitosamente. Bienvenido a UTP Comunidades!',
+      usuario: result.rows[0] 
+    });
   } catch (err) {
     console.error('Error en verifyEmail:', err.message);
     res.status(500).json({ error: 'Error al verificar email: ' + err.message });
