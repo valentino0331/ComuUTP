@@ -600,294 +600,263 @@ class _PostHeader extends StatelessWidget {
               ],
             ),
           ),
-          PopupMenuButton(
-            icon: Container(
-              padding: const EdgeInsets.all(6),
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => Container(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Handle bar
+                      Container(
+                        margin: const EdgeInsets.only(top: 12),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Compartir
+                      _buildBottomSheetOption(
+                        'Compartir',
+                        PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
+                        const Color(0xFFB21132),
+                        () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    PhosphorIcons.checkCircle(
+                                      PhosphorIconsStyle.fill,
+                                    ),
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    'Enlace copiado',
+                                    style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Guardar
+                      _buildBottomSheetOption(
+                        'Guardar',
+                        PhosphorIcons.bookmark(PhosphorIconsStyle.regular),
+                        Colors.blue,
+                        () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Guardado en tus favoritos',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              duration: Duration(milliseconds: 800),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Reportar
+                      _buildBottomSheetOption(
+                        'Reportar',
+                        PhosphorIcons.flag(PhosphorIconsStyle.regular),
+                        Colors.orange,
+                        () {
+                          Navigator.pop(context);
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(
+                                'Reportar publicación',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              content: const Text(
+                                '¿Por qué deseas reportar esta publicación?',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text(
+                                    'Cancelar',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Row(
+                                          children: [
+                                            Icon(
+                                              PhosphorIcons.checkCircle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            const Text(
+                                              'Reporte enviado',
+                                              style: TextStyle(
+                                                fontFamily: 'Montserrat',
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Reportar',
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Eliminar (solo si es autor)
+                      if (isAuthor) ...[
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          height: 0.5,
+                          color: Colors.grey[300],
+                        ),
+                        _buildBottomSheetOption(
+                          'Eliminar',
+                          PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                          Colors.red,
+                          () {
+                            Navigator.pop(context);
+                            onDeleteTap();
+                          },
+                        ),
+                      ],
+
+                      const SizedBox(height: 16),
+
+                      // Cancelar
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.grey[100],
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
-                color: Color(0xFFB21132),
+                color: const Color(0xFFB21132),
                 size: 16,
               ),
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            itemBuilder: (BuildContext context) {
-              final items = <PopupMenuEntry>[];
-
-              // Opción de compartir (todos)
-              items.add(
-                PopupMenuItem(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                  child: Container(
-                    width: 180,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFB21132).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
-                            color: const Color(0xFFB21132),
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Compartir',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            Icon(
-                              PhosphorIcons.checkCircle(
-                                PhosphorIconsStyle.fill,
-                              ),
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            const Text(
-                              'Enlace copiado',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        backgroundColor: Colors.green,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                ),
-              );
-
-              // Opción de guardar
-              items.add(
-                PopupMenuItem(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                  child: Container(
-                    width: 180,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            PhosphorIcons.bookmark(PhosphorIconsStyle.regular),
-                            color: Colors.blue,
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Guardar',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Guardado en tus favoritos',
-                          style: TextStyle(fontFamily: 'Montserrat'),
-                        ),
-                        duration: Duration(milliseconds: 800),
-                      ),
-                    );
-                  },
-                ),
-              );
-
-              // Opción de reportar (todos)
-              items.add(
-                PopupMenuItem(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                  child: Container(
-                    width: 180,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            PhosphorIcons.flag(PhosphorIconsStyle.regular),
-                            color: Colors.orange,
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Reportar',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text(
-                          'Reportar publicación',
-                          style: TextStyle(fontFamily: 'Montserrat'),
-                        ),
-                        content: const Text(
-                          '¿Por qué deseas reportar esta publicación?',
-                          style: TextStyle(fontFamily: 'Montserrat'),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Cancelar',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Row(
-                                    children: [
-                                      Icon(
-                                        PhosphorIcons.checkCircle(
-                                          PhosphorIconsStyle.fill,
-                                        ),
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Text(
-                                        'Reporte enviado',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  backgroundColor: Colors.green,
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              'Reportar',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-
-              // Opción de eliminar (solo autor)
-              if (isAuthor) {
-                items.add(
-                  PopupMenuDivider(),
-                );
-                items.add(
-                  PopupMenuItem(
-                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                    child: Container(
-                      width: 180,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              PhosphorIcons.trash(PhosphorIconsStyle.regular),
-                              color: Colors.red,
-                              size: 16,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Eliminar',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: onDeleteTap,
-                  ),
-                );
-              }
-
-              return items;
-            },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetOption(
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Montserrat',
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
