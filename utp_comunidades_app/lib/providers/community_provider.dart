@@ -86,50 +86,19 @@ class CommunityProvider with ChangeNotifier {
     return false;
   }
 
-  /// Dejar de ser miembro de una comunidad
   Future<bool> leaveCommunity(int comunidadId) async {
     try {
-      final res = await ApiService.delete(
-        '/communities/$comunidadId/leave',
-        auth: true,
-      );
-      
+      final res = await ApiService.post('/communities/leave', {'comunidad_id': comunidadId}, auth: true);
       if (res.statusCode == 200 || res.statusCode == 204) {
-        print('✅ Abandonaste la comunidad');
-        // Refresco comunidades
         _communities.clear();
         notifyListeners();
-        await Future.delayed(const Duration(milliseconds: 100));
         await fetchCommunities();
         return true;
       }
-      print('❌ No se pudo abandonar la comunidad');
       return false;
     } catch (e) {
       print('Error leaving community: $e');
       return false;
-    }
-  }
-
-  /// Obtener lista de miembros de una comunidad
-  Future<List<Map<String, dynamic>>> getMembersOfCommunity(int comunidadId) async {
-    try {
-      final res = await ApiService.get(
-        '/communities/$comunidadId/members',
-        auth: true,
-      );
-      
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final miembros = (data['miembros'] as List? ?? [])
-            .map((m) => m as Map<String, dynamic>)
-            .toList();
-        return miembros;
-      }
-      return [];
-    } catch (e) {
-      print('Error getting community members: $e');
-      return [];
     }
   }
 }

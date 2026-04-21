@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-
+import 'screens/home_screen.dart';
 import 'screens/main_scaffold.dart';
 import 'screens/splash_screen.dart';
 import 'screens/create_post_screen.dart';
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FollowerProvider()),
       ],
       child: MaterialApp(
-        title: 'LUTP',
+        title: 'UTP Comunidades',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.red,
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => PantallaInicio(),
           '/login': (context) => LoginScreen(),
           '/register': (context) => RegisterScreen(),
-          '/home': (context) => MainScaffold(),
+          '/home': (context) => HomeScreen(),
           '/main': (context) => MainScaffold(),
           '/create_post': (context) => const CreatePostScreen(),
           '/create_story': (context) => CreateStoryScreen(),

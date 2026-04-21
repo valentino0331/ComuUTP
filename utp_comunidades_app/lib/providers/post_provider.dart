@@ -59,54 +59,42 @@ class PostProvider with ChangeNotifier {
     return false;
   }
 
-  void toggleLike(int postId) async {
+  void toggleLike(int postId) {
     final index = _posts.indexWhere((p) => p.id == postId);
     if (index != -1) {
       final post = _posts[index];
-      try {
-        if (_likedPosts.contains(postId)) {
-          // Unlike
-          _likedPosts.remove(postId);
-          _posts[index] = Post(
-            id: post.id,
-            usuarioId: post.usuarioId,
-            comunidadId: post.comunidadId,
-            contenido: post.contenido,
-            fecha: post.fecha,
-            nombreUsuario: post.nombreUsuario,
-            nombreComunidad: post.nombreComunidad,
-            likes: (post.likes ?? 0) - 1,
-            comentarios: post.comentarios,
-            imagen: post.imagen,
-          );
-          // Send to API
-          await ApiService.post('/likes/remove', {'post_id': postId}, auth: true);
-        } else {
-          // Like
-          _likedPosts.add(postId);
-          _posts[index] = Post(
-            id: post.id,
-            usuarioId: post.usuarioId,
-            comunidadId: post.comunidadId,
-            contenido: post.contenido,
-            fecha: post.fecha,
-            nombreUsuario: post.nombreUsuario,
-            nombreComunidad: post.nombreComunidad,
-            likes: (post.likes ?? 0) + 1,
-            comentarios: post.comentarios,
-            imagen: post.imagen,
-          );
-          // Send to API
-          await ApiService.post('/likes', {'post_id': postId}, auth: true);
-        }
-        notifyListeners();
-      } catch (e) {
-        print('Error toggling like: $e');
+      if (_likedPosts.contains(postId)) {
+        _likedPosts.remove(postId);
+        _posts[index] = Post(
+          id: post.id,
+          usuarioId: post.usuarioId,
+          comunidadId: post.comunidadId,
+          contenido: post.contenido,
+          fecha: post.fecha,
+          nombreUsuario: post.nombreUsuario,
+          nombreComunidad: post.nombreComunidad,
+          likes: (post.likes ?? 0) - 1,
+          comentarios: post.comentarios,
+        );
+      } else {
+        _likedPosts.add(postId);
+        _posts[index] = Post(
+          id: post.id,
+          usuarioId: post.usuarioId,
+          comunidadId: post.comunidadId,
+          contenido: post.contenido,
+          fecha: post.fecha,
+          nombreUsuario: post.nombreUsuario,
+          nombreComunidad: post.nombreComunidad,
+          likes: (post.likes ?? 0) + 1,
+          comentarios: post.comentarios,
+        );
       }
+      notifyListeners();
     }
   }
 
-  void addComment(int postId, String contenido, String nombreUsuario) async {
+  void addComment(int postId, String contenido, String nombreUsuario) {
     final now = DateTime.now();
     final newComment = Comment(
       id: DateTime.now().millisecondsSinceEpoch, // Unique ID
@@ -132,20 +120,8 @@ class PostProvider with ChangeNotifier {
         nombreComunidad: post.nombreComunidad,
         likes: post.likes,
         comentarios: (post.comentarios ?? 0) + 1,
-        imagen: post.imagen,
       );
     }
-    
-    // Send to API
-    try {
-      await ApiService.post('/comments', {
-        'publicacion_id': postId,
-        'contenido': contenido,
-      }, auth: true);
-    } catch (e) {
-      print('Error adding comment: $e');
-    }
-    
     notifyListeners();
   }
 
@@ -179,12 +155,16 @@ class PostProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setFilteredPosts(List<Post> filteredPosts) {
+    _posts = filteredPosts;
+    notifyListeners();
+  }
+
   Future<bool> deletePost(int postId) async {
     try {
       final res = await ApiService.delete('/posts/$postId', auth: true);
-      if (res.statusCode == 200) {
+      if (res.statusCode == 200 || res.statusCode == 204) {
         _posts.removeWhere((p) => p.id == postId);
-        _likedPosts.remove(postId);
         notifyListeners();
         return true;
       }
@@ -193,10 +173,5 @@ class PostProvider with ChangeNotifier {
       print('Error deleting post: $e');
       return false;
     }
-  }
-
-  void setFilteredPosts(List<Post> filteredPosts) {
-    _posts = filteredPosts;
-    notifyListeners();
   }
 }

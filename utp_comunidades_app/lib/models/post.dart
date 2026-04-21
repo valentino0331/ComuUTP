@@ -8,7 +8,6 @@ class Post {
   final String? nombreComunidad;
   final int? likes;
   final int? comentarios;
-  final String? imagen;
 
   Post({
     required this.id,
@@ -20,7 +19,6 @@ class Post {
     this.nombreComunidad,
     this.likes,
     this.comentarios,
-    this.imagen,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -42,7 +40,6 @@ class Post {
         nombreComunidad: json['nombre_comunidad']?.toString() ?? 'Comunidad',
         likes: parseToInt(json['likes']),
         comentarios: parseToInt(json['comentarios']),
-        imagen: json['imagen']?.toString(),
       );
     } catch (e) {
       print('Error parsing post: $e, json: $json');

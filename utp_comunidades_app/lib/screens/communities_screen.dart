@@ -41,16 +41,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    // Mostrar botón si el usuario es admin
     final isAdmin = authProvider.user?.role == 'admin';
-
-    // Filtrar SOLO comunidades reales donde el usuario es miembro
     final allCommunities = widget.communities;
     
     final filteredCommunities = allCommunities.where((c) {
-      // Solo mostrar comunidades donde el usuario es miembro
       if (c.esMiembro != true) return false;
-      // Filtro de búsqueda
       if (_searchController.text.isNotEmpty && 
           !c.nombre.toLowerCase().contains(_searchController.text.toLowerCase())) return false;
       return true;
@@ -58,8 +53,31 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Comunidades UTP'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.colorPrimary,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text(
+              'Comunidades',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: Colors.white,
+              ),
+            ),
+            centerTitle: true,
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -68,10 +86,13 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             child: filteredCommunities.isEmpty
                 ? _buildEmptyState()
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
                     itemCount: filteredCommunities.length,
                     itemBuilder: (context, index) {
-                      return _buildCommunityCard(filteredCommunities[index]);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildCommunityCard(filteredCommunities[index]),
+                      );
                     },
                   ),
           ),
@@ -81,15 +102,19 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ? FloatingActionButton.extended(
               onPressed: _showCreateCommunity,
               label: const Text(
-                'Crear Comunidad',
+                'Nueva',
                 style: TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontFamily: 'Montserrat',
                 ),
               ),
-              icon: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(Icons.add, color: Colors.white, size: 22),
               backgroundColor: AppTheme.colorPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
             )
           : null,
     );
@@ -97,57 +122,77 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   Widget _buildSearchAndFilter() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Buscar comunidades...',
-              prefixIcon: const Icon(PhosphorIconsRegular.magnifyingGlass),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.grey[100],
+          // Search bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade200, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
-            onChanged: (value) => setState(() {}),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Buscar comunidades...',
+                prefixIcon: Icon(PhosphorIconsRegular.magnifyingGlass, size: 18),
+                border: InputBorder.none,
+                hintStyle: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 13,
+                  color: Color(0xFF846B70).withOpacity(0.8),
+                ),
+              ),
+              style: const TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 13,
+              ),
+              onChanged: (value) => setState(() {}),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          // Filtros
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
                 'Todas',
                 'Académica',
-                'Deportes',
+                'Deporte',
                 'Tecnología',
-                'Arte',
-                'Social'
+                'Arte y Cultura',
               ].map((filter) {
                 final isSelected = _selectedFilter == filter;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(filter),
-                    selected: isSelected,
-                    onSelected: (val) {
-                      if (val) setState(() => _selectedFilter = filter);
-                    },
-                    selectedColor: AppTheme.colorPrimary,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppTheme.colorTextPrimary,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedFilter = filter),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Color(0xFF474545) : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: isSelected ? null : Border.all(color: Color(0xFFD9D9D9), width: 1),
+                      ),
+                      child: Text(
+                        filter,
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -160,100 +205,157 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   }
 
   Widget _buildCommunityCard(Community community) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: InkWell(
-        onTap: () {
-          // Navegar a detalles
-        },
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.colorPrimary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      // _getCategoryIcon(community.categoria),
-                      PhosphorIconsRegular.users,
-                      color: AppTheme.colorPrimary,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          community.nombre,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Comunidad',
-                          style: TextStyle(
-                            color: AppTheme.colorTextSecondary,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Color(0xFF846B70).withOpacity(0.37),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    community.nombre.isNotEmpty ? community.nombre[0].toUpperCase() : 'C',
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                      color: Color(0xFFB21132),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.colorPrimary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(PhosphorIconsRegular.users, size: 14),
-                        const SizedBox(width: 4),
-                        Text(''),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                community.descripcion,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppTheme.colorTextSecondary),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Por: Comunidad',
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      community.nombre,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Comunidad',
                       style: TextStyle(
+                        color: Color(0xFF846B70),
                         fontSize: 12,
-                        fontStyle: FontStyle.italic,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
-                  ),
-                  Flexible(
-                    child: _buildCommunityButton(context, community),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          Text(
+            community.descripcion,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Color(0xFF846B70),
+              fontSize: 13,
+              fontFamily: 'Montserrat',
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(PhosphorIconsRegular.users, size: 14, color: Color(0xFF846B70).withOpacity(0.8)),
+              const SizedBox(width: 4),
+              Text(
+                'Por: Comunidad',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFF846B70),
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildCommunityButton(context, community),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildJoinButton(BuildContext context, Community community) {
+    return ElevatedButton(
+      onPressed: () async {
+        final result = await Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
+        if (!context.mounted) return;
+        if (result) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(
+                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('¡Te uniste!', style: TextStyle(fontFamily: 'Montserrat')),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          setState(() {});
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error', style: TextStyle(fontFamily: 'Montserrat')),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xFFB21132),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        minimumSize: const Size(62, 21),
+        elevation: 0,
+      ),
+      child: const Text(
+        'Unirse',
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w500,
+          fontSize: 13,
+          color: Colors.white,
         ),
       ),
     );
@@ -265,11 +367,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final isCreator = community.usuarioCreadorId != null && community.usuarioCreadorId == currentUserId;
     final isMember = community.esMiembro ?? false;
 
-    print('Community: ${community.nombre}, creatorId: ${community.usuarioCreadorId}, currentId: $currentUserId, isCreator: $isCreator, isMember: $isMember, esMiembroRaw: ${community.esMiembro}');
-
     if (isCreator) {
       return Wrap(
         spacing: 8,
+        runSpacing: 8,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -284,6 +385,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.blue,
+                fontFamily: 'Montserrat',
               ),
             ),
           ),
@@ -296,132 +398,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     if (isMember) {
       return Wrap(
         spacing: 8,
+        runSpacing: 8,
         children: [
           _buildMembersButton(context, community),
-          GestureDetector(
-            onTap: () async {
-              final confirmLeave = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Salir de comunidad'),
-                  content: Text('¿Estás seguro de que quieres salir de ${community.nombre}?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancelar'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Salir', style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirmLeave == true && context.mounted) {
-                final result = await Provider.of<CommunityProvider>(context, listen: false).leaveCommunity(community.id);
-                if (!context.mounted) return;
-
-                if (result) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(
-                            PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text('Saliste de la comunidad'),
-                        ],
-                      ),
-                      backgroundColor: Colors.orange,
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                  setState(() {});
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Error al salir de la comunidad'),
-                      backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red, width: 1),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(PhosphorIcons.signOut(PhosphorIconsStyle.fill), size: 14, color: Colors.red),
-                  const SizedBox(width: 4),
-                  const Text(
-                    'Salir',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildLeaveCommunityButton(context, community),
         ],
       );
     }
 
-    return ElevatedButton(
-      onPressed: () async {
-        final result = await Provider.of<CommunityProvider>(context, listen: false).joinCommunity(community.id);
-        if (!context.mounted) return;
-        
-        if (result) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(
-                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  const Text('¡Te uniste a la comunidad!'),
-                ],
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error al unirse a la comunidad'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.colorPrimary,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: const Text('Unirse'),
-    );
+    return _buildJoinButton(context, community);
   }
 
   Widget _buildMembersButton(BuildContext context, Community community) {
@@ -437,14 +422,14 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFB21132).withOpacity(0.1),
+          color: Color(0xFFB21132).withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFB21132), width: 1),
+          border: Border.all(color: Color(0xFFB21132), width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(PhosphorIcons.usersThree(PhosphorIconsStyle.fill), size: 14, color: const Color(0xFFB21132)),
+            Icon(PhosphorIcons.usersThree(PhosphorIconsStyle.fill), size: 12, color: Color(0xFFB21132)),
             const SizedBox(width: 4),
             const Text(
               'Ver Miembros',
@@ -452,6 +437,80 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFFB21132),
+                fontFamily: 'Montserrat',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeaveCommunityButton(BuildContext context, Community community) {
+    return GestureDetector(
+      onTap: () async {
+        final confirmLeave = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Salir de comunidad', style: TextStyle(fontFamily: 'Montserrat')),
+            content: Text(
+              '¿Estás seguro de que quieres salir de ${community.nombre}?',
+              style: const TextStyle(fontFamily: 'Montserrat'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Salir', style: TextStyle(color: Colors.red, fontFamily: 'Montserrat')),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmLeave == true && context.mounted) {
+          final result = await Provider.of<CommunityProvider>(context, listen: false).leaveCommunity(community.id);
+          if (!context.mounted) return;
+
+          if (result) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(PhosphorIcons.checkCircle(PhosphorIconsStyle.fill), color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    const Text('Saliste de la comunidad', style: TextStyle(fontFamily: 'Montserrat')),
+                  ],
+                ),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            setState(() {});
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.red[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.red, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(PhosphorIcons.signOut(PhosphorIconsStyle.fill), size: 12, color: Colors.red),
+            const SizedBox(width: 4),
+            const Text(
+              'Salir',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+                fontFamily: 'Montserrat',
               ),
             ),
           ],
@@ -466,40 +525,25 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text(
-              'Eliminar comunidad',
-              style: TextStyle(fontFamily: 'Montserrat'),
-            ),
+            title: const Text('Eliminar comunidad', style: TextStyle(fontFamily: 'Montserrat')),
             content: Text(
-              '¿Estás seguro de que deseas eliminar "${community.nombre}"? Esta acción no se puede deshacer.',
+              '¿Estás seguro? "${community.nombre}" se eliminará permanentemente.',
               style: const TextStyle(fontFamily: 'Montserrat'),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(color: Colors.grey, fontFamily: 'Montserrat'),
-                ),
+                child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  'Eliminar',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Montserrat',
-                  ),
-                ),
+                child: const Text('Eliminar', style: TextStyle(color: Colors.red, fontFamily: 'Montserrat')),
               ),
             ],
           ),
         );
 
         if (confirmed == true) {
-          // TODO: Call API to delete community
-          // await ApiService.delete('/communities/${community.id}', auth: true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -507,7 +551,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   const Icon(Icons.check_circle, color: Colors.white, size: 20),
                   const SizedBox(width: 10),
                   Text(
-                    'Comunidad "${community.nombre}" eliminada',
+                    'Comunidad eliminada',
                     style: const TextStyle(fontFamily: 'Montserrat'),
                   ),
                 ],
@@ -516,6 +560,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               duration: const Duration(seconds: 2),
             ),
           );
+          setState(() {});
         }
       },
       child: Container(
@@ -528,7 +573,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(PhosphorIcons.trash(PhosphorIconsStyle.fill), size: 14, color: Colors.red),
+            Icon(PhosphorIcons.trash(PhosphorIconsStyle.fill), size: 12, color: Colors.red),
             const SizedBox(width: 4),
             const Text(
               'Eliminar',
@@ -536,6 +581,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.red,
+                fontFamily: 'Montserrat',
               ),
             ),
           ],

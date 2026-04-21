@@ -52,14 +52,14 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.colorSurface,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey.shade300.withOpacity(0.33),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
             offset: const Offset(0, 2),
           ),
         ],
@@ -67,7 +67,7 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           onTap: () {
             Navigator.push(
               context,
@@ -79,31 +79,22 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header del post
+              // Header
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
                 child: Row(
                   children: [
-                    // Avatar
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.colorPrimary,
                             AppTheme.colorPrimary.withOpacity(0.7),
                           ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
                         ),
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.colorPrimary.withOpacity(0.3),
-                            blurRadius: 4,
-                          ),
-                        ],
                       ),
                       child: Center(
                         child: Text(
@@ -113,14 +104,14 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                               .toUpperCase(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'Montserrat',
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    // Nombre y metadata
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,11 +119,13 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                           Text(
                             widget.post.nombreUsuario ?? 'Usuario',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
+                              fontFamily: 'Montserrat',
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 2),
                           Row(
                             children: [
                               Container(
@@ -141,25 +134,28 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.colorPrimary
-                                      .withOpacity(0.1),
+                                  color: AppTheme.colorPrimary.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   widget.post.nombreComunidad ?? 'Comunidad',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: AppTheme.colorPrimary,
                                     fontWeight: FontWeight.w500,
+                                    fontFamily: 'Montserrat',
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 'Hace poco',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   color: AppTheme.colorTextSecondary,
+                                  fontFamily: 'Montserrat',
                                 ),
                               ),
                             ],
@@ -167,7 +163,6 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                         ],
                       ),
                     ),
-                    // Menu
                     PopupMenuButton(
                       itemBuilder: (context) => [
                         const PopupMenuItem(
@@ -199,110 +194,57 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-
-              // Contenido del post
+              // Contenido
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.post.contenido,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.colorTextPrimary,
-                        height: 1.5,
-                      ),
-                      maxLines: 5,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // Mostrar imagen SOLO si existe
-                    if (widget.post.imagen != null && 
-                        widget.post.imagen!.isNotEmpty)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          widget.post.imagen!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: 200,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              width: double.infinity,
-                              height: 200,
-                              color: Colors.grey[300],
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: double.infinity,
-                              height: 200,
-                              color: Colors.grey[300],
-                              child: const Center(
-                                child: Icon(
-                                  Icons.image_not_supported,
-                                  color: Colors.grey,
-                                  size: 48,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      
-                    if (widget.post.imagen != null && 
-                        widget.post.imagen!.isNotEmpty)
-                      const SizedBox(height: 12),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Text(
+                  widget.post.contenido,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.colorTextPrimary,
+                    height: 1.5,
+                    fontFamily: 'Montserrat',
+                  ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-
-              // Reacciones y stats
+              // Stats
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 child: Row(
                   children: [
-                    _buildReactionItem(
-                      emoji: '👍',
-                      count: widget.post.likes ?? 0,
-                    ),
-                    const SizedBox(width: 8),
-                    _buildReactionItem(
-                      emoji: '❤️',
-                      count: _isLiked ? 1 : 0,
-                    ),
-                    const Spacer(),
+                    Icon(Icons.favorite, size: 14, color: Colors.red),
+                    const SizedBox(width: 4),
                     Text(
-                      '${widget.post.comentarios ?? 0} comentarios',
+                      '${widget.post.likes ?? 0}',
                       style: TextStyle(
                         fontSize: 11,
                         color: AppTheme.colorTextSecondary,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(Icons.chat_bubble, size: 14, color: Color(0xFF846B70)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${widget.post.comentarios ?? 0}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.colorTextSecondary,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: 8),
-
               // Divisor
-              Container(
-                height: 1,
-                color: AppTheme.colorBorder,
-              ),
-
+              Divider(height: 1, color: AppTheme.colorBorder.withOpacity(0.5)),
               // Acciones
               Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(8),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _ActionButton(
                       icon: _isLiked ? Icons.favorite : Icons.favorite_border,
@@ -318,8 +260,7 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                PostDetailScreen(post: widget.post),
+                            builder: (_) => PostDetailScreen(post: widget.post),
                           ),
                         );
                       },
@@ -374,6 +315,48 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
       ),
     );
   }
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isActive;
+  final Animation<double>? animation;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isActive = false,
+    this.animation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child = Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isActive
+                  ? AppTheme.colorPrimary
+                  : AppTheme.colorTextSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (animation != null && isActive) {
+      return ScaleTransition(scale: animation!, child: child);
+    }
+    return child;
+  }
 }
 
 class _ActionButton extends StatelessWidget {
@@ -401,28 +384,12 @@ class _ActionButton extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 18,
-                  color: isActive
-                      ? AppTheme.colorPrimary
-                      : AppTheme.colorTextSecondary,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isActive
-                        ? AppTheme.colorPrimary
-                        : AppTheme.colorTextSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            child: Icon(
+              icon,
+              size: 20,
+              color: isActive
+                  ? AppTheme.colorPrimary
+                  : AppTheme.colorTextSecondary,
             ),
           ),
         ),

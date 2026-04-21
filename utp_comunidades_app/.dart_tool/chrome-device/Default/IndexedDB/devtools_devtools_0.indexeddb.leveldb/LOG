@@ -1,3 +1,2 @@
-2026/04/20-13:31:02.242 9dc Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.4d101a8e\flutter_tools_chrome_device.a9e04996\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb/MANIFEST-000001
-2026/04/20-13:31:02.243 9dc Recovering log #3
-2026/04/20-13:31:02.245 9dc Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.4d101a8e\flutter_tools_chrome_device.a9e04996\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb/000003.log 
+2026/04/21-00:42:50.780 4738 Creating DB C:\Users\marca\AppData\Local\Temp\flutter_tools.5aca1e36\flutter_tools_chrome_device.f569397e\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb since it was missing.
+2026/04/21-00:42:50.790 4738 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.5aca1e36\flutter_tools_chrome_device.f569397e\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb/MANIFEST-000001
