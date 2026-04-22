@@ -98,3 +98,49 @@ exports.listByCommunity = async (req, res) => {
     res.status(500).json({ error: 'Error al listar publicaciones', details: err.message });
   }
 };
+
+exports.delete = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  
+  try {
+    console.log('DELETE POST:', { id, userId });
+    
+    // Verificar que el post existe y pertenece al usuario
+    const post = await pool.query(
+      'SELECT * FROM publicaciones WHERE id = $1',
+      [id]
+    );
+    
+    if (post.rows.length === 0) {
+      return res.status(404).json({ error: 'Publicación no encontrada' });
+    }
+    
+    // Verificar que el usuario es el autor o es admin
+    const postData = post.rows[0];
+    if (postData.usuario_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta publicación' });
+    }
+    
+    // Eliminar likes asociados
+    await pool.query('DELETE FROM likes WHERE publicacion_id = $1', [id]);
+    
+    // Eliminar comentarios asociados
+    await pool.query('DELETE FROM comentarios WHERE publicacion_id = $1', [id]);
+    
+    // Eliminar la publicación
+    await pool.query('DELETE FROM publicaciones WHERE id = $1', [id]);
+    
+    // Log
+    await pool.query(
+      'INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)',
+      [userId, 'eliminar_post', `Post ${id} eliminado`]
+    );
+    
+    console.log('POST DELETED:', id);
+    res.status(200).json({ message: 'Publicación eliminada correctamente' });
+  } catch (err) {
+    console.error('Error deleting post:', err.message);
+    res.status(500).json({ error: 'Error al eliminar publicación', details: err.message });
+  }
+};
