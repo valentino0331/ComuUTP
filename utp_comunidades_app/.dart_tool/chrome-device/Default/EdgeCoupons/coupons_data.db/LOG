@@ -1,6 +1,15 @@
-2026/04/21-01:22:20.993 4ab8 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.8fde500d\flutter_tools_chrome_device.ba630b3d\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/21-01:22:20.993 4ab8 Recovering log #4
-2026/04/21-01:22:20.994 4ab8 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.8fde500d\flutter_tools_chrome_device.ba630b3d\Default\EdgeCoupons/coupons_data.db/000004.log 
-2026/04/21-01:22:27.085 1874 Level-0 table #8: started
-2026/04/21-01:22:27.087 1874 Level-0 table #8: 682284 bytes OK
-2026/04/21-01:22:27.089 1874 Delete type=0 #4
+2026/04/22-14:56:29.792 571c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.dbfdda82\flutter_tools_chrome_device.77216689\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/22-14:56:29.793 571c Recovering log #19
+2026/04/22-14:56:29.793 571c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.dbfdda82\flutter_tools_chrome_device.77216689\Default\EdgeCoupons/coupons_data.db/000019.log 
+2026/04/22-14:56:29.794 571c Delete type=0 #4
+2026/04/22-14:56:29.794 571c Delete type=0 #7
+2026/04/22-14:56:29.794 571c Delete type=2 #8
+2026/04/22-14:56:29.794 571c Delete type=0 #10
+2026/04/22-14:56:29.794 571c Delete type=2 #11
+2026/04/22-14:56:29.794 571c Delete type=0 #13
+2026/04/22-14:56:29.794 571c Delete type=2 #14
+2026/04/22-14:56:29.820 571c Delete type=0 #16
+2026/04/22-14:56:29.821 571c Delete type=2 #17
+2026/04/22-14:56:36.065 4a88 Level-0 table #24: started
+2026/04/22-14:56:36.069 4a88 Level-0 table #24: 682292 bytes OK
+2026/04/22-14:56:36.070 4a88 Delete type=0 #19

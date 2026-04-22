@@ -53,29 +53,18 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppTheme.colorPrimary,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: const Text(
-              'Comunidades',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w600,
-                fontSize: 20,
-                color: Colors.white,
-              ),
-            ),
-            centerTitle: true,
+      appBar: AppBar(
+        backgroundColor: AppTheme.colorPrimary,
+        elevation: 0,
+        toolbarHeight: 56,
+        centerTitle: true,
+        title: const Text(
+          'Comunidades',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Colors.white,
           ),
         ),
       ),
@@ -524,43 +513,39 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       onTap: () async {
         final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Eliminar comunidad', style: TextStyle(fontFamily: 'Montserrat')),
-            content: Text(
-              '¿Estás seguro? "${community.nombre}" se eliminará permanentemente.',
-              style: const TextStyle(fontFamily: 'Montserrat'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Eliminar', style: TextStyle(color: Colors.red, fontFamily: 'Montserrat')),
-              ),
-            ],
+          builder: (context) => _buildModernDeleteDialog(
+            title: '¿Eliminar comunidad?',
+            message: '"${community.nombre}" se eliminará permanentemente junto con todas sus publicaciones.',
+            confirmText: 'Eliminar',
           ),
         );
 
-        if (confirmed == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Comunidad eliminada',
-                    style: const TextStyle(fontFamily: 'Montserrat'),
-                  ),
-                ],
+        if (confirmed == true && context.mounted) {
+          final result = await Provider.of<CommunityProvider>(context, listen: false).deleteCommunity(community.id);
+          if (!context.mounted) return;
+
+          if (result) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(PhosphorIcons.checkCircle(PhosphorIconsStyle.fill), color: Colors.white, size: 20),
+                    const SizedBox(width: 10),
+                    const Text('Comunidad eliminada', style: TextStyle(fontFamily: 'Montserrat')),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
               ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          setState(() {});
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Error al eliminar comunidad', style: TextStyle(fontFamily: 'Montserrat')),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       },
       child: Container(
@@ -606,11 +591,110 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     );
   }
 
+  Widget _buildModernDeleteDialog({
+    required String title,
+    required String message,
+    required String confirmText,
+  }) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.trash(PhosphorIconsStyle.fill),
+                color: Colors.red,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 14,
+                color: Colors.grey[600],
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      confirmText,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Acad�mica': return PhosphorIconsRegular.bookOpen;
+      case 'Acadmica': return PhosphorIconsRegular.bookOpen;
       case 'Deportes': return PhosphorIconsRegular.basketball;
-      case 'Tecnolog�a': return PhosphorIconsRegular.cpu;
+      case 'Tecnologa': return PhosphorIconsRegular.cpu;
       case 'Arte': return PhosphorIconsRegular.palette;
       default: return PhosphorIconsRegular.users;
     }

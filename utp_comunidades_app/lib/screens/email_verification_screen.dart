@@ -27,90 +27,30 @@ class EmailVerificationScreen extends StatefulWidget {
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  bool _isVerified = false;
   bool _isLoading = false;
   String? _error;
-  Timer? _timer;
 
   static const Color colorPrimario = Color(0xFFB21132);
   static const Color colorFondoOverlay = Color(0x57B21132);
   static const Color colorTextoBlanco = Colors.white;
 
-  @override
-  void initState() {
-    super.initState();
-    // Verificar periódicamente si el email fue verificado
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) => _checkVerification());
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _checkVerification() async {
-    if (_isVerified || _isLoading) return;
-
-    final authProvider = context.read<AuthProvider>();
-    final isVerified = await authProvider.checkEmailVerified();
-
-    if (isVerified && mounted) {
-      setState(() => _isVerified = true);
-      _timer?.cancel();
-      
-      // Completar registro en Neon
-      await _completeRegistration();
-    }
-  }
-
-  Future<void> _completeRegistration() async {
-    setState(() => _isLoading = true);
-
-    final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.completeRegistration(
-      uid: widget.uid,
-      email: widget.email,
-      nombre: widget.nombre,
-      apellido: widget.apellido,
-      carrera: widget.carrera,
-      ciclo: widget.ciclo,
-    );
-
-    if (!mounted) return;
-
-    if (success) {
-      // Registro completado, ir a login
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Registro completado! Ahora inicia sesión.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pushReplacementNamed(context, '/login');
-    } else {
-      setState(() {
-        _isLoading = false;
-        _error = authProvider.error ?? 'Error al completar registro';
-      });
-    }
-  }
-
   Future<void> _resendEmail() async {
     setState(() => _isLoading = true);
-    
     final authProvider = context.read<AuthProvider>();
-    await authProvider.resendVerificationEmail();
-    
-    if (!mounted) return;
-    
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Email de verificación reenviado'),
-        backgroundColor: colorPrimario,
-      ),
-    );
+    try {
+      await authProvider.resendVerificationEmail();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email de verificación reenviado'),
+          backgroundColor: colorPrimario,
+        ),
+      );
+    } catch (e) {
+       setState(() => _error = e.toString());
+    } finally {
+       if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -140,7 +80,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                       child: Column(
                         children: [
-                          // Icono
                           Container(
                             width: 80,
                             height: 80,
@@ -149,18 +88,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              _isVerified 
-                                ? PhosphorIcons.checkCircle(PhosphorIconsStyle.fill)
-                                : PhosphorIcons.envelope(PhosphorIconsStyle.fill),
+                              PhosphorIcons.envelope(PhosphorIconsStyle.fill),
                               size: 40,
                               color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 24),
-                          
-                          // Título
                           Text(
-                            _isVerified ? '¡Email verificado!' : 'Verifica tu correo',
+                            'Verifica tu correo',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontFamily: 'Montserrat',
@@ -170,12 +105,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          
-                          // Descripción
                           Text(
-                            _isVerified
-                              ? 'Tu cuenta ha sido verificada. Completando registro...'
-                              : 'Hemos enviado un link de verificación a:\n${widget.email}',
+                            'Hemos enviado un link de verificación a:\n\\n\nHaz clic en el enlace para continuar.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Montserrat',
@@ -185,7 +116,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             ),
                           ),
                           const SizedBox(height: 32),
-
                           if (_error != null) ...[
                             Container(
                               padding: const EdgeInsets.all(12),
@@ -212,78 +142,46 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             ),
                             const SizedBox(height: 20),
                           ],
-
-                          if (!_isVerified) ...[
-                            // Indicador de carga
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white.withOpacity(0.8),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'Esperando verificación...',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 14,
-                                    color: colorTextoBlanco.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Botón reenviar
-                            TextButton(
-                              onPressed: _isLoading ? null : _resendEmail,
-                              child: Text(
-                                'Reenviar email',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 14,
-                                  color: colorTextoBlanco.withOpacity(0.9),
-                                ),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _resendEmail,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: colorPrimario,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                          ],
-
-                          if (_isVerified && _isLoading) ...[
-                            const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Completando registro...',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 14,
-                                color: colorTextoBlanco,
-                              ),
-                            ),
-                          ],
-
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Text('Reenviar email'),
+                          ),
                           const SizedBox(height: 16),
-
-                          // Link volver
-                          GestureDetector(
-                            onTap: () {
-                              _timer?.cancel();
+                          ElevatedButton(
+                            onPressed: () {
                               Navigator.pushReplacementNamed(context, '/login');
                             },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text('Ya verifiqué mi correo'),
+                          ),
+                          const SizedBox(height: 24),
+                          InkWell(
+                            onTap: () => Navigator.of(context).pushReplacementNamed('/login'),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  PhosphorIcons.arrowLeft(PhosphorIconsStyle.regular),
-                                  color: colorTextoBlanco.withOpacity(0.8),
+                                  Icons.arrow_back,
+                                  color: Colors.white,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 6),

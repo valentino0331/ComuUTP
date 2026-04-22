@@ -98,10 +98,7 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
         title: const Text('Crear Comunidad'),
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: null,
       ),
       body: SingleChildScrollView(
         child: Padding(

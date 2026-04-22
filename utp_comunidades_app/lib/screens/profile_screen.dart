@@ -60,10 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               floating: false,
               backgroundColor: Colors.white,
               elevation: 0,
-              leading: isCurrentUser ? null : IconButton(
-                icon: Icon(PhosphorIcons.caretLeft(PhosphorIconsStyle.bold)),
-                onPressed: () => Navigator.pop(context),
-              ),
+              leading: null,
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -101,4 +101,19 @@ class CommunityProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> deleteCommunity(int comunidadId) async {
+    try {
+      final res = await ApiService.delete('/communities/$comunidadId', auth: true);
+      if (res.statusCode == 200 || res.statusCode == 204) {
+        _communities.removeWhere((c) => c.id == comunidadId);
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Error deleting community: $e');
+      return false;
+    }
+  }
 }

@@ -209,3 +209,61 @@ exports.isMember = async (req, res) => {
     res.status(500).json({ error: 'Error al verificar membresía', details: err.message });
   }
 };
+
+exports.delete = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  
+  try {
+    console.log('DELETE COMMUNITY:', { id, userId });
+    
+    // Verificar que la comunidad existe
+    const community = await pool.query(
+      'SELECT * FROM comunidades WHERE id = $1',
+      [id]
+    );
+    
+    if (community.rows.length === 0) {
+      return res.status(404).json({ error: 'Comunidad no encontrada' });
+    }
+    
+    // Verificar que el usuario es el creador o es admin
+    const communityData = community.rows[0];
+    if (communityData.usuario_creador_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta comunidad' });
+    }
+    
+    // Eliminar en cascada: likes de posts de la comunidad
+    await pool.query(
+      'DELETE FROM likes WHERE publicacion_id IN (SELECT id FROM publicaciones WHERE comunidad_id = $1)',
+      [id]
+    );
+    
+    // Eliminar comentarios de posts de la comunidad
+    await pool.query(
+      'DELETE FROM comentarios WHERE publicacion_id IN (SELECT id FROM publicaciones WHERE comunidad_id = $1)',
+      [id]
+    );
+    
+    // Eliminar posts de la comunidad
+    await pool.query('DELETE FROM publicaciones WHERE comunidad_id = $1', [id]);
+    
+    // Eliminar miembros de la comunidad
+    await pool.query('DELETE FROM miembros_comunidad WHERE comunidad_id = $1', [id]);
+    
+    // Eliminar la comunidad
+    await pool.query('DELETE FROM comunidades WHERE id = $1', [id]);
+    
+    // Log
+    await pool.query(
+      'INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)',
+      [userId, 'eliminar_comunidad', `Comunidad ${id} eliminada`]
+    );
+    
+    console.log('COMMUNITY DELETED:', id);
+    res.status(200).json({ message: 'Comunidad eliminada correctamente' });
+  } catch (err) {
+    console.error('Error deleting community:', err.message);
+    res.status(500).json({ error: 'Error al eliminar comunidad', details: err.message });
+  }
+};

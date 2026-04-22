@@ -29,4 +29,7 @@ router.get('/', (req, res) => {
   }
 });
 
+// Eliminar comunidad (solo creador o admin)
+router.delete('/:id', authMiddleware, communityController.delete);
+
 module.exports = router;
