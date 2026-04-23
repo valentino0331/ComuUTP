@@ -138,20 +138,27 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final post = postProvider.posts[index];
           final authProvider = context.read<AuthProvider>();
-          final currentUserId = authProvider.user?.id;
+          final currentUser = authProvider.user;
+          final currentUserId = currentUser?.id;
+          final currentUserRole = currentUser?.role;
           // Comparación numérica explícita
           final postUserId = post.usuarioId is int ? post.usuarioId : int.tryParse(post.usuarioId.toString()) ?? 0;
           final authUserId = currentUserId is int ? currentUserId : int.tryParse(currentUserId.toString()) ?? 0;
+          final comunidadCreadorId = post.comunidadCreadorId ?? 0;
+          // Verificar permisos: autor, admin, o creador de comunidad
           final isAuthor = currentUserId != null && postUserId == authUserId;
+          final isAdmin = currentUserRole == 'admin';
+          final isCommunityCreator = comunidadCreadorId > 0 && comunidadCreadorId == authUserId;
+          final canDelete = isAuthor || isAdmin || isCommunityCreator;
           // Debug
-          print('DEBUG Post ${post.id}: postUserId=$postUserId (type: ${post.usuarioId.runtimeType}), authUserId=$authUserId (type: ${currentUserId?.runtimeType}), isAuthor=$isAuthor');
+          print('DEBUG Post ${post.id}: postUserId=$postUserId, authUserId=$authUserId, comunidadCreadorId=$comunidadCreadorId, isAuthor=$isAuthor, isAdmin=$isAdmin, isCommunityCreator=$isCommunityCreator, canDelete=$canDelete');
           return PostCard(
             post: post,
-            isAuthor: isAuthor,
+            isAuthor: canDelete,
             onLikeTap: () => postProvider.toggleLike(post.id),
             onCommentTap: () => _showCommentSheet(context, post),
             onShareTap: () => _showShareMessage(context),
-            onDeleteTap: isAuthor
+            onDeleteTap: canDelete
                 ? () async {
                     final confirmed = await showDialog<bool>(
                       context: context,

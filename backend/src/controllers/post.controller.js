@@ -47,6 +47,7 @@ exports.list = async (req, res) => {
         p.fecha,
         u.nombre as nombre_usuario,
         c.nombre as nombre_comunidad,
+        c.usuario_creador_id as comunidad_creador_id,
         (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
         (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
       FROM publicaciones p
@@ -104,11 +105,11 @@ exports.delete = async (req, res) => {
   const userId = req.user.id;
   
   try {
-    console.log('DELETE POST:', { id, userId });
+    console.log('DELETE POST:', { id, userId, role: req.user.role });
     
-    // Verificar que el post existe y pertenece al usuario
+    // Verificar que el post existe
     const post = await pool.query(
-      'SELECT * FROM publicaciones WHERE id = $1',
+      'SELECT p.*, c.usuario_creador_id as comunidad_creador_id FROM publicaciones p JOIN comunidades c ON p.comunidad_id = c.id WHERE p.id = $1',
       [id]
     );
     
@@ -116,9 +117,15 @@ exports.delete = async (req, res) => {
       return res.status(404).json({ error: 'Publicación no encontrada' });
     }
     
-    // Verificar que el usuario es el autor o es admin
     const postData = post.rows[0];
-    if (postData.usuario_id !== userId && req.user.role !== 'admin') {
+    const isAuthor = postData.usuario_id === userId;
+    const isAdmin = req.user.role === 'admin';
+    const isCommunityCreator = postData.comunidad_creador_id === userId;
+    
+    console.log('DELETE PERMISSIONS:', { isAuthor, isAdmin, isCommunityCreator });
+    
+    // Verificar permisos: autor, admin, o creador de comunidad
+    if (!isAuthor && !isAdmin && !isCommunityCreator) {
       return res.status(403).json({ error: 'No tienes permiso para eliminar esta publicación' });
     }
     

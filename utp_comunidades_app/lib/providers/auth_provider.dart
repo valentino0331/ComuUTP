@@ -62,9 +62,15 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     
     try {
+      // Convertir código a email si no tiene @
+      String emailToUse = email;
+      if (!email.contains('@')) {
+        emailToUse = email + '@utp.edu.pe';
+      }
+      
       // 1. Login con Firebase
       final credential = await firebase.FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+          .signInWithEmailAndPassword(email: emailToUse, password: password);
       
       _firebaseUser = credential.user;
       
