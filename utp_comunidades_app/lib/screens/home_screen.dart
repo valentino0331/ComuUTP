@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../theme/app_theme.dart';
 import '../providers/post_provider.dart';
 import '../providers/auth_provider.dart';
+import 'create_story_screen.dart';
 import 'create_post_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F8F8),
       appBar: _buildAppBar(),
       body: Consumer<PostProvider>(
         builder: (context, postProvider, _) {
@@ -43,25 +44,65 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: const Color(0xFFB21132),
-      elevation: 0,
-      centerTitle: true,
+      elevation: 8,
       automaticallyImplyLeading: false,
-      title: const Text(
-        'Inicio',
-        style: TextStyle(
-          fontFamily: 'Montserrat',
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFFED1C24),
+              const Color(0xFFB21132),
+            ],
+          ),
         ),
       ),
+      toolbarHeight: 90,
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                PhosphorIcons.houseSimple(PhosphorIconsStyle.fill),
+                color: Colors.white,
+                size: 32,
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'UTP Comunidades',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Tu comunidad universitaria',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: Colors.white.withOpacity(0.9),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+      centerTitle: true,
       actions: [
         IconButton(
           icon: Icon(
             PhosphorIcons.bell(PhosphorIconsStyle.regular),
             color: Colors.white,
-            size: 24,
+            size: 26,
           ),
           onPressed: () {},
         ),
@@ -132,162 +173,205 @@ class _HomeScreenState extends State<HomeScreen> {
     return RefreshIndicator(
       onRefresh: () => postProvider.fetchAllPosts(),
       color: const Color(0xFFB21132),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: postProvider.posts.length,
-        itemBuilder: (context, index) {
-          final post = postProvider.posts[index];
-          final authProvider = context.read<AuthProvider>();
-          final currentUser = authProvider.user;
-          final currentUserId = currentUser?.id;
-          final currentUserRole = currentUser?.role;
-          // Comparación numérica explícita
-          final postUserId = post.usuarioId is int ? post.usuarioId : int.tryParse(post.usuarioId.toString()) ?? 0;
-          final authUserId = currentUserId is int ? currentUserId : int.tryParse(currentUserId.toString()) ?? 0;
-          final comunidadCreadorId = post.comunidadCreadorId ?? 0;
-          // Verificar permisos: autor, admin, o creador de comunidad
-          final isAuthor = currentUserId != null && postUserId == authUserId;
-          final isAdmin = currentUserRole == 'admin';
-          final isCommunityCreator = comunidadCreadorId > 0 && comunidadCreadorId == authUserId;
-          final canDelete = isAuthor || isAdmin || isCommunityCreator;
-          // Debug
-          print('DEBUG Post ${post.id}: postUserId=$postUserId, authUserId=$authUserId, comunidadCreadorId=$comunidadCreadorId, isAuthor=$isAuthor, isAdmin=$isAdmin, isCommunityCreator=$isCommunityCreator, canDelete=$canDelete');
-          return PostCard(
-            post: post,
-            isAuthor: canDelete,
-            onLikeTap: () => postProvider.toggleLike(post.id),
-            onCommentTap: () => _showCommentSheet(context, post),
-            onShareTap: () => _showShareMessage(context),
-            onDeleteTap: canDelete
-                ? () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => Dialog(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: Colors.red[50],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  PhosphorIcons.trash(PhosphorIconsStyle.fill),
-                                  color: Colors.red,
-                                  size: 28,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
+        child: Column(
+          children: [
+            _StorySection(),
+            Container(height: 16, color: Colors.transparent),
+            _buildQuickPostSection(context),
+            const SizedBox(height: 16),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: postProvider.posts.length,
+              itemBuilder: (context, index) {
+                final post = postProvider.posts[index];
+                final authProvider = context.read<AuthProvider>();
+                final currentUserId = authProvider.user?.id;
+                final isAuthor = post.usuarioId == currentUserId;
+                return PostCard(
+                  post: post,
+                  isAuthor: isAuthor,
+                  onLikeTap: () => postProvider.toggleLike(post.id),
+                  onCommentTap: () => _showCommentSheet(context, post),
+                  onShareTap: () => _showShareMessage(context),
+                  onDeleteTap: isAuthor
+                      ? () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(
                                 '¿Eliminar publicación?',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black87,
-                                ),
+                                style: TextStyle(fontFamily: 'Montserrat'),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
+                              content: const Text(
                                 'Esta acción no se puede deshacer.',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                                textAlign: TextAlign.center,
+                                style: TextStyle(fontFamily: 'Montserrat'),
                               ),
-                              const SizedBox(height: 24),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextButton(
-                                      onPressed: () => Navigator.pop(context, false),
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Cancelar',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text(
+                                    'Cancelar',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontFamily: 'Montserrat',
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () => Navigator.pop(context, true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        elevation: 0,
-                                      ),
-                                      child: const Text(
-                                        'Eliminar',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                    if (confirmed == true) {
-                      final success = await postProvider.deletePost(post.id);
-                      if (success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                Icon(
-                                  PhosphorIcons.checkCircle(
-                                    PhosphorIconsStyle.fill,
-                                  ),
-                                  color: Colors.white,
-                                  size: 20,
                                 ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Publicación eliminada',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontWeight: FontWeight.w600,
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, true),
+                                  child: const Text(
+                                    'Eliminar',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Montserrat',
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            backgroundColor: Colors.green,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    }
-                  }
-                : null,
-          );
-        },
+                          );
+                          if (confirmed == true) {
+                            final success =
+                                await postProvider.deletePost(post.id);
+                            if (success && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        PhosphorIcons.checkCircle(
+                                          PhosphorIconsStyle.fill,
+                                        ),
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Text(
+                                        'Publicación eliminada',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      : null,
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickPostSection(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFB21132).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              PhosphorIcons.user(PhosphorIconsStyle.fill),
+              color: const Color(0xFFB21132),
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CreatePostScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      PhosphorIcons.plus(PhosphorIconsStyle.bold),
+                      color: Colors.grey[600],
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '¿Qué piensas?',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CreateStoryScreen(),
+                ),
+              );
+            },
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color(0xFFB21132),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.image(PhosphorIconsStyle.fill),
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -465,6 +549,221 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class _StorySection extends StatelessWidget {
+  const _StorySection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header mejorado
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB21132).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        PhosphorIcons.clock(PhosphorIconsStyle.fill),
+                        color: const Color(0xFFB21132),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Historias (24h)',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFB21132).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '8 activas',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFB21132),
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              itemCount: 1, // Solo mostrar la opción de crear historia del usuario actual
+              itemBuilder: (context, index) {
+                return StoryItem(
+                  index: index,
+                  userName: 'Mi historia',
+                  isCurrentUser: true,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CreateStoryScreen(),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StoryItem extends StatelessWidget {
+  final int index;
+  final VoidCallback onTap;
+  final String userName;
+  final bool isCurrentUser;
+
+  const StoryItem({
+    required this.index,
+    required this.onTap,
+    required this.userName,
+    this.isCurrentUser = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: onTap,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Border decorativo
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isCurrentUser
+                            ? const Color(0xFFB21132)
+                            : const Color(0xFFB21132).withOpacity(0.3),
+                        width: isCurrentUser ? 3 : 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isCurrentUser
+                              ? const Color(0xFFB21132).withOpacity(0.3)
+                              : Colors.black.withOpacity(0.08),
+                          blurRadius: isCurrentUser ? 12 : 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Contenido
+                  Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: isCurrentUser
+                          ? LinearGradient(
+                              colors: [
+                                const Color(0xFFED1C24).withOpacity(0.1),
+                                const Color(0xFFB21132).withOpacity(0.05),
+                              ],
+                            )
+                          : LinearGradient(
+                              colors: [
+                                Colors.grey[100]!,
+                                Colors.grey[50]!,
+                              ],
+                            ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          isCurrentUser
+                              ? PhosphorIcons.plus(PhosphorIconsStyle.bold)
+                              : PhosphorIcons.image(PhosphorIconsStyle.fill),
+                          color: isCurrentUser
+                              ? const Color(0xFFB21132)
+                              : Colors.grey[400],
+                          size: isCurrentUser ? 40 : 32,
+                        ),
+                        if (isCurrentUser) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Crear',
+                            style: TextStyle(
+                              color: const Color(0xFFB21132),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: 96,
+            child: Text(
+              userName,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: isCurrentUser ? 12 : 11,
+                fontFamily: 'Montserrat',
+                color: isCurrentUser ? Colors.black87 : Colors.grey[600],
+                fontWeight: isCurrentUser ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class PostCard extends StatefulWidget {
   final dynamic post;
   final VoidCallback onLikeTap;
@@ -492,54 +791,92 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: const EdgeInsets.only(bottom: 1),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[200]!,
+            width: 1,
           ),
-        ],
+        ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _PostHeader(
-              post: widget.post,
-              onMenuTap: widget.onShareTap,
-              onDeleteTap: widget.onDeleteTap,
-              isAuthor: widget.isAuthor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _PostHeader(
+            post: widget.post,
+            onMenuTap: widget.onShareTap,
+            onDeleteTap: widget.onDeleteTap,
+            isAuthor: widget.isAuthor,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              widget.post.contenido ?? '',
+              style: const TextStyle(
+                fontSize: 15,
+                height: 1.5,
+                color: Colors.black87,
+                fontFamily: 'Montserrat',
+              ),
             ),
+          ),
+          if (widget.post.imagen != null &&
+              widget.post.imagen!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              child: Text(
-                widget.post.contenido ?? '',
-                style: const TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: Colors.black87,
-                  fontFamily: 'Montserrat',
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  widget.post.imagen!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 200,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      height: 200,
+                      color: Colors.grey[200],
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            const Color(0xFFB21132),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 200,
+                      color: Colors.grey[200],
+                      child: Icon(
+                        PhosphorIcons.image(PhosphorIconsStyle.regular),
+                        color: Colors.grey[400],
+                        size: 60,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
-            _PostStats(post: widget.post),
-            Divider(height: 1, color: Colors.grey[200]),
-            _PostActions(
-              isLiked: _isLiked,
-              onLikeTap: () {
-                setState(() => _isLiked = !_isLiked);
-                widget.onLikeTap();
-              },
-              onCommentTap: widget.onCommentTap,
-              onShareTap: widget.onShareTap,
-            ),
-          ],
-        ),
+          _PostStats(post: widget.post),
+          const Divider(height: 1),
+          _PostActions(
+            isLiked: _isLiked,
+            onLikeTap: () {
+              setState(() => _isLiked = !_isLiked);
+              widget.onLikeTap();
+            },
+            onCommentTap: widget.onCommentTap,
+            onShareTap: widget.onShareTap,
+          ),
+        ],
       ),
     );
   }
@@ -577,36 +914,24 @@ class _PostHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('DEBUG _PostHeader: post.id=${post.id}, isAuthor=$isAuthor, onDeleteTap=$onDeleteTap');
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFFB21132),
-                  const Color(0xFFB21132).withOpacity(0.7),
-                ],
-              ),
+              color: const Color(0xFFB21132).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Center(
-              child: Text(
-                (post.nombreUsuario ?? 'U').substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Montserrat',
-                ),
-              ),
+            child: Icon(
+              PhosphorIcons.user(PhosphorIconsStyle.fill),
+              color: const Color(0xFFB21132),
+              size: 22,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,8 +940,8 @@ class _PostHeader extends StatelessWidget {
                   post.nombreUsuario ?? 'Usuario',
                   style: const TextStyle(
                     fontFamily: 'Montserrat',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                 ),
@@ -624,226 +949,250 @@ class _PostHeader extends StatelessWidget {
                   _getTimeAgo(post.fecha),
                   style: TextStyle(
                     fontFamily: 'Montserrat',
-                    fontSize: 11,
-                    color: Colors.grey[600],
+                    fontSize: 12,
+                    color: Colors.grey[500],
                   ),
                 ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                builder: (context) => Container(
-                  margin: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+          PopupMenuButton(
+            icon: Icon(
+              PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
+              color: Colors.grey[600],
+              size: 20,
+            ),
+            itemBuilder: (BuildContext context) {
+              final items = <PopupMenuEntry>[];
+
+              // Opción de compartir (todos)
+              items.add(
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
+                        color: const Color(0xFFB21132),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Compartir',
+                        style: TextStyle(
+                          color: Color(0xFFB21132),
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 12),
-                      // Handle bar
-                      Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Título
-                      const Text(
-                        'Opciones',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Compartir
-                      _buildBottomSheetOption(
-                        'Compartir',
-                        PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
-                        const Color(0xFFB21132),
-                        () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                children: [
-                                  Icon(
-                                    PhosphorIcons.checkCircle(
-                                      PhosphorIconsStyle.fill,
-                                    ),
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Text(
-                                    'Enlace copiado',
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(
+                              PhosphorIcons.checkCircle(
+                                PhosphorIconsStyle.fill,
                               ),
-                              backgroundColor: Colors.green,
-                              duration: const Duration(seconds: 2),
+                              color: Colors.white,
+                              size: 20,
                             ),
-                          );
-                        },
-                      ),
-
-                      // Guardar - Deshabilitado hasta implementar backend
-                      // _buildBottomSheetOption(
-                      //   'Guardar',
-                      //   PhosphorIcons.bookmark(PhosphorIconsStyle.regular),
-                      //   Colors.blue,
-                      //   () {
-                      //     Navigator.pop(context);
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       const SnackBar(
-                      //         content: Text('Próximamente'),
-                      //         duration: Duration(milliseconds: 800),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-
-                      // Reportar
-                      _buildBottomSheetOption(
-                        'Reportar',
-                        PhosphorIcons.flag(PhosphorIconsStyle.regular),
-                        Colors.orange,
-                        () {
-                          Navigator.pop(context);
-                          _showReportDialog(context);
-                        },
-                      ),
-
-                      // Eliminar (solo si es autor)
-                      if (isAuthor) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Divider(height: 1, color: Colors.grey[200]),
-                        ),
-                        _buildBottomSheetOption(
-                          'Eliminar',
-                          PhosphorIcons.trash(PhosphorIconsStyle.regular),
-                          Colors.red,
-                          () {
-                            Navigator.pop(context);
-                            onDeleteTap?.call();
-                          },
-                        ),
-                      ],
-
-                      const SizedBox(height: 16),
-
-                      // Cancelar
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.grey[100],
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Cancelar',
+                            const SizedBox(width: 10),
+                            const Text(
+                              'Enlace copiado',
                               style: TextStyle(
-                                color: Colors.black87,
                                 fontFamily: 'Montserrat',
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
                               ),
                             ),
-                          ),
+                          ],
                         ),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 2),
                       ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               );
+
+              // Opción de reportar (todos)
+              items.add(
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.flag(PhosphorIconsStyle.regular),
+                        color: Colors.orange,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Reportar',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) => Container(
+                        margin: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 4,
+                              margin: const EdgeInsets.only(bottom: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const Text(
+                              'Reportar publicación',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '¿Por qué deseas reportar esta publicación?',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Cancelar',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Row(
+                                            children: [
+                                              Icon(
+                                                PhosphorIcons.checkCircle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              const Text(
+                                                'Reporte enviado',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          backgroundColor: Colors.green,
+                                          duration: const Duration(seconds: 2),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text(
+                                      'Reportar',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+
+              // Opción de eliminar (solo autor)
+              if (isAuthor) {
+                items.add(
+                  PopupMenuDivider(),
+                );
+                items.add(
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        Icon(
+                          PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                          color: Colors.red,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Eliminar',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: onDeleteTap,
+                  ),
+                );
+              }
+
+              return items;
             },
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.bold),
-                color: Colors.grey[600],
-                size: 20,
-              ),
-            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBottomSheetOption(
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Montserrat',
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -857,35 +1206,35 @@ class _PostStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Icon(
             PhosphorIcons.heart(PhosphorIconsStyle.fill),
             color: const Color(0xFFB21132),
-            size: 14,
+            size: 16,
           ),
           const SizedBox(width: 4),
           Text(
-            '${post.likes ?? 0}',
+            '42',
             style: TextStyle(
               fontFamily: 'Montserrat',
-              fontSize: 11,
+              fontSize: 12,
               color: Colors.grey[600],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Icon(
             PhosphorIcons.chatCircleText(PhosphorIconsStyle.regular),
             color: Colors.grey[600],
-            size: 14,
+            size: 16,
           ),
           const SizedBox(width: 4),
           Text(
-            '${post.comentarios ?? 0}',
+            '8',
             style: TextStyle(
               fontFamily: 'Montserrat',
-              fontSize: 11,
+              fontSize: 12,
               color: Colors.grey[600],
             ),
           ),
@@ -911,34 +1260,42 @@ class _PostActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      child: Column(
         children: [
-          Expanded(
-            child: _ActionButton(
-              icon: isLiked
-                  ? PhosphorIcons.heart(PhosphorIconsStyle.fill)
-                  : PhosphorIcons.heart(PhosphorIconsStyle.regular),
-              label: 'Me gusta',
-              color: isLiked ? const Color(0xFFB21132) : Colors.grey[600]!,
-              onTap: onLikeTap,
-            ),
-          ),
-          Expanded(
-            child: _ActionButton(
-              icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.regular),
-              label: 'Comentar',
-              color: Colors.grey[600]!,
-              onTap: onCommentTap,
-            ),
-          ),
-          Expanded(
-            child: _ActionButton(
-              icon: PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
-              label: 'Compartir',
-              color: Colors.grey[600]!,
-              onTap: onShareTap,
+          Divider(height: 1, color: Colors.grey[200]),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: _ActionButton(
+                    icon: isLiked
+                        ? PhosphorIcons.heart(PhosphorIconsStyle.fill)
+                        : PhosphorIcons.heart(PhosphorIconsStyle.regular),
+                    label: 'Me gusta',
+                    color: isLiked ? const Color(0xFFB21132) : Colors.grey[600]!,
+                    onTap: onLikeTap,
+                  ),
+                ),
+                Expanded(
+                  child: _ActionButton(
+                    icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.regular),
+                    label: 'Comentar',
+                    color: Colors.grey[600]!,
+                    onTap: onCommentTap,
+                  ),
+                ),
+                Expanded(
+                  child: _ActionButton(
+                    icon: PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
+                    label: 'Compartir',
+                    color: Colors.grey[600]!,
+                    onTap: onShareTap,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -962,269 +1319,30 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Icon(
-            icon,
-            color: color,
-            size: 18,
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
         ),
-      ),
-    );
-  }
-}
-
-void _showReportDialog(BuildContext context, {dynamic post}) {
-  final List<Map<String, dynamic>> reportReasons = [
-    {'icon': PhosphorIcons.warningCircle(PhosphorIconsStyle.fill), 'label': 'Contenido inapropiado', 'color': Colors.red},
-    {'icon': PhosphorIcons.prohibit(PhosphorIconsStyle.fill), 'label': 'Spam', 'color': Colors.orange},
-    {'icon': PhosphorIcons.users(PhosphorIconsStyle.fill), 'label': 'Acoso o bullying', 'color': Colors.purple},
-    {'icon': PhosphorIcons.shieldWarning(PhosphorIconsStyle.fill), 'label': 'Violencia', 'color': Colors.red.shade800},
-    {'icon': PhosphorIcons.copyright(PhosphorIconsStyle.fill), 'label': 'Contenido con derechos de autor', 'color': Colors.blue},
-    {'icon': PhosphorIcons.chatCircleDots(PhosphorIconsStyle.fill), 'label': 'Información falsa', 'color': Colors.teal},
-    {'icon': PhosphorIcons.question(PhosphorIconsStyle.fill), 'label': 'Otro', 'color': Colors.grey},
-  ];
-
-  String? selectedReason;
-  final TextEditingController detailsController = TextEditingController();
-
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) {
-        return Container(
-          margin: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: color,
               ),
-            ],
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Handle bar
-                    Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Icono
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        PhosphorIcons.flag(PhosphorIconsStyle.fill),
-                        color: Colors.orange,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Reportar publicación',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Selecciona una razón',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Opciones de reporte
-                    ...reportReasons.map((reason) {
-                      final isSelected = selectedReason == reason['label'];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              selectedReason = reason['label'];
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isSelected ? (reason['color'] as Color).withOpacity(0.1) : Colors.grey[50],
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected ? reason['color'] as Color : Colors.grey[200]!,
-                                width: isSelected ? 2 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  reason['icon'] as IconData,
-                                  color: reason['color'] as Color,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    reason['label'] as String,
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontSize: 14,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(
-                                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                                    color: reason['color'] as Color,
-                                    size: 20,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    const SizedBox(height: 16),
-                    // Campo de detalles adicionales
-                    if (selectedReason != null) ...[
-                      TextField(
-                        controller: detailsController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          labelText: 'Detalles adicionales (opcional)',
-                          labelStyle: TextStyle(
-                            fontFamily: 'Montserrat',
-                            color: Colors.grey[600],
-                          ),
-                          hintText: 'Describe el problema...',
-                          hintStyle: TextStyle(
-                            fontFamily: 'Montserrat',
-                            color: Colors.grey[400],
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFB21132), width: 2),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                    // Botones
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Cancelar',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: selectedReason == null
-                                ? null
-                                : () {
-                                    Navigator.pop(context);
-                                    // TODO: Enviar reporte al backend
-                                    print('Reporte enviado: $selectedReason - ${detailsController.text}');
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Row(
-                                          children: [
-                                            const Icon(Icons.check_circle, color: Colors.white),
-                                            const SizedBox(width: 10),
-                                            const Text(
-                                              'Reporte enviado. Gracias.',
-                                              style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        backgroundColor: Colors.green,
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Reportar',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
 }
