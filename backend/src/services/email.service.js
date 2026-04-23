@@ -1,33 +1,16 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// Verificar que las variables de entorno estén configuradas
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.error('❌ ERROR: EMAIL_USER o EMAIL_PASS no están configurados en variables de entorno');
+// Verificar que SendGrid esté configurado
+if (!process.env.SENDGRID_API_KEY) {
+  console.error('❌ ERROR: SENDGRID_API_KEY no está configurado en variables de entorno');
+} else {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ SendGrid configurado correctamente');
 }
 
-// Configurar transporter de nodemailer para Outlook/Microsoft 365
-const transporter = nodemailer.createTransport({
-  host: 'smtp.office365.com',
-  port: 587,
-  secure: false, // true para 465, false para otros puertos
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    ciphers: 'SSLv3',
-    rejectUnauthorized: false,
-  },
-});
-
-// Verificar conexión al iniciar
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error('❌ Error al verificar conexión SMTP:', error);
-  } else {
-    console.log('✅ Servidor SMTP listo para enviar emails');
-  }
-});
+if (!process.env.EMAIL_USER) {
+  console.error('❌ ERROR: EMAIL_USER no está configurado (remitente de emails)');
+}
 
 /**
  * Enviar email de verificación
@@ -82,11 +65,11 @@ exports.sendVerificationEmail = async (email, nombre, token) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(mailOptions);
     console.log(`✅ Email de verificación enviado a ${email}`);
     return true;
   } catch (error) {
-    console.error('❌ Error enviando email:', error);
+    console.error('❌ Error enviando email:', error.response?.body || error.message);
     return false;
   }
 };
@@ -140,11 +123,11 @@ exports.sendWelcomeEmail = async (email, nombre) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(mailOptions);
     console.log(`✅ Email de bienvenida enviado a ${email}`);
     return true;
   } catch (error) {
-    console.error('❌ Error enviando email:', error);
+    console.error('❌ Error enviando email:', error.response?.body || error.message);
     return false;
   }
 };
