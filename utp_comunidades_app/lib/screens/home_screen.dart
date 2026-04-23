@@ -135,11 +135,85 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: postProvider.posts.length,
               itemBuilder: (context, index) {
                 final post = postProvider.posts[index];
+                final authProvider = context.read<AuthProvider>();
+                final currentUserId = authProvider.user?.id;
+                final isAuthor = post.usuarioId == currentUserId;
                 return PostCard(
                   post: post,
+                  isAuthor: isAuthor,
                   onLikeTap: () => postProvider.toggleLike(post.id),
                   onCommentTap: () => _showCommentSheet(context, post),
                   onShareTap: () => _showShareMessage(context),
+                  onDeleteTap: isAuthor
+                      ? () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(
+                                '¿Eliminar publicación?',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              content: const Text(
+                                'Esta acción no se puede deshacer.',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text(
+                                    'Cancelar',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text(
+                                    'Eliminar',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed == true) {
+                            final success = await postProvider.deletePost(post.id);
+                            if (success && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        PhosphorIcons.checkCircle(
+                                          PhosphorIconsStyle.fill,
+                                        ),
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Text(
+                                        'Publicación eliminada',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      : null,
                 );
               },
             ),
@@ -401,12 +475,16 @@ class PostCard extends StatefulWidget {
   final VoidCallback onLikeTap;
   final VoidCallback onCommentTap;
   final VoidCallback onShareTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
 
   const PostCard({
     required this.post,
     required this.onLikeTap,
     required this.onCommentTap,
     required this.onShareTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
   });
 
   @override
@@ -437,6 +515,8 @@ class _PostCardState extends State<PostCard> {
           _PostHeader(
             post: widget.post,
             onMenuTap: widget.onShareTap,
+            onDeleteTap: widget.onDeleteTap,
+            isAuthor: widget.isAuthor,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -513,10 +593,14 @@ class _PostCardState extends State<PostCard> {
 class _PostHeader extends StatelessWidget {
   final dynamic post;
   final VoidCallback onMenuTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
 
   const _PostHeader({
     required this.post,
     required this.onMenuTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
   });
 
   @override
@@ -563,13 +647,101 @@ class _PostHeader extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
+          PopupMenuButton(
             icon: Icon(
               PhosphorIcons.dotsThreeVertical(PhosphorIconsStyle.fill),
               color: Colors.grey[600],
               size: 20,
             ),
-            onPressed: onMenuTap,
+            itemBuilder: (BuildContext context) {
+              final items = <PopupMenuEntry>[];
+
+              // Opción de compartir (todos)
+              items.add(
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.shareNetwork(PhosphorIconsStyle.regular),
+                        color: const Color(0xFFB21132),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Compartir',
+                        style: TextStyle(
+                          color: Color(0xFFB21132),
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: onMenuTap,
+                ),
+              );
+
+              // Opción de reportar (todos)
+              items.add(
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorIcons.flag(PhosphorIconsStyle.regular),
+                        color: Colors.orange,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Reportar',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Reporte enviado'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                ),
+              );
+
+              // Opción de eliminar (solo autor)
+              if (isAuthor && onDeleteTap != null) {
+                items.add(
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        Icon(
+                          PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                          color: Colors.red,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Eliminar',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: onDeleteTap,
+                  ),
+                );
+              }
+
+              return items;
+            },
           ),
         ],
       ),
