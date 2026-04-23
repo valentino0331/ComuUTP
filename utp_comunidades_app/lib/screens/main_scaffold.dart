@@ -4,6 +4,7 @@ import 'home_screen.dart';
 import 'communities_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
+import 'create_post_screen.dart';
 import '../widgets/bottom_nav.dart';
 import '../providers/community_provider.dart';
 import '../providers/auth_provider.dart';
@@ -30,6 +31,16 @@ class _MainScaffoldState extends State<MainScaffold> {
     });
   }
 
+  void _openCreatePost() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CreatePostScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final communities = Provider.of<CommunityProvider>(context).communities;
@@ -46,6 +57,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
+        onCreateTap: _openCreatePost,
         unreadNotifications: unreadNotifications,
       ),
     );
