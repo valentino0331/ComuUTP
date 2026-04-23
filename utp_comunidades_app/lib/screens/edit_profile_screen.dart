@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 import '../models/user.dart';
@@ -65,7 +66,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
-  void _showImagePickerOptions(bool isProfile) {
+  Future<void> _showImagePickerOptions(bool isProfile) async {
+    final ImagePicker picker = ImagePicker();
+    
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -98,29 +101,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 20),
               ListTile(
-                leading: Icon(PhosphorIcons.camera(), color: Color(0xFFB21132)),
+                leading: Icon(PhosphorIcons.camera(), color: const Color(0xFFB21132)),
                 title: const Text(
                   'Tomar foto',
                   style: TextStyle(fontFamily: 'Montserrat'),
                 ),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Funcionalidad de tomar foto próximamente')),
-                  );
+                  try {
+                    final XFile? photo = await picker.pickImage(
+                      source: ImageSource.camera,
+                      imageQuality: 80,
+                    );
+                    if (photo != null && mounted) {
+                      setState(() {
+                        if (isProfile) {
+                          _profileImage = File(photo.path);
+                        } else {
+                          _coverImage = File(photo.path);
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error al tomar foto: $e')),
+                      );
+                    }
+                  }
                 },
               ),
               ListTile(
-                leading: Icon(PhosphorIcons.image(), color: Color(0xFFB21132)),
+                leading: Icon(PhosphorIcons.image(), color: const Color(0xFFB21132)),
                 title: const Text(
                   'Elegir de la galería',
                   style: TextStyle(fontFamily: 'Montserrat'),
                 ),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Funcionalidad de galería próximamente')),
-                  );
+                  try {
+                    final XFile? image = await picker.pickImage(
+                      source: ImageSource.gallery,
+                      imageQuality: 80,
+                    );
+                    if (image != null && mounted) {
+                      setState(() {
+                        if (isProfile) {
+                          _profileImage = File(image.path);
+                        } else {
+                          _coverImage = File(image.path);
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error al elegir imagen: $e')),
+                      );
+                    }
+                  }
                 },
               ),
               if ((isProfile && _profileImage != null) || (!isProfile && _coverImage != null))
