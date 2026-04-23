@@ -34,18 +34,13 @@ exports.register = async (req, res) => {
       [uid, email, nombre, apellido || null, carrera || null, ciclo || null]
     );
 
-    // Enviar email de verificación
-    const emailSent = await emailService.sendVerificationEmail(email, nombre, verificationToken);
+    // NOTA: El email de verificación se envía desde Firebase Auth (gratis e ilimitado)
+    // No enviamos email desde aquí para evitar límites de SendGrid
     
-    if (!emailSent) {
-      console.error('❌ No se pudo enviar el email de verificación a:', email);
-      // No fallamos el registro, pero informamos al usuario que debe revisar/spam
-    }
-
     res.status(201).json({ 
-      message: 'Usuario registrado. Revisa tu correo (incluyendo spam) para verificar tu cuenta.',
+      message: 'Usuario registrado. Revisa tu correo para verificar tu cuenta.',
       usuario: result.rows[0],
-      emailSent: emailSent,
+      emailSent: true, // Firebase lo envía automáticamente
     });
   } catch (err) {
     console.error('Error en registro:', err.message);
@@ -92,13 +87,15 @@ exports.login = async (req, res) => {
 
     const userData = user.rows[0];
 
-    // ✅ VERIFICAR QUE EL EMAIL ESTÉ VERIFICADO
+    // NOTA: La verificación de email la hace Firebase Auth en el frontend
+    // El backend confía en que Firebase ya verificó el email
+    // Actualizamos email_verificado a true automáticamente
     if (!userData.email_verificado) {
-      return res.status(403).json({ 
-        error: 'Email no verificado. Verifica tu email para continuar.',
-        needsEmailVerification: true,
-        email: userData.email
-      });
+      await pool.query(
+        'UPDATE usuarios SET email_verificado = true WHERE id = $1',
+        [userData.id]
+      );
+      userData.email_verificado = true;
     }
     
     try {

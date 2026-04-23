@@ -87,7 +87,20 @@ class AuthProvider with ChangeNotifier {
         return false;
       }
       
-      // 2. Login en backend Neon (el backend verifica si email está verificado)
+      // 2. Verificar email en Firebase
+      await _firebaseUser!.reload();
+      _firebaseUser = firebase.FirebaseAuth.instance.currentUser;
+      
+      if (!_firebaseUser!.emailVerified) {
+        _error = 'Por favor verifica tu correo. Revisa tu bandeja de entrada.';
+        _needsEmailVerification = true;
+        _verificationEmail = _firebaseUser!.email;
+        _loading = false;
+        notifyListeners();
+        return false;
+      }
+      
+      // 3. Login en backend Neon
       final res = await ApiService.post('/auth/login', {
         'uid': _firebaseUser!.uid,
         'email': email,
@@ -168,8 +181,8 @@ class AuthProvider with ChangeNotifier {
       // 2. Actualizar display name
       await _firebaseUser!.updateDisplayName('$nombre ${apellido ?? ''}'.trim());
       
-      // NOTA: No enviamos email de verificación desde Firebase
-      // El backend se encarga de enviar el email y gestionar la verificación
+      // 3. Enviar email de verificación DESDE FIREBASE (gratis e ilimitado)
+      await _firebaseUser!.sendEmailVerification();
       
       _loading = false;
       notifyListeners();
@@ -177,7 +190,7 @@ class AuthProvider with ChangeNotifier {
       return {
         'success': true,
         'uid': _firebaseUser!.uid,
-        'message': 'Usuario creado. Completa tu registro.',
+        'message': 'Revisa tu correo para verificar tu cuenta.',
       };
     } on firebase.FirebaseAuthException catch (e) {
       _error = _getFirebaseErrorMessage(e.code);

@@ -1239,3 +1239,32 @@
 2026-04-23 06:47:48.694: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: PERSISTENT_ERROR, EDGE_AUTH_ERROR: 3, 24, 4b0
 2026-04-23 06:47:48.694: [INFO][Sync] Credentials changed for: EdgeSyncKeyDataScope
 2026-04-23 07:23:59.812: [INFO][Sync] Reset engine, reason: 0
+2026-04-23 07:26:24.713: [INFO][Sync] SyncState after authenticated was: FeatureCanStart
+2026-04-23 07:26:25.363: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: PERSISTENT_ERROR, EDGE_AUTH_ERROR: 3, 24, 4b0
+2026-04-23 07:26:25.363: [INFO][Sync] Credentials changed for: EdgeSyncScopeNew
+2026-04-23 07:26:25.364: [ERROR][Sync]     Engine is not allowed to run, reason: 000000
+2026-04-23 07:26:25.373: [INFO][Sync] Reset engine, reason: 6
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Bookmarks
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Preferences
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Passwords
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Autofill Profiles
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Autofill
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Extensions
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Sessions
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Extension settings
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: History Delete Directives
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Device Info
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: User Consents
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Send Tab To Self
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Web Apps
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: History
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Saved Tab Group
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: WebAuthn Credentials
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Collection
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Edge E Drop
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Edge Hub App Usage
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Edge Wallet
+2026-04-23 07:26:25.373: [INFO][Sync] Stopped: Edge Workspace
+2026-04-23 07:26:25.377: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: PERSISTENT_ERROR, EDGE_AUTH_ERROR: 3, 24, 4b0
+2026-04-23 07:26:25.377: [INFO][Sync] Credentials changed for: EdgeSyncKeyDataScope
+2026-04-23 07:32:59.568: [INFO][Sync] Reset engine, reason: 0
