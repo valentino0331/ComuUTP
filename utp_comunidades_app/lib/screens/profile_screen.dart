@@ -61,6 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               backgroundColor: const Color(0xFFB21132),
               elevation: 0,
               leading: null,
+              automaticallyImplyLeading: false,
               title: const Text(
                 'Mi Perfil',
                 style: TextStyle(

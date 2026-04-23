@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFFB21132),
       elevation: 0,
       centerTitle: true,
+      automaticallyImplyLeading: false,
       title: const Text(
         'Inicio',
         style: TextStyle(

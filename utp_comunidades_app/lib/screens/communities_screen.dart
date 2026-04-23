@@ -58,6 +58,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         elevation: 0,
         toolbarHeight: 56,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Comunidades',
           style: TextStyle(
