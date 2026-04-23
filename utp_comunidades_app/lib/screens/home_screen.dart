@@ -710,24 +710,21 @@ class _PostHeader extends StatelessWidget {
                         },
                       ),
 
-                      // Guardar
-                      _buildBottomSheetOption(
-                        'Guardar',
-                        PhosphorIcons.bookmark(PhosphorIconsStyle.regular),
-                        Colors.blue,
-                        () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Guardado en tus favoritos',
-                                style: TextStyle(fontFamily: 'Montserrat'),
-                              ),
-                              duration: Duration(milliseconds: 800),
-                            ),
-                          );
-                        },
-                      ),
+                      // Guardar - Deshabilitado hasta implementar backend
+                      // _buildBottomSheetOption(
+                      //   'Guardar',
+                      //   PhosphorIcons.bookmark(PhosphorIconsStyle.regular),
+                      //   Colors.blue,
+                      //   () {
+                      //     Navigator.pop(context);
+                      //     ScaffoldMessenger.of(context).showSnackBar(
+                      //       const SnackBar(
+                      //         content: Text('Próximamente'),
+                      //         duration: Duration(milliseconds: 800),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
 
                       // Reportar
                       _buildBottomSheetOption(
@@ -983,106 +980,234 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-void _showReportDialog(BuildContext context) {
-  showDialog(
+void _showReportDialog(BuildContext context, {dynamic post}) {
+  final List<Map<String, dynamic>> reportReasons = [
+    {'icon': PhosphorIcons.warningCircle(PhosphorIconsStyle.fill), 'label': 'Contenido inapropiado', 'color': Colors.red},
+    {'icon': PhosphorIcons.prohibit(PhosphorIconsStyle.fill), 'label': 'Spam', 'color': Colors.orange},
+    {'icon': PhosphorIcons.users(PhosphorIconsStyle.fill), 'label': 'Acoso o bullying', 'color': Colors.purple},
+    {'icon': PhosphorIcons.shieldWarning(PhosphorIconsStyle.fill), 'label': 'Violencia', 'color': Colors.red.shade800},
+    {'icon': PhosphorIcons.copyright(PhosphorIconsStyle.fill), 'label': 'Contenido con derechos de autor', 'color': Colors.blue},
+    {'icon': PhosphorIcons.chatCircleDots(PhosphorIconsStyle.fill), 'label': 'Información falsa', 'color': Colors.teal},
+    {'icon': PhosphorIcons.question(PhosphorIconsStyle.fill), 'label': 'Otro', 'color': Colors.grey},
+  ];
+
+  String? selectedReason;
+  final TextEditingController detailsController = TextEditingController();
+
+  showModalBottomSheet(
     context: context,
-    builder: (context) => Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.orange[50],
-                shape: BoxShape.circle,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setState) {
+        return Container(
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
-              child: Icon(
-                PhosphorIcons.flag(PhosphorIconsStyle.fill),
-                color: Colors.orange,
-                size: 28,
-              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Reportar publicación',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '¿Por qué deseas reportar esta publicación?',
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Handle bar
+                    Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    child: const Text(
-                      'Cancelar',
+                    const SizedBox(height: 20),
+                    // Icono
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        PhosphorIcons.flag(PhosphorIconsStyle.fill),
+                        color: Colors.orange,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Reportar publicación',
                       style: TextStyle(
                         fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              Icon(
-                                PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                                color: Colors.white,
-                                size: 20,
+                    const SizedBox(height: 8),
+                    Text(
+                      'Selecciona una razón',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Opciones de reporte
+                    ...reportReasons.map((reason) {
+                      final isSelected = selectedReason == reason['label'];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedReason = reason['label'];
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isSelected ? (reason['color'] as Color).withOpacity(0.1) : Colors.grey[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected ? reason['color'] as Color : Colors.grey[200]!,
+                                width: isSelected ? 2 : 1,
                               ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                'Reporte enviado',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w600,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  reason['icon'] as IconData,
+                                  color: reason['color'] as Color,
+                                  size: 24,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    reason['label'] as String,
+                                    style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontSize: 14,
+                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                if (isSelected)
+                                  Icon(
+                                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                                    color: reason['color'] as Color,
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
                           ),
-                          backgroundColor: Colors.green,
-                          duration: const Duration(seconds: 2),
                         ),
                       );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    }).toList(),
+                    const SizedBox(height: 16),
+                    // Campo de detalles adicionales
+                    if (selectedReason != null) ...[
+                      TextField(
+                        controller: detailsController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          labelText: 'Detalles adicionales (opcional)',
+                          labelStyle: TextStyle(
+                            fontFamily: 'Montserrat',
+                            color: Colors.grey[600],
+                          ),
+                          hintText: 'Describe el problema...',
+                          hintStyle: TextStyle(
+                            fontFamily: 'Montserrat',
+                            color: Colors.grey[400],
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFFB21132), width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    // Botones
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: selectedReason == null
+                                ? null
+                                : () {
+                                    Navigator.pop(context);
+                                    // TODO: Enviar reporte al backend
+                                    print('Reporte enviado: $selectedReason - ${detailsController.text}');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Row(
+                                          children: [
+                                            const Icon(Icons.check_circle, color: Colors.white),
+                                            const SizedBox(width: 10),
+                                            const Text(
+                                              'Reporte enviado. Gracias.',
+                                              style: TextStyle(
+                                                fontFamily: 'Montserrat',
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
