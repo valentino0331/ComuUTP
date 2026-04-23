@@ -59,6 +59,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     
     if (result['success']) {
+      // REGISTRAR EN NEON (BASE DE DATOS)
+      final neonResult = await authProvider.completeRegistration(
+        uid: result['uid'],
+        email: _emailController.text.trim(),
+        nombre: _nombreController.text.trim(),
+        apellido: _apellidoController.text.trim(),
+        carrera: _selectedCarrera,
+        ciclo: int.tryParse(_cicloController.text.trim()),
+      );
+      
+      if (!neonResult) {
+        // Si falla Neon, igual continuamos pero advertimos
+        print('⚠️ Advertencia: No se pudo guardar en Neon, pero Firebase sí');
+      }
+      
       // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
