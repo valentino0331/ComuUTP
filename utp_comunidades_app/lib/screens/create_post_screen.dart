@@ -22,6 +22,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   String? error;
   File? _selectedImage;
   String? _imageFileName;
+  List<dynamic> _myCommunities = [];
+  bool _loadingCommunities = true;
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -76,8 +78,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadMyCommunities();
+  }
+
+  Future<void> _loadMyCommunities() async {
+    setState(() => _loadingCommunities = true);
+    final communities = await Provider.of<CommunityProvider>(context, listen: false).getMyCommunities();
+    setState(() {
+      _myCommunities = communities;
+      _loadingCommunities = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final communities = Provider.of<CommunityProvider>(context).communities;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -104,7 +120,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: _buildForm(communities),
+          child: _buildForm(),
         ),
       ),
     );
@@ -150,7 +166,89 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  Widget _buildForm(List communities) {
+  Widget _buildForm() {
+    // Mostrar estado de carga
+    if (_loadingCommunities) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: Color(0xFFB21132)),
+            SizedBox(height: 16),
+            Text(
+              'Cargando tus comunidades...',
+              style: TextStyle(fontFamily: 'Montserrat', color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Mostrar estado vacío si no sigue ninguna comunidad
+    if (_myCommunities.isEmpty) {
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB21132).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
+                  size: 48,
+                  color: const Color(0xFFB21132),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'No sigues ninguna comunidad',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Únete a comunidades para poder publicar en ellas',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // Navegar a comunidades
+                  Navigator.pushNamed(context, '/main');
+                },
+                icon: const Icon(Icons.explore),
+                label: const Text('Explorar comunidades'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB21132),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 3,
       shadowColor: Colors.black.withValues(alpha: 0.1),
@@ -166,14 +264,37 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Selector de comunidad
-              Text(
-                'Seleccionar comunidad',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Seleccionar comunidad',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                  // Badge con cantidad
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB21132).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${_myCommunities.length} comunidad${_myCommunities.length != 1 ? 'es' : ''}',
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFB21132),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Container(
@@ -185,13 +306,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     isExpanded: true,
-                    hint: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    hint: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         'Selecciona una comunidad',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
-                          color: Colors.grey[400],
+                          color: Colors.grey,
                         ),
                       ),
                     ),
@@ -203,7 +324,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         color: Colors.grey[400],
                       ),
                     ),
-                    items: communities.map<DropdownMenuItem<int>>((c) => DropdownMenuItem<int>(
+                    items: _myCommunities.map<DropdownMenuItem<int>>((c) => DropdownMenuItem<int>(
                       value: c.id,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -215,10 +336,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               color: const Color(0xFFB21132),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              c.nombre,
-                              style: const TextStyle(
-                                fontFamily: 'Montserrat',
+                            Expanded(
+                              child: Text(
+                                c.nombre,
+                                style: const TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

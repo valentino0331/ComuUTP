@@ -115,20 +115,78 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     String currentRole,
     bool currentPuedeCrearComunidad,
   ) async {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Seleccionar Rol',
-          style: TextStyle(fontFamily: 'Montserrat'),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        content: Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildRoleOption(
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Icono
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: const Color(0xFFB21132).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.shield_person,
+                color: Color(0xFFB21132),
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Gestionar Permisos',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Selecciona el rol para este usuario',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Opciones de rol
+            _buildRoleOptionModern(
               context,
               'Usuario Normal',
-              'Sin permisos especiales',
+              'Puede unirse a comunidades y publicar',
+              Icons.person_outline,
+              Colors.grey,
               currentRole == 'user' && !currentPuedeCrearComunidad,
               () async {
                 Navigator.pop(context);
@@ -139,11 +197,13 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 _loadData();
               },
             ),
-            const SizedBox(height: 12),
-            _buildRoleOption(
+            const SizedBox(height: 8),
+            _buildRoleOptionModern(
               context,
-              'Crear Comunidades',
-              'Permiso para crear 1 comunidad',
+              'Creador de Comunidades',
+              'Puede crear hasta 1 comunidad',
+              Icons.add_circle_outline,
+              const Color(0xFF10B981),
               currentPuedeCrearComunidad && currentRole != 'admin',
               () async {
                 Navigator.pop(context);
@@ -154,11 +214,13 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 _loadData();
               },
             ),
-            const SizedBox(height: 12),
-            _buildRoleOption(
+            const SizedBox(height: 8),
+            _buildRoleOptionModern(
               context,
               'Administrador',
-              'Acceso total al sistema',
+              'Acceso total al panel de admin',
+              Icons.admin_panel_settings,
+              const Color(0xFFB21132),
               currentRole == 'admin',
               () async {
                 Navigator.pop(context);
@@ -169,17 +231,112 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 _loadData();
               },
             ),
+            const SizedBox(height: 16),
+            // Botón cancelar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(fontFamily: 'Montserrat'),
-            ),
+      ),
+    );
+  }
+
+  Widget _buildRoleOptionModern(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.1) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : Colors.transparent,
+            width: 2,
           ),
-        ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isSelected ? color.withOpacity(0.2) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? color : Colors.grey[600],
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: isSelected ? color : Colors.black87,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 16),
+              ),
+          ],
+        ),
       ),
     );
   }

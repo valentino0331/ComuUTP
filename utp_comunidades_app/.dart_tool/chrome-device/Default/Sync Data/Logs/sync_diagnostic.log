@@ -984,3 +984,22 @@
 2026-04-23 04:02:01.743: [INFO][SyncEngineBackend::DoStartSyncing] Start syncing
 2026-04-23 04:03:25.356: [INFO][Sync] Reset engine, reason: 0
 2026-04-23 04:03:25.356: [INFO][Sync] Reset engine with reason: 0
+2026-04-23 04:31:36.748: [INFO][Sync] SyncState after authenticated was: FeatureCanStart
+2026-04-23 04:31:38.424: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-23 04:31:38.424: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-23 04:31:38.424: [INFO][Sync] Credentials changed for: EdgeSyncKeyDataScope
+2026-04-23 04:31:44.611: [INFO][Sync] Try to start sync engine
+2026-04-23 04:31:44.612: [INFO][SyncManagerImpl::NudgeForInitialDownload] Initial download nudge for Encryption Keys
+2026-04-23 04:31:44.612: [INFO][SyncEngineBackend::LoadAndConnectNigoriController] Load and connect Nigori controller
+2026-04-23 04:31:44.612: [INFO][SyncEngineBackend::DoInitialize] Control Types added: Encryption Keys
+2026-04-23 04:31:44.612: [INFO][SyncManagerImpl::ConfigureSyncer] Types to download: Encryption Keys with reason: 3
+2026-04-23 04:31:44.612: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-23 04:31:44.612: [INFO][SyncSchedulerImpl::DoConfigurationSyncCycleJob] Configure job was blocked
+2026-04-23 04:31:44.619: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2026-04-23 04:31:44.619: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2026-04-23 04:31:44.619: [INFO][Sync] Credentials changed for: EdgeSyncScopeNew
+2026-04-23 04:31:44.619: [INFO][SyncEngineBackend::DoUpdateCredentials] Update credentials
+2026-04-23 04:31:44.619: [INFO][SyncEngineBackend::DoUpdateKeyDataCredentials] Update key data credentials
+2026-04-23 04:31:44.619: [INFO][SyncSchedulerImpl::DoConfigurationSyncCycleJob] Blocked types:  and types to download: Encryption Keys
+2026-04-23 04:33:26.902: [INFO][Sync] Reset engine, reason: 0
+2026-04-23 04:33:26.902: [INFO][Sync] Reset engine with reason: 0
