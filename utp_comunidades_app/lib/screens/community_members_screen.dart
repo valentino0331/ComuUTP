@@ -49,56 +49,141 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 8,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xFFED1C24),
-                const Color(0xFFB21132),
-              ],
-            ),
-          ),
-        ),
-        toolbarHeight: 70,
+        backgroundColor: const Color(0xFFB21132),
+        elevation: 0,
+        toolbarHeight: 56,
+        centerTitle: true,
         leading: IconButton(
           icon: Icon(PhosphorIcons.arrowLeft(PhosphorIconsStyle.bold), color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Miembros',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontFamily: 'Montserrat',
-              ),
-            ),
-            Text(
-              '${members.length} personas en ${widget.community.nombre}',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.white.withOpacity(0.8),
-                fontFamily: 'Montserrat',
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+        title: Text(
+          'Miembros',
+          style: const TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: members.length,
-        itemBuilder: (context, index) {
-          final member = members[index];
-          return _buildMemberCard(context, member, index);
-        },
+      body: Column(
+        children: [
+          // Header con información de la comunidad
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFB21132).withOpacity(0.05),
+              border: Border(
+                bottom: BorderSide(color: const Color(0xFFB21132).withOpacity(0.1), width: 1),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB21132).withOpacity(0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          widget.community.nombre.isNotEmpty ? widget.community.nombre[0].toUpperCase() : 'C',
+                          style: const TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 24,
+                            color: Color(0xFFB21132),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.community.nombre,
+                            style: const TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${members.length} miembros',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Lista de miembros
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFFB21132)),
+                  )
+                : members.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFB21132).withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                PhosphorIcons.users(PhosphorIconsStyle.fill),
+                                size: 40,
+                                color: const Color(0xFFB21132),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No hay miembros aún',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+                        itemCount: members.length,
+                        itemBuilder: (context, index) {
+                          final member = members[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildMemberCard(context, member, index),
+                          );
+                        },
+                      ),
+          ),
+        ],
       ),
     );
   }

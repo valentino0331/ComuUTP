@@ -45,14 +45,26 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final allCommunities = widget.communities;
     // Check if there are ANY communities in the app at all
     final hasAnyCommunities = allCommunities.isNotEmpty;
-    
-    // Filter communities that the user is a member of
-    final filteredCommunities = allCommunities.where((c) {
-      if (c.esMiembro != true) return false;
-      if (_searchController.text.isNotEmpty && 
-          !c.nombre.toLowerCase().contains(_searchController.text.toLowerCase())) return false;
-      return true;
-    }).toList();
+
+    // Filter communities based on selected filter and search
+    List<Community> filteredCommunities;
+
+    if (_selectedFilter == 'Todas') {
+      // Mostrar TODAS las comunidades
+      filteredCommunities = allCommunities.where((c) {
+        if (_searchController.text.isNotEmpty &&
+            !c.nombre.toLowerCase().contains(_searchController.text.toLowerCase())) return false;
+        return true;
+      }).toList();
+    } else {
+      // Mostrar solo comunidades donde el usuario es miembro
+      filteredCommunities = allCommunities.where((c) {
+        if (c.esMiembro != true) return false;
+        if (_searchController.text.isNotEmpty &&
+            !c.nombre.toLowerCase().contains(_searchController.text.toLowerCase())) return false;
+        return true;
+      }).toList();
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,

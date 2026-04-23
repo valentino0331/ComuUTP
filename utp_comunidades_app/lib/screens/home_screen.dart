@@ -719,12 +719,12 @@ class _PostHeader extends StatelessWidget {
                         () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
+                            SnackBar(
+                              content: const Text(
                                 'Guardado en tus favoritos',
                                 style: TextStyle(fontFamily: 'Montserrat'),
                               ),
-                              duration: Duration(milliseconds: 800),
+                              duration: const Duration(milliseconds: 800),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
