@@ -93,36 +93,79 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
-        title: const Text('Crear Comunidad'),
-        backgroundColor: Colors.white,
         elevation: 0,
-        leading: null,
+        backgroundColor: const Color(0xFFB21132),
+        leading: IconButton(
+          icon: Icon(
+            PhosphorIcons.arrowLeft(PhosphorIconsStyle.bold),
+            color: Colors.white,
+            size: 24,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Crear Comunidad',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Título principal
-                const Text(
-                  'Detalles de la Comunidad',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFFB21132),
+                        const Color(0xFFD32F5A),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Completa todos los campos para crear una comunidad exitosa',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Crear Comunidad',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Completa los campos para crear tu comunidad',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.9),
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -131,20 +174,26 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 _buildSectionTitle('Nombre de la Comunidad'),
                 TextFormField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Colors.black87, fontFamily: 'Montserrat'),
                   decoration: InputDecoration(
                     hintText: 'Ej: Programadores UTP',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    prefixIcon: Icon(PhosphorIconsRegular.textAa, color: AppTheme.colorPrimary),
+                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Montserrat'),
+                    prefixIcon: Icon(PhosphorIcons.textAa(PhosphorIconsStyle.regular), color: const Color(0xFFB21132)),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    fillColor: Colors.white10,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFB21132), width: 2),
+                    ),
+                    fillColor: Colors.white,
                     filled: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().length < 3) {
@@ -162,18 +211,24 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                 _buildSectionTitle('Categoría'),
                 DropdownButtonFormField<String>(
                   value: _selectedCategory,
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Colors.black87, fontFamily: 'Montserrat'),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(PhosphorIconsRegular.list, color: AppTheme.colorPrimary),
+                    prefixIcon: Icon(PhosphorIcons.list(PhosphorIconsStyle.regular), color: const Color(0xFFB21132)),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    fillColor: Colors.white10,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFFB21132), width: 2),
+                    ),
+                    fillColor: Colors.white,
                     filled: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                   items: _categories.map((category) {
                     return DropdownMenuItem(
@@ -305,25 +360,42 @@ ${_scheduleController.text.isEmpty ? 'A definir' : _scheduleController.text}
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppTheme.colorPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      backgroundColor: const Color(0xFFB21132),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: _isLoading
                         ? const SizedBox(
                             height: 24,
                             width: 24,
-                            child: CircularProgressIndicator(color: Colors.white),
-                          )
-                        : const Text(
-                            'CREAR COMUNIDAD',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                            child: CircularProgressIndicator(
                               color: Colors.white,
+                              strokeWidth: 3,
                             ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                PhosphorIcons.plus(PhosphorIconsStyle.bold),
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'CREAR COMUNIDAD',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontFamily: 'Montserrat',
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
                           ),
                   ),
                 ),

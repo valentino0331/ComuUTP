@@ -153,15 +153,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (context) => Dialog(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                         child: Container(
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(28),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                width: 56,
-                                height: 56,
+                                width: 64,
+                                height: 64,
                                 decoration: BoxDecoration(
                                   color: Colors.red[50],
                                   shape: BoxShape.circle,
@@ -169,15 +169,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Icon(
                                   PhosphorIcons.trash(PhosphorIconsStyle.fill),
                                   color: Colors.red,
-                                  size: 28,
+                                  size: 32,
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 20),
                               const Text(
                                 '¿Eliminar publicación?',
                                 style: TextStyle(
                                   fontFamily: 'Montserrat',
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.black87,
                                 ),
@@ -192,24 +192,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 28),
                               Row(
                                 children: [
                                   Expanded(
                                     child: TextButton(
                                       onPressed: () => Navigator.pop(context, false),
                                       style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        backgroundColor: Colors.grey[100],
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
                                       ),
                                       child: const Text(
                                         'Cancelar',
                                         style: TextStyle(
+                                          color: Colors.black87,
                                           fontFamily: 'Montserrat',
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.grey,
+                                          fontSize: 15,
                                         ),
                                       ),
                                     ),
@@ -221,9 +223,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,
                                         foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
                                         elevation: 0,
                                       ),
@@ -231,7 +233,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         'Eliminar',
                                         style: TextStyle(
                                           fontFamily: 'Montserrat',
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
                                         ),
                                       ),
                                     ),
@@ -625,15 +628,20 @@ class _PostHeader extends StatelessWidget {
               showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.transparent,
+                isScrollControlled: true,
                 builder: (context) => Container(
-                  margin: const EdgeInsets.all(12),
+                  margin: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 20,
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 30,
                         offset: const Offset(0, 10),
                       ),
                     ],
@@ -644,25 +652,25 @@ class _PostHeader extends StatelessWidget {
                       const SizedBox(height: 12),
                       // Handle bar
                       Container(
-                        width: 36,
-                        height: 4,
+                        width: 40,
+                        height: 5,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(3),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       // Título
                       const Text(
-                        'Opciones',
+                        'Opciones de publicación',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Compartir
                       _buildBottomSheetOption(
@@ -694,6 +702,10 @@ class _PostHeader extends StatelessWidget {
                               ),
                               backgroundColor: Colors.green,
                               duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           );
                         },
@@ -713,6 +725,10 @@ class _PostHeader extends StatelessWidget {
                                 style: TextStyle(fontFamily: 'Montserrat'),
                               ),
                               duration: Duration(milliseconds: 800),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           );
                         },
@@ -732,11 +748,11 @@ class _PostHeader extends StatelessWidget {
                       // Eliminar (solo si es autor)
                       if (isAuthor) ...[
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                           child: Divider(height: 1, color: Colors.grey[200]),
                         ),
                         _buildBottomSheetOption(
-                          'Eliminar',
+                          'Eliminar publicación',
                           PhosphorIcons.trash(PhosphorIconsStyle.regular),
                           Colors.red,
                           () {
@@ -746,20 +762,20 @@ class _PostHeader extends StatelessWidget {
                         ),
                       ],
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Cancelar
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         child: SizedBox(
                           width: double.infinity,
                           child: TextButton(
                             onPressed: () => Navigator.pop(context),
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.grey[100],
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: const Text(
@@ -768,13 +784,13 @@ class _PostHeader extends StatelessWidget {
                                 color: Colors.black87,
                                 fontFamily: 'Montserrat',
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 15,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -976,15 +992,15 @@ void _showReportDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (context) => Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
                 color: Colors.orange[50],
                 shape: BoxShape.circle,
@@ -992,15 +1008,15 @@ void _showReportDialog(BuildContext context) {
               child: Icon(
                 PhosphorIcons.flag(PhosphorIconsStyle.fill),
                 color: Colors.orange,
-                size: 28,
+                size: 32,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             const Text(
               'Reportar publicación',
               style: TextStyle(
                 fontFamily: 'Montserrat',
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
               ),
@@ -1015,24 +1031,26 @@ void _showReportDialog(BuildContext context) {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Row(
               children: [
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: Colors.grey[100],
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: const Text(
                       'Cancelar',
                       style: TextStyle(
+                        color: Colors.black87,
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                        fontSize: 15,
                       ),
                     ),
                   ),
@@ -1063,15 +1081,19 @@ void _showReportDialog(BuildContext context) {
                           ),
                           backgroundColor: Colors.green,
                           duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       elevation: 0,
                     ),
@@ -1079,7 +1101,8 @@ void _showReportDialog(BuildContext context) {
                       'Reportar',
                       style: TextStyle(
                         fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
                       ),
                     ),
                   ),

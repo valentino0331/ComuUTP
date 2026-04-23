@@ -64,7 +64,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
         ),
         toolbarHeight: 70,
         leading: IconButton(
-          icon: Icon(PhosphorIcons.arrowLeft(PhosphorIconsStyle.fill), color: Colors.white, size: 28),
+          icon: Icon(PhosphorIcons.arrowLeft(PhosphorIconsStyle.bold), color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(

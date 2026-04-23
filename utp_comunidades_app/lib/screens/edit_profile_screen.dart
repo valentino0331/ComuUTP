@@ -163,7 +163,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             elevation: 0,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.close, color: Colors.white),
+              icon: Icon(
+                PhosphorIcons.arrowLeft(PhosphorIconsStyle.bold),
+                color: Colors.white,
+                size: 24,
+              ),
             ),
             title: const Text(
               'Editar perfil',

@@ -111,8 +111,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         leading: IconButton(
           icon: Icon(
-            PhosphorIcons.x(PhosphorIconsStyle.bold),
+            PhosphorIcons.arrowLeft(PhosphorIconsStyle.bold),
             color: Colors.white,
+            size: 24,
           ),
           onPressed: () => Navigator.pop(context),
         ),
