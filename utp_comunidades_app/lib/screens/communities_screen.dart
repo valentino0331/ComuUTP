@@ -54,7 +54,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppTheme.colorPrimary,
+        backgroundColor: const Color(0xFFB21132),
         elevation: 0,
         toolbarHeight: 56,
         centerTitle: true,
@@ -62,8 +62,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           'Comunidades',
           style: TextStyle(
             fontFamily: 'Montserrat',
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
             color: Colors.white,
           ),
         ),

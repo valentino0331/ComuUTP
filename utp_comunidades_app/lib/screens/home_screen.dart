@@ -43,69 +43,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      elevation: 8,
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFFED1C24),
-              const Color(0xFFB21132),
-            ],
-          ),
+      backgroundColor: const Color(0xFFB21132),
+      elevation: 0,
+      centerTitle: true,
+      title: const Text(
+        'Inicio',
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
       ),
-      toolbarHeight: 90,
-      title: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                PhosphorIcons.houseSimple(PhosphorIconsStyle.fill),
-                color: Colors.white,
-                size: 28,
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: const Text(
-                    'UTP Comunidades',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Tu comunidad universitaria',
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              color: Colors.white.withOpacity(0.9),
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-      centerTitle: true,
       actions: [
         IconButton(
           icon: Icon(
             PhosphorIcons.bell(PhosphorIconsStyle.regular),
             color: Colors.white,
-            size: 26,
+            size: 24,
           ),
           onPressed: () {},
         ),
@@ -184,7 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
           final post = postProvider.posts[index];
           final authProvider = context.read<AuthProvider>();
           final currentUserId = authProvider.user?.id;
-          final isAuthor = post.usuarioId == currentUserId;
+          // Comparación numérica explícita
+          final postUserId = post.usuarioId is int ? post.usuarioId : int.tryParse(post.usuarioId.toString()) ?? 0;
+          final authUserId = currentUserId is int ? currentUserId : int.tryParse(currentUserId.toString()) ?? 0;
+          final isAuthor = currentUserId != null && postUserId == authUserId;
+          // Debug
+          print('DEBUG Post ${post.id}: postUserId=$postUserId (type: ${post.usuarioId.runtimeType}), authUserId=$authUserId (type: ${currentUserId?.runtimeType}), isAuthor=$isAuthor');
           return PostCard(
             post: post,
             isAuthor: isAuthor,
@@ -343,127 +303,6 @@ class _HomeScreenState extends State<HomeScreen> {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  void _showReportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.orange[50],
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  PhosphorIcons.flag(PhosphorIconsStyle.fill),
-                  color: Colors.orange,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Reportar publicación',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '¿Por qué deseas reportar esta publicación?',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancelar',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                Icon(
-                                  PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Reporte enviado',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            backgroundColor: Colors.green,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Reportar',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -730,6 +569,7 @@ class _PostHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('DEBUG _PostHeader: post.id=${post.id}, isAuthor=$isAuthor, onDeleteTap=$onDeleteTap');
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -1133,4 +973,125 @@ class _ActionButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showReportDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.orange[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.flag(PhosphorIconsStyle.fill),
+                color: Colors.orange,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Reportar publicación',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '¿Por qué deseas reportar esta publicación?',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(
+                                PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'Reporte enviado',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: Colors.green,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Reportar',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

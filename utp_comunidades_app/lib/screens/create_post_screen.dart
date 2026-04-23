@@ -80,19 +80,31 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final communities = Provider.of<CommunityProvider>(context).communities;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFB21132),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Crear publicación',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            PhosphorIcons.x(PhosphorIconsStyle.bold),
+            color: Colors.white,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: _buildHeader(),
-            ),
-            
-            // Formulario
-            SliverToBoxAdapter(
-              child: _buildForm(communities),
-            ),
-          ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: _buildForm(communities),
         ),
       ),
     );

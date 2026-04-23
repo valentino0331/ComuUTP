@@ -30,37 +30,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Notificaciones'),
-        backgroundColor: AppTheme.colorSurface,
-        elevation: 1,
+        backgroundColor: const Color(0xFFB21132),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Notificaciones',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
         actions: [
           if (notificationProvider.notifications.isNotEmpty)
             PopupMenuButton(
+              icon: const Icon(Icons.more_vert, color: Colors.white),
               itemBuilder: (context) => [
                 PopupMenuItem(
                   child: const Text('Marcar todo como leído'),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('¡Todas las notificaciones marcadas como leídas!'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('¡Todas las notificaciones marcadas como leídas!'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
                 ),
                 PopupMenuItem(
                   child: const Text('Limpiar todo'),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('¡Notificaciones eliminadas!'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('¡Notificaciones eliminadas!'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
                 ),
               ],
-              offset: const Offset(0, 40),
             ),
         ],
       ),

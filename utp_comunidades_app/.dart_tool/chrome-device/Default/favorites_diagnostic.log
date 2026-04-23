@@ -69,3 +69,33 @@
 2026-04-22 19:56:23.567: [INFO] Primary account changed.
 2026-04-22 19:56:23.567: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
 2026-04-22 19:56:29.982: [INFO] Sync initialization duration: 8357ms
+2026-04-23 03:41:52.757: [INFO] VisibilityChanged: 0
+2026-04-23 03:41:52.830: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:41:52.831: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:41:52.832: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:41:52.832: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-23 03:41:52.832: [INFO] OnDoneLoading sync enabled: 1
+2026-04-23 03:50:39.713: [INFO] VisibilityChanged: 0
+2026-04-23 03:50:39.801: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:50:39.802: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:50:39.803: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:50:39.803: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-23 03:50:39.803: [INFO] OnDoneLoading sync enabled: 0
+2026-04-23 03:50:41.502: [INFO] Primary account changed.
+2026-04-23 03:50:41.502: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-04-23 03:50:48.099: [INFO] Sync initialization duration: 8292ms
+2026-04-23 03:56:45.750: [INFO] VisibilityChanged: 0
+2026-04-23 03:56:45.842: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:56:45.843: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:56:45.844: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 03:56:45.844: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-23 03:56:45.844: [INFO] OnDoneLoading sync enabled: 1
+2026-04-23 04:01:22.327: [INFO] VisibilityChanged: 0
+2026-04-23 04:01:22.418: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 04:01:22.420: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 04:01:22.420: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 04:01:22.420: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-23 04:01:22.421: [INFO] OnDoneLoading sync enabled: 0
+2026-04-23 04:01:23.119: [INFO] Primary account changed.
+2026-04-23 04:01:23.119: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-04-23 04:01:29.920: [INFO] Sync initialization duration: 7496ms

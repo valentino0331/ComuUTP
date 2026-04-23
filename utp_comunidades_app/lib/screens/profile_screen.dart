@@ -58,50 +58,31 @@ class _ProfileScreenState extends State<ProfileScreen>
             SliverAppBar(
               pinned: true,
               floating: false,
-              backgroundColor: Colors.white,
+              backgroundColor: const Color(0xFFB21132),
               elevation: 0,
               leading: null,
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    user.nombre,
-                    style: const TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                  if (user.esPremium) ...[
-                    const SizedBox(width: 4),
-                    Icon(
-                      PhosphorIcons.sealCheck(PhosphorIconsStyle.fill),
-                      color: const Color(0xFFB21132),
-                      size: 18,
-                    ),
-                  ],
-                  const SizedBox(width: 4),
-                  Icon(
-                    PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                ],
+              title: const Text(
+                'Mi Perfil',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
               ),
               centerTitle: true,
               actions: [
                 IconButton(
                   icon: Icon(
                     PhosphorIcons.shareFat(PhosphorIconsStyle.bold),
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   onPressed: () => _showShareProfileModal(context, user),
                 ),
                 IconButton(
                   icon: Icon(
                     PhosphorIcons.list(PhosphorIconsStyle.bold),
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   tooltip: 'Menú de usuario',
                   onPressed: () => _showSettingsMenu(context),

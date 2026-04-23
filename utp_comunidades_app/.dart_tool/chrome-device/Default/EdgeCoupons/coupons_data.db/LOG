@@ -1,15 +1,23 @@
-2026/04/22-14:56:29.792 571c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.dbfdda82\flutter_tools_chrome_device.77216689\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/22-14:56:29.793 571c Recovering log #19
-2026/04/22-14:56:29.793 571c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.dbfdda82\flutter_tools_chrome_device.77216689\Default\EdgeCoupons/coupons_data.db/000019.log 
-2026/04/22-14:56:29.794 571c Delete type=0 #4
-2026/04/22-14:56:29.794 571c Delete type=0 #7
-2026/04/22-14:56:29.794 571c Delete type=2 #8
-2026/04/22-14:56:29.794 571c Delete type=0 #10
-2026/04/22-14:56:29.794 571c Delete type=2 #11
-2026/04/22-14:56:29.794 571c Delete type=0 #13
-2026/04/22-14:56:29.794 571c Delete type=2 #14
-2026/04/22-14:56:29.820 571c Delete type=0 #16
-2026/04/22-14:56:29.821 571c Delete type=2 #17
-2026/04/22-14:56:36.065 4a88 Level-0 table #24: started
-2026/04/22-14:56:36.069 4a88 Level-0 table #24: 682292 bytes OK
-2026/04/22-14:56:36.070 4a88 Delete type=0 #19
+2026/04/22-23:02:22.513 5964 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.10a2e70c\flutter_tools_chrome_device.15f9b14f\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/22-23:02:22.515 5964 Recovering log #32
+2026/04/22-23:02:22.515 5964 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.10a2e70c\flutter_tools_chrome_device.15f9b14f\Default\EdgeCoupons/coupons_data.db/000032.log 
+2026/04/22-23:02:22.516 5964 Delete type=0 #4
+2026/04/22-23:02:22.516 5964 Delete type=0 #7
+2026/04/22-23:02:22.516 5964 Delete type=2 #8
+2026/04/22-23:02:22.517 5964 Delete type=0 #10
+2026/04/22-23:02:22.517 5964 Delete type=2 #11
+2026/04/22-23:02:22.517 5964 Delete type=0 #13
+2026/04/22-23:02:22.517 5964 Delete type=2 #14
+2026/04/22-23:02:22.517 5964 Delete type=0 #16
+2026/04/22-23:02:22.518 5964 Delete type=2 #17
+2026/04/22-23:02:22.533 5964 Delete type=0 #19
+2026/04/22-23:02:22.533 5964 Delete type=2 #21
+2026/04/22-23:02:22.534 5964 Delete type=0 #23
+2026/04/22-23:02:22.534 5964 Delete type=2 #24
+2026/04/22-23:02:22.534 5964 Delete type=0 #26
+2026/04/22-23:02:22.535 5964 Delete type=2 #27
+2026/04/22-23:02:22.535 5964 Delete type=0 #29
+2026/04/22-23:02:22.535 5964 Delete type=2 #30
+2026/04/22-23:02:22.834 3f38 Level-0 table #37: started
+2026/04/22-23:02:22.838 3f38 Level-0 table #37: 682292 bytes OK
+2026/04/22-23:02:22.839 3f38 Delete type=0 #32
