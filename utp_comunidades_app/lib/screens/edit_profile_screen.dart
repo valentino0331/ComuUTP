@@ -181,9 +181,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   
                   final success = await authProvider.updateProfile(
                     nombre: _nameController.text.trim(),
-                    biografia: _bioController.text.trim(),
+                    bio: _bioController.text.trim(),
                     carrera: _careerController.text.trim(),
-                    intereses: _selectedInterests,
+                    gustos: _selectedInterests,
                   );
 
                   if (mounted) {

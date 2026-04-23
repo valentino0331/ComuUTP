@@ -45,7 +45,7 @@ exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const {
-      nombre, biografia, carrera, intereses,
+      nombre, bio, carrera, gustos,
       notificaciones_activas, email_notificaciones, notificaciones_menciones,
       modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma
     } = req.body;
@@ -54,12 +54,12 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({ error: 'El nombre es requerido' });
     }
 
-    // Convertir intereses array a string si es necesario
-    const interesesStr = Array.isArray(intereses) ? intereses.join(',') : intereses;
+    // Convertir gustos array a string si es necesario
+    const gustosStr = Array.isArray(gustos) ? gustos.join(',') : gustos;
 
     const result = await pool.query(
       `UPDATE usuarios 
-         SET nombre = $1, biografia = $2, carrera = $3, intereses = $4,
+         SET nombre = $1, bio = COALESCE($2, bio), carrera = COALESCE($3, carrera), gustos = COALESCE($4, gustos),
          notificaciones_activas = COALESCE($5, notificaciones_activas),
          email_notificaciones = COALESCE($6, email_notificaciones),
          notificaciones_menciones = COALESCE($7, notificaciones_menciones),
@@ -69,12 +69,12 @@ exports.updateProfile = async (req, res) => {
          idioma = COALESCE($11, idioma),
          updated_at = CURRENT_TIMESTAMP
        WHERE id = $12
-       RETURNING id, email, nombre, biografia, carrera, intereses, notificaciones_activas, email_notificaciones, notificaciones_menciones, modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma, foto_perfil, bio, gustos, created_at`,
+       RETURNING id, email, nombre, bio, carrera, gustos, notificaciones_activas, email_notificaciones, notificaciones_menciones, modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma, foto_perfil, created_at`,
       [
         nombre,
-        biografia || null,
-        carrera || null,
-        interesesStr || null,
+        bio,
+        carrera,
+        gustosStr,
         notificaciones_activas,
         email_notificaciones,
         notificaciones_menciones,
@@ -90,9 +90,9 @@ exports.updateProfile = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    res.json({ 
+    res.json({
       message: 'Perfil actualizado exitosamente',
-      usuario: result.rows[0] 
+      usuario: result.rows[0]
     });
   } catch (err) {
     console.error('Error al actualizar perfil:', err.message);

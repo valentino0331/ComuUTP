@@ -47,13 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 0,
       automaticallyImplyLeading: false,
       backgroundColor: const Color(0xFFB21132),
-      toolbarHeight: 60,
+      toolbarHeight: 56,
       title: const Text(
         'Inicio',
         style: TextStyle(
           fontFamily: 'Montserrat',
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
       ),

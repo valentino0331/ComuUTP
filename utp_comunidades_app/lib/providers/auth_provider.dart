@@ -377,9 +377,9 @@ class AuthProvider with ChangeNotifier {
   /// Actualizar perfil del usuario
   Future<bool> updateProfile({
     required String nombre,
-    String? biografia,
+    String? bio,
     String? carrera,
-    List<String>? intereses,
+    List<String>? gustos,
   }) async {
     _loading = true;
     _error = null;
@@ -388,9 +388,9 @@ class AuthProvider with ChangeNotifier {
     try {
       final res = await ApiService.post('/users/edit', {
         'nombre': nombre,
-        'biografia': biografia,
+        'bio': bio,
         'carrera': carrera,
-        'intereses': intereses,
+        'gustos': gustos,
       }, auth: true);
 
       if (res.statusCode == 200) {
