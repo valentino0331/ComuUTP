@@ -155,7 +155,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.shield_person,
+                Icons.shield,
                 color: Color(0xFFB21132),
                 size: 28,
               ),
