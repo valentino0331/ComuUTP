@@ -540,111 +540,233 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final newPassController = TextEditingController();
     final confirmPassController = TextEditingController();
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Cambiar contraseña',
-          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: currentPassController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Contraseña actual',
-                labelStyle: TextStyle(fontFamily: 'Montserrat'),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return Container(
+            margin: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Handle bar
+                    Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Icono
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFB21132).withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.lock_outline,
+                        color: Color(0xFFB21132),
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Cambiar Contraseña',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Ingresa tu contraseña actual y la nueva',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Campos de contraseña con estilo moderno
+                    _buildPasswordField(
+                      controller: currentPassController,
+                      label: 'Contraseña actual',
+                      icon: Icons.lock_clock,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPasswordField(
+                      controller: newPassController,
+                      label: 'Nueva contraseña',
+                      icon: Icons.lock_outline,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPasswordField(
+                      controller: confirmPassController,
+                      label: 'Confirmar contraseña',
+                      icon: Icons.lock_person,
+                    ),
+                    const SizedBox(height: 24),
+                    // Botones
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFB21132),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () async {
+                              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                              final user = authProvider.firebaseUser;
+                              if (newPassController.text != confirmPassController.text) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Las contraseñas no coinciden')),
+                                );
+                                return;
+                              }
+                              if (newPassController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Por favor ingresa la nueva contraseña')),
+                                );
+                                return;
+                              }
+                              if (user == null || user.email == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Usuario no autenticado')),
+                                );
+                                return;
+                              }
+                              try {
+                                // Reautenticación
+                                final cred = firebase.EmailAuthProvider.credential(
+                                  email: user.email!,
+                                  password: currentPassController.text,
+                                );
+                                await user.reauthenticateWithCredential(cred);
+                                await user.updatePassword(newPassController.text);
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Contraseña actualizada correctamente')),
+                                );
+                              } on firebase.FirebaseAuthException catch (e) {
+                                String msg = 'Error al cambiar contraseña';
+                                if (e.code == 'wrong-password') {
+                                  msg = 'Contraseña actual incorrecta';
+                                } else if (e.code == 'weak-password') {
+                                  msg = 'La nueva contraseña es muy débil';
+                                } else if (e.code == 'requires-recent-login') {
+                                  msg = 'Por seguridad, inicia sesión de nuevo.';
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(msg)),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: ${e.toString()}')),
+                                );
+                              }
+                            },
+                            child: const Text(
+                              'Cambiar',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: newPassController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Nueva contraseña',
-                labelStyle: TextStyle(fontFamily: 'Montserrat'),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: confirmPassController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Confirmar contraseña',
-                labelStyle: TextStyle(fontFamily: 'Montserrat'),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: true,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 13,
+            color: Colors.grey[600],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB21132),
-            ),
-            onPressed: () async {
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
-              final user = authProvider.firebaseUser;
-              if (newPassController.text != confirmPassController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Las contraseñas no coinciden')),
-                );
-                return;
-              }
-              if (newPassController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Por favor ingresa la nueva contraseña')),
-                );
-                return;
-              }
-              if (user == null || user.email == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Usuario no autenticado')),
-                );
-                return;
-              }
-              try {
-                // Reautenticación
-                final cred = firebase.EmailAuthProvider.credential(
-                  email: user.email!,
-                  password: currentPassController.text,
-                );
-                await user.reauthenticateWithCredential(cred);
-                await user.updatePassword(newPassController.text);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Contraseña actualizada correctamente')),
-                );
-              } on firebase.FirebaseAuthException catch (e) {
-                String msg = 'Error al cambiar contraseña';
-                if (e.code == 'wrong-password') {
-                  msg = 'Contraseña actual incorrecta';
-                } else if (e.code == 'weak-password') {
-                  msg = 'La nueva contraseña es muy débil';
-                } else if (e.code == 'requires-recent-login') {
-                  msg = 'Por seguridad, inicia sesión de nuevo.';
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(msg)),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: ${e.toString()}')),
-                );
-              }
-            },
-            child: const Text(
-              'Guardar',
-              style: TextStyle(fontFamily: 'Montserrat', color: Colors.white),
-            ),
-          ),
-        ],
+          prefixIcon: Icon(icon, color: const Color(0xFFB21132), size: 20),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 14,
+        ),
       ),
     );
   }
