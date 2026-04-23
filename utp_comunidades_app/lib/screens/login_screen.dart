@@ -346,33 +346,68 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                   showModalBottomSheet(
                                     context: context,
                                     backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
                                     builder: (context) => Container(
-                                      decoration: const BoxDecoration(
+                                      margin: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                                        borderRadius: BorderRadius.circular(24),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.2),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 10),
+                                          ),
+                                        ],
                                       ),
                                       padding: const EdgeInsets.all(24),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          // Handle bar
+                                          Container(
+                                            width: 36,
+                                            height: 4,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius: BorderRadius.circular(2),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          // Icono
+                                          Container(
+                                            width: 56,
+                                            height: 56,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFB21132).withOpacity(0.1),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.lock_reset,
+                                              color: Color(0xFFB21132),
+                                              size: 28,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
                                           const Text(
                                             'Recuperar contraseña',
                                             style: TextStyle(
                                               fontFamily: 'Montserrat',
                                               fontSize: 20,
                                               fontWeight: FontWeight.w700,
-                                              color: Colors.black,
+                                              color: Colors.black87,
                                             ),
                                           ),
                                           const SizedBox(height: 8),
-                                          const Text(
-                                            'Ingresa tu correo UTP válido para recibir instrucciones de recuperación',
+                                          Text(
+                                            'Ingresa tu correo UTP y te enviaremos un enlace para restablecer tu contraseña',
                                             style: TextStyle(
                                               fontFamily: 'Montserrat',
-                                              fontSize: 13,
-                                              color: Color(0xFF666666),
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                              height: 1.4,
                                             ),
+                                            textAlign: TextAlign.center,
                                           ),
                                           const SizedBox(height: 24),
                                           TextField(
@@ -382,6 +417,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                               hintText: 'correo@utp.edu.pe',
                                               filled: true,
                                               fillColor: Colors.grey[50],
+                                              prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFB21132)),
                                               border: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -390,9 +426,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                                 borderRadius: BorderRadius.circular(12),
                                                 borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                                               ),
-                                              errorBorder: OutlineInputBorder(
+                                              focusedBorder: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(12),
-                                                borderSide: const BorderSide(color: Colors.red, width: 2),
+                                                borderSide: const BorderSide(color: Color(0xFFB21132), width: 2),
                                               ),
                                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                               hintStyle: const TextStyle(
@@ -412,22 +448,15 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                             height: 48,
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                final email = _forgotEmailController.text.trim();
-                                                if (email.isEmpty) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text('Por favor ingresa tu correo'),
-                                                      behavior: SnackBarBehavior.floating,
-                                                      backgroundColor: Colors.red,
-                                                      duration: Duration(seconds: 2),
-                                                    ),
-                                                  );
-                                                  return;
-                                                }
+                                                var email = _forgotEmailController.text.trim();
+                                                // Convertir código a email si no tiene @
                                                 if (!email.contains('@')) {
+                                                  email = email + '@utp.edu.pe';
+                                                }
+                                                if (email.isEmpty || !email.contains('@utp.edu.pe')) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(
-                                                      content: Text('Ingresa un correo válido'),
+                                                      content: Text('Ingresa un correo UTP válido'),
                                                       behavior: SnackBarBehavior.floating,
                                                       backgroundColor: Colors.red,
                                                       duration: Duration(seconds: 2),
@@ -438,22 +467,23 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                                 Navigator.pop(context);
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   SnackBar(
-                                                    content: Text('Se ha enviado un enlace de recuperación a $email'),
+                                                    content: Text('Enlace enviado a $email'),
                                                     behavior: SnackBarBehavior.floating,
-                                                    backgroundColor: Colors.green[600],
+                                                    backgroundColor: Colors.green,
                                                     duration: const Duration(seconds: 3),
                                                   ),
                                                 );
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: const Color(0xFFB21132),
+                                                foregroundColor: Colors.white,
                                                 elevation: 0,
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
                                               ),
                                               child: const Text(
-                                                'Enviar enlace de recuperación',
+                                                'Enviar enlace',
                                                 style: TextStyle(
                                                   fontFamily: 'Montserrat',
                                                   fontWeight: FontWeight.w700,
