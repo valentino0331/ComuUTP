@@ -165,3 +165,28 @@ exports.getFollowing = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener seguidos' });
   }
 };
+
+// Eliminar cuenta de usuario (GDPR Art. 17 - Derecho al olvido)
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Eliminar datos del usuario en cascada (orden importa por foreign keys)
+    await pool.query('DELETE FROM likes WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM comentarios WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM publicaciones WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM miembros_comunidad WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM seguidores WHERE seguidor_id = $1 OR seguido_id = $1', [userId]);
+    await pool.query('DELETE FROM notificaciones WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM reportes WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM logs_sistema WHERE usuario_id = $1', [userId]);
+    await pool.query('DELETE FROM usuarios WHERE id = $1', [userId]);
+    
+    res.json({ 
+      message: 'Cuenta eliminada correctamente. Todos tus datos han sido borrados del sistema.' 
+    });
+  } catch (err) {
+    console.error('Error al eliminar cuenta:', err.message);
+    res.status(500).json({ error: 'Error al eliminar cuenta' });
+  }
+};

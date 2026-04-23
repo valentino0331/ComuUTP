@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const communityController = require('../controllers/community.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
+const { validate, createCommunitySchema } = require('../validators/user.validator');
 
 // Handle CORS preflight
 router.options('*', (req, res) => {
@@ -12,7 +13,7 @@ router.options('*', (req, res) => {
 });
 
 // Rutas específicas primero
-router.post('/', authMiddleware, communityController.create);
+router.post('/', authMiddleware, validate(createCommunitySchema), communityController.create);
 router.get('/my-communities', authMiddleware, communityController.getMyCommunities);
 router.post('/join', authMiddleware, communityController.join);
 router.post('/leave', authMiddleware, communityController.leave);

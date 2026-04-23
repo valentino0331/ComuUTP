@@ -50,7 +50,6 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   let { uid, email } = req.body;
-  console.log('LOGIN REQUEST:', { uid, email, body: req.body });
   try {
     // Validar que al menos uno de los dos esté presente
     if (!uid && !email) {
@@ -60,7 +59,6 @@ exports.login = async (req, res) => {
     // Si se proporciona email y no contiene @, agregar @utp.edu.pe
     if (email && !email.includes('@')) {
       email = email + '@utp.edu.pe';
-      console.log('EMAIL CONVERTED:', email);
     }
 
     // Buscar el usuario por UID o email
@@ -74,14 +72,10 @@ exports.login = async (req, res) => {
       query += ' email = $1';
       params = [email];
     }
-
-    console.log('QUERY:', query, 'PARAMS:', params);
     
     const user = await pool.query(query, params);
-    console.log('USER FOUND:', { uid, email, userExists: user.rows.length > 0, userData: user.rows });
     
     if (user.rows.length === 0) {
-      console.log('USER NOT FOUND');
       return res.status(404).json({ error: 'Usuario no encontrado - completa tu registro' });
     }
 
@@ -100,16 +94,16 @@ exports.login = async (req, res) => {
     
     try {
       // Generar JWT con todos los datos del usuario
-      const jwtSecret = process.env.JWT_SECRET || 'super-secret-key-change-in-production';
-      console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT_SECRET no configurado');
+      }
       
       const token = jwt.sign(
         { id: userData.id, email: userData.email }, 
         jwtSecret, 
         { expiresIn: '7d' }
       );
-
-      console.log('JWT generated successfully');
 
       const responseData = {
         token,

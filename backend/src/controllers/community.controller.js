@@ -3,8 +3,6 @@ const pool = require('../config/db');
 exports.create = async (req, res) => {
   const { nombre, descripcion } = req.body;
   try {
-    console.log('CREATE COMMUNITY REQUEST:', { nombre, descripcion, userId: req.user.id });
-    
     // Validar que los campos no estén vacíos
     if (!nombre || !descripcion) {
       return res.status(400).json({ error: 'Nombre y descripción son requeridos' });
@@ -37,20 +35,16 @@ exports.create = async (req, res) => {
         'INSERT INTO miembros_comunidad (usuario_id, comunidad_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
         [req.user.id, comunidadId]
       );
-      console.log('User added as member of created community');
     } catch (err) {
-      console.log('Error adding user as member:', err.message);
+      console.error('Error adding user as member:', err.message);
     }
     
     // Log the action
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_comunidad', `Comunidad: ${nombre}`]);
     
-    console.log('COMMUNITY CREATED:', result.rows[0]);
     res.status(201).json({ comunidad: result.rows[0] });
   } catch (err) {
-    console.error('Error creating community - FULL ERROR:', err);
-    console.error('Error message:', err.message);
-    console.error('Error code:', err.code);
+    console.error('Error creating community:', err.message);
     res.status(500).json({ error: 'Error al crear comunidad', details: err.message });
   }
 };
@@ -58,7 +52,6 @@ exports.create = async (req, res) => {
 exports.list = async (req, res) => {
   try {
     const userId = req.user?.id;
-    console.log('📋 LIST COMMUNITIES - userId:', userId);
     
     // Si hay usuario autenticado, incluir si ya es miembro
     let result;
@@ -68,7 +61,6 @@ exports.list = async (req, res) => {
         `SELECT usuario_id, comunidad_id FROM miembros_comunidad WHERE usuario_id = $1`,
         [userId]
       );
-      console.log('👤 User communities:', userCommunities.rows);
 
       result = await pool.query(
         `SELECT 
@@ -80,14 +72,6 @@ exports.list = async (req, res) => {
         ORDER BY c.id DESC`,
         [userId]
       );
-      
-      console.log('🔍 Communities with membership:', result.rows.map(r => ({
-        id: r.id,
-        nombre: r.nombre,
-        usuario_creador_id: r.usuario_creador_id,
-        es_miembro: r.es_miembro,
-        total_miembros: r.total_miembros
-      })));
     } else {
       result = await pool.query(
         `SELECT 
@@ -99,7 +83,6 @@ exports.list = async (req, res) => {
       );
     }
     
-    console.log('✅ COMMUNITIES FOUND:', result.rows.length);
     res.json({ comunidades: result.rows });
   } catch (err) {
     console.error('Error listing communities:', err.message);
@@ -109,8 +92,6 @@ exports.list = async (req, res) => {
 
 exports.getMyCommunities = async (req, res) => {
   try {
-    console.log('LIST MY COMMUNITIES - userId:', req.user.id);
-    
     const result = await pool.query(
       `SELECT 
         c.*,
@@ -124,7 +105,6 @@ exports.getMyCommunities = async (req, res) => {
       [req.user.id]
     );
     
-    console.log('MY COMMUNITIES FOUND:', result.rows.length);
     res.json({ comunidades: result.rows, total: result.rows.length });
   } catch (err) {
     console.error('Error listing my communities:', err.message);
@@ -133,30 +113,19 @@ exports.getMyCommunities = async (req, res) => {
 };
 
 exports.join = async (req, res) => {
-  console.log('JOIN ENDPOINT - Raw body:', JSON.stringify(req.body));
-  console.log('JOIN ENDPOINT - Headers:', req.headers);
   const { comunidad_id } = req.body;
   
   try {
-    console.log('JOIN COMMUNITY:', { userId: req.user.id, comunidad_id, bodyKeys: Object.keys(req.body) });
-    
     if (!comunidad_id) {
-      console.error('❌ VALIDATION FAILED: comunidad_id is missing or invalid', { comunidad_id, type: typeof comunidad_id });
-      return res.status(400).json({ error: 'ID de comunidad es requerido', received: { comunidad_id, keys: Object.keys(req.body) } });
+      return res.status(400).json({ error: 'ID de comunidad es requerido' });
     }
-
-    console.log('✅ Validación OK. Buscando comunidad ID:', comunidad_id);
     
     // Verificar que la comunidad exista
     const comunidad = await pool.query('SELECT * FROM comunidades WHERE id = $1', [comunidad_id]);
-    console.log('Community query result:', comunidad.rows.length, 'rows');
     
     if (comunidad.rows.length === 0) {
-      console.error('❌ Community not found:', comunidad_id);
       return res.status(404).json({ error: 'Comunidad no encontrada' });
     }
-
-    console.log('✅ Community found:', comunidad.rows[0].nombre);
 
     // Verificar que no ya sea miembro
     const existingMember = await pool.query(
@@ -165,11 +134,8 @@ exports.join = async (req, res) => {
     );
 
     if (existingMember.rows.length > 0) {
-      console.warn('⚠️ User already member:', { userId: req.user.id, comunidad_id });
       return res.status(409).json({ error: 'Ya eres miembro de esta comunidad' });
     }
-
-    console.log('✅ User is not yet a member. Adding...');
 
     // Agregar como miembro
     const result = await pool.query(
@@ -177,16 +143,12 @@ exports.join = async (req, res) => {
       [req.user.id, comunidad_id]
     );
 
-    console.log('✅ Member inserted:', result.rows[0]);
-
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', 
       [req.user.id, 'unirse_comunidad', `Comunidad: ${comunidad_id}`]);
 
-    console.log('✅ USER JOINED COMMUNITY:', result.rows[0]);
     res.status(201).json({ message: 'Unido a la comunidad', miembro: result.rows[0] });
   } catch (err) {
-    console.error('❌ ERROR joining community:', err.message, err.code);
-    console.error('Stack:', err.stack);
+    console.error('Error joining community:', err.message);
     res.status(500).json({ error: 'Error al unirse a la comunidad', details: err.message });
   }
 };
@@ -194,15 +156,12 @@ exports.join = async (req, res) => {
 exports.isMember = async (req, res) => {
   const { comunidad_id } = req.params;
   try {
-    console.log('CHECK IF MEMBER:', { userId: req.user.id, comunidad_id });
-
     const result = await pool.query(
       'SELECT * FROM miembros_comunidad WHERE usuario_id = $1 AND comunidad_id = $2',
       [req.user.id, comunidad_id]
     );
 
     const esMiembro = result.rows.length > 0;
-    console.log('IS MEMBER:', esMiembro);
     res.json({ es_miembro: esMiembro });
   } catch (err) {
     console.error('Error checking membership:', err.message);
@@ -215,8 +174,6 @@ exports.leave = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    console.log('LEAVE COMMUNITY:', { userId, comunidad_id });
-
     if (!comunidad_id) {
       return res.status(400).json({ error: 'ID de comunidad es requerido' });
     }
@@ -254,7 +211,6 @@ exports.leave = async (req, res) => {
       [userId, 'salir_comunidad', `Salió de comunidad: ${comunidad_id}`]
     );
 
-    console.log('✅ USER LEFT COMMUNITY:', comunidad_id);
     res.status(200).json({ message: 'Saliste de la comunidad' });
   } catch (err) {
     console.error('Error leaving community:', err.message);
@@ -267,8 +223,6 @@ exports.delete = async (req, res) => {
   const userId = req.user.id;
   
   try {
-    console.log('DELETE COMMUNITY:', { id, userId });
-    
     // Verificar que la comunidad existe
     const community = await pool.query(
       'SELECT * FROM comunidades WHERE id = $1',
@@ -312,7 +266,6 @@ exports.delete = async (req, res) => {
       [userId, 'eliminar_comunidad', `Comunidad ${id} eliminada`]
     );
     
-    console.log('COMMUNITY DELETED:', id);
     res.status(200).json({ message: 'Comunidad eliminada correctamente' });
   } catch (err) {
     console.error('Error deleting community:', err.message);

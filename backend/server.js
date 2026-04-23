@@ -32,9 +32,16 @@ const validateEnvironment = () => {
     process.exit(1);
   }
 
-  // JWT_SECRET es opcional, usar default si no está
+  // JWT_SECRET es CRÍTICO en producción
+  if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    logger.critical('Security', 'JWT_SECRET no definido en producción - DETENIENDO SERVIDOR');
+    console.error('❌ CRÍTICO: JWT_SECRET es requerido en producción');
+    console.error('   Genera uno seguro: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+    process.exit(1);
+  }
+  
   if (!process.env.JWT_SECRET) {
-    console.warn('⚠️  JWT_SECRET no definido, usando valor por defecto (cambiar en producción)');
+    console.warn('⚠️  JWT_SECRET no definido en desarrollo, usando valor por defecto (NO USAR EN PRODUCCIÓN)');
   }
 
   logger.debug('Environment', 'Validación de variables completada');

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const routes = require('./src/routes');
 const { logger } = require('./src/utils/logger');
 const { HTTP_STATUS, ERROR_MESSAGES } = require('./src/utils/constants');
@@ -10,14 +11,45 @@ dotenv.config();
 
 const app = express();
 
-// Configuración de CORS para desarrollo: permite cualquier localhost
+// Rate limiting general
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // máximo 100 requests por ventana
+  message: { error: 'Demasiadas solicitudes, intenta más tarde' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting más estricto para auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // máximo 5 intentos de login
+  message: { error: 'Demasiados intentos de login, espera 15 minutos' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Configuración de CORS
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-      return callback(null, true);
+    // En producción, SOLO permitir dominios específicos
+    if (process.env.NODE_ENV === 'production') {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        'https://utp-comunidades.vercel.app', // dominio de producción
+        'capacitor://localhost', // app móvil
+        'http://localhost', // para desarrollo en producción temporal
+      ];
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      logger.warn('CORS', 'Origin not allowed', { origin });
+      return callback(new Error('CORS not allowed'));
     }
-    // Permitir el dominio de producción si lo tienes configurado
-    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+    
+    // En desarrollo, permitir localhost
+    if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
       return callback(null, true);
     }
     return callback(new Error('CORS not allowed'));
@@ -30,9 +62,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Limit request payload
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+// Sanitizar input para prevenir XSS
+const sanitizeInput = require('./src/middlewares/sanitize.middleware');
+app.use(sanitizeInput);
+
+// Limit request payload (reducido a 1MB por seguridad)
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
 
 // Morgan para logs HTTP combinados
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
@@ -101,8 +137,16 @@ app.get('/health/ready', (req, res) => {
   res.json({ ready: true });
 });
 
+// Política de privacidad
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(require('path').join(__dirname, 'PRIVACY_POLICY.md'));
+});
+
 // Rutas principales
-app.use('/api', routes);
+app.use('/api', generalLimiter, routes);
+
+// Rate limit específico para login
+app.use('/api/auth/login', authLimiter);
 
 // Manejo 404
 app.use((req, res) => {

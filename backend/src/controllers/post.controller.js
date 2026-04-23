@@ -3,8 +3,6 @@ const pool = require('../config/db');
 exports.create = async (req, res) => {
   const { comunidad_id, contenido } = req.body;
   try {
-    console.log('CREATE POST REQUEST:', { comunidad_id, contenido, userId: req.user.id });
-    
     if (!comunidad_id || !contenido) {
       return res.status(400).json({ error: 'Comunidad y contenido son requeridos' });
     }
@@ -26,7 +24,6 @@ exports.create = async (req, res) => {
     
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_post', `Post en comunidad ${comunidad_id}`]);
     
-    console.log('POST CREATED:', result.rows[0]);
     res.status(201).json({ publicacion: result.rows[0] });
   } catch (err) {
     console.error('Error creating post:', err.message);
@@ -36,7 +33,9 @@ exports.create = async (req, res) => {
 
 exports.list = async (req, res) => {
   try {
-    console.log('LIST POSTS - userId:', req.user.id);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
     
     const result = await pool.query(
       `SELECT 
@@ -56,12 +55,34 @@ exports.list = async (req, res) => {
       WHERE p.comunidad_id IN (
         SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
       )
-      ORDER BY p.fecha DESC`,
+      ORDER BY p.fecha DESC
+      LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, offset]
+    );
+    
+    // Obtener total para metadata de paginación
+    const countResult = await pool.query(
+      `SELECT COUNT(*) as total FROM publicaciones p
+       WHERE p.comunidad_id IN (
+         SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
+       )`,
       [req.user.id]
     );
     
-    console.log('POSTS FOUND:', result.rows.length);
-    res.json({ publicaciones: result.rows });
+    const total = parseInt(countResult.rows[0].total);
+    const totalPages = Math.ceil(total / limit);
+    
+    res.json({ 
+      publicaciones: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    });
   } catch (err) {
     console.error('Error listing posts:', err.message);
     res.status(500).json({ error: 'Error al listar publicaciones', details: err.message });
@@ -71,8 +92,6 @@ exports.list = async (req, res) => {
 exports.listByCommunity = async (req, res) => {
   const { id } = req.params;
   try {
-    console.log('LIST POSTS BY COMMUNITY:', { id });
-    
     const result = await pool.query(
       `SELECT 
         p.id,
@@ -92,7 +111,6 @@ exports.listByCommunity = async (req, res) => {
       [id]
     );
     
-    console.log('POSTS FOUND:', result.rows.length);
     res.json({ publicaciones: result.rows });
   } catch (err) {
     console.error('Error listing posts:', err.message);
@@ -105,8 +123,6 @@ exports.delete = async (req, res) => {
   const userId = req.user.id;
   
   try {
-    console.log('DELETE POST:', { id, userId, role: req.user.role });
-    
     // Verificar que el post existe
     const post = await pool.query(
       'SELECT p.*, c.usuario_creador_id as comunidad_creador_id FROM publicaciones p JOIN comunidades c ON p.comunidad_id = c.id WHERE p.id = $1',
@@ -121,8 +137,6 @@ exports.delete = async (req, res) => {
     const isAuthor = postData.usuario_id === userId;
     const isAdmin = req.user.role === 'admin';
     const isCommunityCreator = postData.comunidad_creador_id === userId;
-    
-    console.log('DELETE PERMISSIONS:', { isAuthor, isAdmin, isCommunityCreator });
     
     // Verificar permisos: autor, admin, o creador de comunidad
     if (!isAuthor && !isAdmin && !isCommunityCreator) {
@@ -144,7 +158,6 @@ exports.delete = async (req, res) => {
       [userId, 'eliminar_post', `Post ${id} eliminado`]
     );
     
-    console.log('POST DELETED:', id);
     res.status(200).json({ message: 'Publicación eliminada correctamente' });
   } catch (err) {
     console.error('Error deleting post:', err.message);
