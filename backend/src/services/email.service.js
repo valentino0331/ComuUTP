@@ -5,12 +5,18 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   console.error('❌ ERROR: EMAIL_USER o EMAIL_PASS no están configurados en variables de entorno');
 }
 
-// Configurar transporter de nodemailer
+// Configurar transporter de nodemailer para Outlook/Microsoft 365
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false, // true para 465, false para otros puertos
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false,
   },
 });
 
