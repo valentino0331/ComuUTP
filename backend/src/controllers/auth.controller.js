@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const emailService = require('../services/email.service');
 require('dotenv').config();
 
 exports.register = async (req, res) => {
@@ -33,13 +34,18 @@ exports.register = async (req, res) => {
       [uid, email, nombre, apellido || null, carrera || null, ciclo || null]
     );
 
-    // TODO: Aquí enviaría un email con el link de verificación
-    console.log(`Email verification link: ${verificationLink}`);
+    // Enviar email de verificación
+    const emailSent = await emailService.sendVerificationEmail(email, nombre, verificationToken);
+    
+    if (!emailSent) {
+      console.error('❌ No se pudo enviar el email de verificación a:', email);
+      // No fallamos el registro, pero informamos al usuario que debe revisar/spam
+    }
 
     res.status(201).json({ 
-      message: 'Usuario registrado. Verifica tu email para continuar.',
+      message: 'Usuario registrado. Revisa tu correo (incluyendo spam) para verificar tu cuenta.',
       usuario: result.rows[0],
-      verificationLink: verificationLink // En producción, NO devolver el link
+      emailSent: emailSent,
     });
   } catch (err) {
     console.error('Error en registro:', err.message);
@@ -241,14 +247,33 @@ exports.resendVerification = async (req, res) => {
     }
     
     // Verificar que usuario existe
-    const userExists = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    const userResult = await pool.query(
+      'SELECT id, nombre, firebase_uid, email_verificado FROM usuarios WHERE email = $1', 
+      [email]
+    );
     
-    if (userExists.rows.length === 0) {
+    if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
     
-    // Aquí iría la lógica para reenviar el email (usando email.service.js)
-    res.json({ message: 'Email de verificación reenviado a ' + email });
+    const user = userResult.rows[0];
+    
+    // Si ya está verificado, no reenviar
+    if (user.email_verificado) {
+      return res.status(400).json({ error: 'El email ya está verificado' });
+    }
+    
+    // Reenviar email de verificación
+    const emailSent = await emailService.sendVerificationEmail(email, user.nombre, user.firebase_uid);
+    
+    if (!emailSent) {
+      return res.status(500).json({ error: 'No se pudo enviar el email. Intenta más tarde.' });
+    }
+    
+    res.json({ 
+      message: 'Email de verificación reenviado a ' + email,
+      nota: 'Revisa tu bandeja de entrada y carpeta de spam'
+    });
   } catch (err) {
     console.error('Error en resendVerification:', err.message);
     res.status(500).json({ error: 'Error al reenviar email: ' + err.message });

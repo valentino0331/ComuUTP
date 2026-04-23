@@ -10,6 +10,10 @@ class AuthProvider with ChangeNotifier {
   bool _loading = false;
   String? _error;
   
+  // Email verification state
+  bool _needsEmailVerification = false;
+  String? _verificationEmail;
+  
   // Firebase user
   firebase.User? _firebaseUser;
 
@@ -19,6 +23,8 @@ class AuthProvider with ChangeNotifier {
   String? get error => _error;
   String? get loginError => _error; // Alias para el UI del login
   firebase.User? get firebaseUser => _firebaseUser;
+  bool get needsEmailVerification => _needsEmailVerification;
+  String? get verificationEmail => _verificationEmail;
 
   /// Restaurar sesión guardada al iniciar la app
   Future<void> restoreSession() async {
@@ -81,15 +87,7 @@ class AuthProvider with ChangeNotifier {
         return false;
       }
       
-      // 2. Verificar si el email está verificado
-      if (!_firebaseUser!.emailVerified) {
-        _error = 'Por favor verifica tu correo electrónico antes de iniciar sesión';
-        _loading = false;
-        notifyListeners();
-        return false;
-      }
-      
-      // 3. Login en backend Neon
+      // 2. Login en backend Neon (el backend verifica si email está verificado)
       final res = await ApiService.post('/auth/login', {
         'uid': _firebaseUser!.uid,
         'email': email,
@@ -107,6 +105,15 @@ class AuthProvider with ChangeNotifier {
         _loading = false;
         notifyListeners();
         return true;
+      } else if (res.statusCode == 403) {
+        // Email no verificado en el backend
+        final data = jsonDecode(res.body);
+        _error = data['error'] ?? 'Email no verificado. Verifica tu email para continuar.';
+        _needsEmailVerification = true;
+        _verificationEmail = data['email'] ?? email;
+        _loading = false;
+        notifyListeners();
+        return false;
       } else if (res.statusCode == 404) {
         // Usuario existe en Firebase pero no en Neon - necesita completar registro
         _error = 'Completa tu registro para continuar';
@@ -161,8 +168,8 @@ class AuthProvider with ChangeNotifier {
       // 2. Actualizar display name
       await _firebaseUser!.updateDisplayName('$nombre ${apellido ?? ''}'.trim());
       
-      // 3. Enviar email de verificación
-      await _firebaseUser!.sendEmailVerification();
+      // NOTA: No enviamos email de verificación desde Firebase
+      // El backend se encarga de enviar el email y gestionar la verificación
       
       _loading = false;
       notifyListeners();
@@ -170,7 +177,7 @@ class AuthProvider with ChangeNotifier {
       return {
         'success': true,
         'uid': _firebaseUser!.uid,
-        'message': 'Revisa tu correo para verificar tu cuenta',
+        'message': 'Usuario creado. Completa tu registro.',
       };
     } on firebase.FirebaseAuthException catch (e) {
       _error = _getFirebaseErrorMessage(e.code);
@@ -244,11 +251,32 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  /// Reenviar email de verificación
-  Future<void> resendVerificationEmail() async {
-    final user = firebase.FirebaseAuth.instance.currentUser;
-    if (user != null && !user.emailVerified) {
-      await user.sendEmailVerification();
+  /// Reenviar email de verificación (usando backend)
+  Future<bool> resendVerificationEmail() async {
+    try {
+      final email = _verificationEmail ?? _firebaseUser?.email;
+      if (email == null) {
+        _error = 'No se pudo determinar el email';
+        notifyListeners();
+        return false;
+      }
+      
+      final res = await ApiService.post('/auth/resend-verification', {
+        'email': email,
+      });
+      
+      if (res.statusCode == 200) {
+        return true;
+      } else {
+        final data = jsonDecode(res.body);
+        _error = data['error'] ?? 'Error al reenviar email';
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = 'Error: ${e.toString()}';
+      notifyListeners();
+      return false;
     }
   }
 

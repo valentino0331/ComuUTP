@@ -295,6 +295,15 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                               context,
                                               '/main',
                                             );
+                                          } else if (authProvider.needsEmailVerification) {
+                                            // Redirigir a pantalla de verificación
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/verify-email',
+                                              arguments: {
+                                                'email': authProvider.verificationEmail ?? email,
+                                              },
+                                            );
                                           } else {
                                             _performShakeAnimation();
                                             setState(() => _passwordHasError = true);

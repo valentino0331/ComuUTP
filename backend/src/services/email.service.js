@@ -1,5 +1,10 @@
 const nodemailer = require('nodemailer');
 
+// Verificar que las variables de entorno estén configuradas
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.error('❌ ERROR: EMAIL_USER o EMAIL_PASS no están configurados en variables de entorno');
+}
+
 // Configurar transporter de nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -7,6 +12,15 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+// Verificar conexión al iniciar
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('❌ Error al verificar conexión SMTP:', error);
+  } else {
+    console.log('✅ Servidor SMTP listo para enviar emails');
+  }
 });
 
 /**
