@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { validateRegister, validateLogin } = require('../middlewares/auth.validation');
-const { validate, registerSchema, loginSchema } = require('../validators/user.validator');
 const authMiddleware = require('../middlewares/auth.middleware');
+
+// Validación Joi temporalmente deshabilitada hasta que Railway reinstale dependencias
+// const { validate, registerSchema, loginSchema } = require('../validators/user.validator');
 
 // Handle CORS preflight for all auth routes
 router.options('*', (req, res) => {
@@ -15,8 +17,8 @@ router.options('*', (req, res) => {
 });
 
 // Firebase Auth + Neon endpoints
-router.post('/register', validate(registerSchema), authController.register);
-router.post('/login', validate(loginSchema), authController.login);
+router.post('/register', validateRegister, authController.register);
+router.post('/login', validateLogin, authController.login);
 router.post('/sync-user', authController.syncUser);
 router.get('/me', authMiddleware, authController.me);
 
