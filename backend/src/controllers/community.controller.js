@@ -195,7 +195,7 @@ exports.isMember = async (req, res) => {
   const { comunidad_id } = req.params;
   try {
     console.log('CHECK IF MEMBER:', { userId: req.user.id, comunidad_id });
-    
+
     const result = await pool.query(
       'SELECT * FROM miembros_comunidad WHERE usuario_id = $1 AND comunidad_id = $2',
       [req.user.id, comunidad_id]
@@ -207,6 +207,58 @@ exports.isMember = async (req, res) => {
   } catch (err) {
     console.error('Error checking membership:', err.message);
     res.status(500).json({ error: 'Error al verificar membresía', details: err.message });
+  }
+};
+
+exports.leave = async (req, res) => {
+  const { comunidad_id } = req.body;
+  const userId = req.user.id;
+
+  try {
+    console.log('LEAVE COMMUNITY:', { userId, comunidad_id });
+
+    if (!comunidad_id) {
+      return res.status(400).json({ error: 'ID de comunidad es requerido' });
+    }
+
+    // Verificar que la comunidad exista
+    const comunidad = await pool.query('SELECT * FROM comunidades WHERE id = $1', [comunidad_id]);
+    if (comunidad.rows.length === 0) {
+      return res.status(404).json({ error: 'Comunidad no encontrada' });
+    }
+
+    // Verificar que el usuario sea miembro
+    const memberCheck = await pool.query(
+      'SELECT * FROM miembros_comunidad WHERE usuario_id = $1 AND comunidad_id = $2',
+      [userId, comunidad_id]
+    );
+
+    if (memberCheck.rows.length === 0) {
+      return res.status(400).json({ error: 'No eres miembro de esta comunidad' });
+    }
+
+    // El creador no puede salir de su propia comunidad
+    if (comunidad.rows[0].usuario_creador_id === userId) {
+      return res.status(403).json({ error: 'El creador no puede salir de la comunidad. Debes eliminarla.' });
+    }
+
+    // Eliminar al usuario de la comunidad
+    await pool.query(
+      'DELETE FROM miembros_comunidad WHERE usuario_id = $1 AND comunidad_id = $2',
+      [userId, comunidad_id]
+    );
+
+    // Log
+    await pool.query(
+      'INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)',
+      [userId, 'salir_comunidad', `Salió de comunidad: ${comunidad_id}`]
+    );
+
+    console.log('✅ USER LEFT COMMUNITY:', comunidad_id);
+    res.status(200).json({ message: 'Saliste de la comunidad' });
+  } catch (err) {
+    console.error('Error leaving community:', err.message);
+    res.status(500).json({ error: 'Error al salir de la comunidad', details: err.message });
   }
 };
 

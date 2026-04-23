@@ -15,6 +15,7 @@ router.options('*', (req, res) => {
 router.post('/', authMiddleware, communityController.create);
 router.get('/my-communities', authMiddleware, communityController.getMyCommunities);
 router.post('/join', authMiddleware, communityController.join);
+router.post('/leave', authMiddleware, communityController.leave);
 router.get('/is-member/:comunidad_id', authMiddleware, communityController.isMember);
 
 // Rutas genéricas al final

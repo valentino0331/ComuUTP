@@ -48,12 +48,18 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { uid, email } = req.body;
+  let { uid, email } = req.body;
   console.log('LOGIN REQUEST:', { uid, email, body: req.body });
   try {
     // Validar que al menos uno de los dos esté presente
     if (!uid && !email) {
       return res.status(400).json({ error: 'UID o email requerido' });
+    }
+
+    // Si se proporciona email y no contiene @, agregar @utp.edu.pe
+    if (email && !email.includes('@')) {
+      email = email + '@utp.edu.pe';
+      console.log('EMAIL CONVERTED:', email);
     }
 
     // Buscar el usuario por UID o email
