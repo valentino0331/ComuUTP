@@ -43,7 +43,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final isAdmin = authProvider.user?.role == 'admin';
     final allCommunities = widget.communities;
+    // Check if there are ANY communities in the app at all
+    final hasAnyCommunities = allCommunities.isNotEmpty;
     
+    // Filter communities that the user is a member of
     final filteredCommunities = allCommunities.where((c) {
       if (c.esMiembro != true) return false;
       if (_searchController.text.isNotEmpty && 
@@ -73,9 +76,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         children: [
           _buildSearchAndFilter(),
           Expanded(
-            child: filteredCommunities.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
+            child: !hasAnyCommunities
+                ? _buildEmptyStateNoCommunitiesAtAll(isAdmin)
+                : filteredCommunities.isEmpty
+                    ? _buildEmptyStateNoJoinedCommunities()
+                    : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
                     itemCount: filteredCommunities.length,
                     itemBuilder: (context, index) {
@@ -112,9 +117,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   Widget _buildSearchAndFilter() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(18, 24, 18, 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Search bar
           Container(
@@ -139,7 +144,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 border: InputBorder.none,
                 hintStyle: TextStyle(
                   fontFamily: 'Montserrat',
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Color(0xFF846B70).withOpacity(0.8),
                 ),
               ),
@@ -651,18 +656,120 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  // Empty state when there are NO communities at all in the app
+  Widget _buildEmptyStateNoCommunitiesAtAll(bool isAdmin) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(PhosphorIconsRegular.usersThree, size: 64, color: AppTheme.colorTextSecondary.withOpacity(0.5)),
-          const SizedBox(height: 16),
-          Text(
-            'No se encontraron comunidades',
-            style: TextStyle(color: AppTheme.colorTextSecondary, fontSize: 16),
-          ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: const Color(0xFFB21132).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.usersThree(PhosphorIconsStyle.fill),
+                size: 48,
+                color: const Color(0xFFB21132),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Aún no hay comunidades',
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Montserrat',
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isAdmin 
+                ? '¡Sé el primero en crear una comunidad para la UTP!'
+                : 'Pronto habrá comunidades disponibles. Vuelve a revisar más tarde.',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+                fontFamily: 'Montserrat',
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (isAdmin) ...[
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: _showCreateCommunity,
+                icon: const Icon(Icons.add),
+                label: const Text('Crear primera comunidad'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB21132),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Empty state when communities exist but user hasn't joined any
+  Widget _buildEmptyStateNoJoinedCommunities() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.users(PhosphorIconsStyle.regular),
+                size: 40,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'No sigues ninguna comunidad',
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Montserrat',
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Únete a comunidades para ver sus publicaciones aquí',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+                fontFamily: 'Montserrat',
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
