@@ -39,15 +39,21 @@ const corsOptions = {
         'https://utp-comunidades.vercel.app', // dominio de producción
         'capacitor://localhost', // app móvil
         'http://localhost', // para desarrollo en producción temporal
+        'http://localhost:3000',
+        'http://localhost:49232',
+        'http://localhost:8080',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:49232',
+        'http://127.0.0.1:8080',
       ];
-      
-      if (!origin || allowedOrigins.includes(origin)) {
+
+      if (!origin || allowedOrigins.includes(origin) || origin?.startsWith('http://localhost') || origin?.startsWith('http://127.0.0.1')) {
         return callback(null, true);
       }
       logger.warn('CORS', 'Origin not allowed', { origin });
       return callback(new Error('CORS not allowed'));
     }
-    
+
     // En desarrollo, permitir localhost
     if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
       return callback(null, true);

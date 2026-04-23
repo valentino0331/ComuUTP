@@ -36,43 +36,74 @@ exports.list = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
-    
-    const result = await pool.query(
-      `SELECT 
-        p.id,
-        p.usuario_id,
-        p.comunidad_id,
-        p.contenido,
-        p.fecha,
-        u.nombre as nombre_usuario,
-        c.nombre as nombre_comunidad,
-        c.usuario_creador_id as comunidad_creador_id,
-        (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
-        (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
-      FROM publicaciones p
-      JOIN usuarios u ON p.usuario_id = u.id
-      JOIN comunidades c ON p.comunidad_id = c.id
-      WHERE p.comunidad_id IN (
-        SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
-      )
-      ORDER BY p.fecha DESC
-      LIMIT $2 OFFSET $3`,
-      [req.user.id, limit, offset]
-    );
-    
-    // Obtener total para metadata de paginación
-    const countResult = await pool.query(
-      `SELECT COUNT(*) as total FROM publicaciones p
-       WHERE p.comunidad_id IN (
-         SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
-       )`,
-      [req.user.id]
-    );
-    
+    const isAdmin = req.user.role === 'admin';
+
+    let result;
+    let countResult;
+
+    if (isAdmin) {
+      // Admins ven TODOS los posts de TODAS las comunidades
+      result = await pool.query(
+        `SELECT
+          p.id,
+          p.usuario_id,
+          p.comunidad_id,
+          p.contenido,
+          p.fecha,
+          u.nombre as nombre_usuario,
+          c.nombre as nombre_comunidad,
+          c.usuario_creador_id as comunidad_creador_id,
+          (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
+          (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
+        FROM publicaciones p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN comunidades c ON p.comunidad_id = c.id
+        ORDER BY p.fecha DESC
+        LIMIT $1 OFFSET $2`,
+        [limit, offset]
+      );
+
+      countResult = await pool.query(
+        `SELECT COUNT(*) as total FROM publicaciones p`
+      );
+    } else {
+      // Usuarios normales solo ven posts de comunidades a las que están unidos
+      result = await pool.query(
+        `SELECT
+          p.id,
+          p.usuario_id,
+          p.comunidad_id,
+          p.contenido,
+          p.fecha,
+          u.nombre as nombre_usuario,
+          c.nombre as nombre_comunidad,
+          c.usuario_creador_id as comunidad_creador_id,
+          (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
+          (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
+        FROM publicaciones p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN comunidades c ON p.comunidad_id = c.id
+        WHERE p.comunidad_id IN (
+          SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
+        )
+        ORDER BY p.fecha DESC
+        LIMIT $2 OFFSET $3`,
+        [req.user.id, limit, offset]
+      );
+
+      countResult = await pool.query(
+        `SELECT COUNT(*) as total FROM publicaciones p
+         WHERE p.comunidad_id IN (
+           SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
+         )`,
+        [req.user.id]
+      );
+    }
+
     const total = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(total / limit);
-    
-    res.json({ 
+
+    res.json({
       publicaciones: result.rows,
       pagination: {
         page,

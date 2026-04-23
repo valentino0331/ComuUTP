@@ -52,18 +52,26 @@ exports.create = async (req, res) => {
 exports.list = async (req, res) => {
   try {
     const userId = req.user?.id;
-    
-    // Si hay usuario autenticado, incluir si ya es miembro
+    const isAdmin = req.user?.role === 'admin';
+
     let result;
-    if (userId) {
-      // Primero, verificar qué comunidades tiene el usuario
-      const userCommunities = await pool.query(
-        `SELECT usuario_id, comunidad_id FROM miembros_comunidad WHERE usuario_id = $1`,
+
+    if (isAdmin) {
+      // Admins ven TODAS las comunidades con estado de membresía
+      result = await pool.query(
+        `SELECT
+          c.*,
+          CASE WHEN mc.id IS NOT NULL THEN true ELSE false END as es_miembro,
+          (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros
+        FROM comunidades c
+        LEFT JOIN miembros_comunidad mc ON c.id = mc.comunidad_id AND mc.usuario_id = $1
+        ORDER BY c.id DESC`,
         [userId]
       );
-
+    } else if (userId) {
+      // Usuarios normales ven todas las comunidades con estado de membresía
       result = await pool.query(
-        `SELECT 
+        `SELECT
           c.*,
           CASE WHEN mc.id IS NOT NULL THEN true ELSE false END as es_miembro,
           (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros
@@ -73,8 +81,9 @@ exports.list = async (req, res) => {
         [userId]
       );
     } else {
+      // No autenticados ven todas las comunidades pero sin estado de membresía
       result = await pool.query(
-        `SELECT 
+        `SELECT
           c.*,
           false as es_miembro,
           (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros
@@ -82,7 +91,7 @@ exports.list = async (req, res) => {
         ORDER BY c.id DESC`
       );
     }
-    
+
     res.json({ comunidades: result.rows });
   } catch (err) {
     console.error('Error listing communities:', err.message);
