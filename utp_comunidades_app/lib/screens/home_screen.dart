@@ -44,69 +44,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      elevation: 8,
+      elevation: 0,
       automaticallyImplyLeading: false,
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFFED1C24),
-              const Color(0xFFB21132),
-            ],
-          ),
+      backgroundColor: const Color(0xFFB21132),
+      toolbarHeight: 60,
+      title: const Text(
+        'Inicio',
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
-      ),
-      toolbarHeight: 90,
-      title: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                PhosphorIcons.houseSimple(PhosphorIconsStyle.fill),
-                color: Colors.white,
-                size: 32,
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'UTP Comunidades',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.0,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Tu comunidad universitaria',
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              color: Colors.white.withOpacity(0.9),
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
       ),
       centerTitle: true,
-      actions: [
-        IconButton(
-          icon: Icon(
-            PhosphorIcons.bell(PhosphorIconsStyle.regular),
-            color: Colors.white,
-            size: 26,
-          ),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 

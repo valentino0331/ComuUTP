@@ -1403,15 +1403,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                         title: 'Cuenta',
                         items: [
                           (
-                            icon: PhosphorIcons.bell(PhosphorIconsStyle.bold),
-                            title: 'Notificaciones',
-                            subtitle: 'Gestiona tus alertas',
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.pushNamed(context, '/notifications');
-                            },
-                          ),
-                          (
                             icon: PhosphorIcons.lock(PhosphorIconsStyle.bold),
                             title: 'Cambiar contraseña',
                             subtitle: 'Actualiza tu seguridad',
