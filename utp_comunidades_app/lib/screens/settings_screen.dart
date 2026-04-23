@@ -89,44 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const LinearProgressIndicator(),
                 const SizedBox(height: 12),
               ],
-              // Notificaciones
-              _buildSectionCard(
-                title: 'Notificaciones',
-                icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
-                children: [
-                  _buildSwitchTile(
-                    icon: PhosphorIcons.bell(PhosphorIconsStyle.fill),
-                    title: 'Notificaciones en la app',
-                    subtitle: 'Recibir alertas de actividad',
-                    value: _notificacionesActivas,
-                    onChanged: (v) {
-                      setState(() => _notificacionesActivas = v);
-                      _savePreferences();
-                    },
-                  ),
-                  _buildSwitchTile(
-                    icon: PhosphorIcons.envelope(PhosphorIconsStyle.fill),
-                    title: 'Notificaciones por email',
-                    subtitle: 'Recibir resumen semanal',
-                    value: _emailNotificaciones,
-                    onChanged: (v) {
-                      setState(() => _emailNotificaciones = v);
-                      _savePreferences();
-                    },
-                  ),
-                  _buildSwitchTile(
-                    icon: PhosphorIcons.chatCircleText(PhosphorIconsStyle.fill),
-                    title: 'Notificaciones de menciones',
-                    subtitle: 'Cuando alguien te menciona',
-                    value: _notificacionesMenciones,
-                    onChanged: (v) {
-                      setState(() => _notificacionesMenciones = v);
-                      _savePreferences();
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+              // Notificaciones removidas - usar pestaña de notificaciones en bottom nav
               // Apariencia
               _buildSectionCard(
                 title: 'Apariencia',
