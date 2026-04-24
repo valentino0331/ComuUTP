@@ -359,28 +359,24 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           const SizedBox(height: 8),
           // Intereses/Tags
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              '🎸 Rock',
-              '🎨 Arte',
-              '🎵 Música',
-            ].map((interest) {
-              return Chip(
-                label: Text(
-                  interest,
-                  style: const TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 11,
+          if (user.gustos != null && user.gustos!.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: user.gustos!.split(',').where((g) => g.isNotEmpty).map((interest) {
+                return Chip(
+                  label: Text(
+                    interest,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 12,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                backgroundColor: Colors.grey[100],
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              );
-            }).toList(),
-          ),
+                  backgroundColor: const Color(0xFFB21132),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );
