@@ -29,7 +29,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
     await Future.delayed(const Duration(seconds: 1));
     
     if (mounted) {
-      if (authProvider.isAuthenticated) {
+      if (authProvider.user != null) {
         // Usuario autenticado, navegar a home
         Navigator.of(context).pushReplacementNamed('/main');
       } else {
