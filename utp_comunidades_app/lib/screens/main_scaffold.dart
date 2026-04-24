@@ -53,7 +53,9 @@ class _MainScaffoldState extends State<MainScaffold> {
       user != null ? ProfileScreen(user: user) : const Center(child: Text('No autenticado')),
     ];
     return Scaffold(
-      body: screens[_currentIndex],
+      body: SafeArea(
+        child: screens[_currentIndex],
+      ),
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),

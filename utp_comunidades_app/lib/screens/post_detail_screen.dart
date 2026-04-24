@@ -81,29 +81,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final commentProvider = Provider.of<CommentProvider>(context);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: _buildHeader(),
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  // Header
+                  SliverToBoxAdapter(
+                    child: _buildHeader(),
+                  ),
+
+                  // Post Card
+                  SliverToBoxAdapter(
+                    child: _buildPostCard(),
+                  ),
+
+                  // Comments Section
+                  SliverToBoxAdapter(
+                    child: _buildCommentsSection(commentProvider),
+                  ),
+
+                  // Bottom padding for system navigation
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: bottomPadding + 16),
+                  ),
+                ],
+              ),
             ),
-            
-            // Post Card
-            SliverToBoxAdapter(
-              child: _buildPostCard(),
-            ),
-            
-            // Comments Section
-            SliverToBoxAdapter(
-              child: _buildCommentsSection(commentProvider),
-            ),
+            _buildCommentInput(),
           ],
         ),
       ),
-      bottomNavigationBar: _buildCommentInput(),
     );
   }
 

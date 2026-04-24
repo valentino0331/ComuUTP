@@ -77,13 +77,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      Widget _buildSettingsContent() {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
+  Widget _buildSettingsContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
             children: [
               if (_loading) ...[
                 const LinearProgressIndicator(),
@@ -169,65 +166,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       }
-                icon: PhosphorIcons.translate(PhosphorIconsStyle.fill),
-                title: 'Idioma',
-                subtitle: _idioma,
-                onTap: () => _showLanguageSelector(),
-              ),
-            ],
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFB21132),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Configuración',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: Colors.white,
           ),
-          
-          const SizedBox(height: 16),
-          
-          // Cuenta
-          _buildSectionCard(
-            title: 'Cuenta',
-            icon: PhosphorIcons.user(PhosphorIconsStyle.fill),
-            children: [
-              _buildNavigationTile(
-                icon: PhosphorIcons.lockKey(PhosphorIconsStyle.fill),
-                title: 'Cambiar contraseña',
-                subtitle: 'Actualizar tu contraseña',
-                onTap: () => _showChangePasswordDialog(),
-              ),
-              _buildNavigationTile(
-                icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.fill),
-                title: 'Privacidad',
-                subtitle: 'Configuración de privacidad',
-                onTap: () => _showPrivacySettings(),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Acerca de
-          _buildSectionCard(
-            title: 'Acerca de',
-            icon: PhosphorIcons.info(PhosphorIconsStyle.fill),
-            children: [
-              _buildInfoTile(
-                icon: PhosphorIcons.appWindow(PhosphorIconsStyle.fill),
-                title: 'Versión de la app',
-                value: '1.0.0',
-              ),
-              _buildInfoTile(
-                icon: PhosphorIcons.fileText(PhosphorIconsStyle.fill),
-                title: 'Términos de servicio',
-                value: 'Ver',
-                onTap: () => _showTermsDialog(),
-              ),
-              _buildInfoTile(
-                icon: PhosphorIcons.shield(PhosphorIconsStyle.fill),
-                title: 'Política de privacidad',
-                value: 'Ver',
-                onTap: () => _showPrivacyPolicyDialog(),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-        ],
+        ),
+      ),
+      body: SafeArea(
+        child: _buildSettingsContent(),
       ),
     );
   }

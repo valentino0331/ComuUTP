@@ -51,7 +51,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: NestedScrollView(
+      body: SafeArea(
+        child: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             // AppBar con título y acciones
@@ -155,6 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ],
         ),
       ),
+        ),
     );
   }
 

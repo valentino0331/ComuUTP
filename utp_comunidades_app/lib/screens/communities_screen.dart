@@ -106,21 +106,24 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         ],
       ),
       floatingActionButton: isAdmin
-          ? FloatingActionButton.extended(
-              onPressed: _showCreateCommunity,
-              label: const Text(
-                'Nueva',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  fontFamily: 'Montserrat',
+          ? Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16),
+              child: FloatingActionButton.extended(
+                onPressed: _showCreateCommunity,
+                label: const Text(
+                  'Nueva',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                  ),
                 ),
-              ),
-              icon: const Icon(Icons.add, color: Colors.white, size: 22),
-              backgroundColor: AppTheme.colorPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+                icon: const Icon(Icons.add, color: Colors.white, size: 22),
+                backgroundColor: AppTheme.colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
               ),
             )
           : null,
