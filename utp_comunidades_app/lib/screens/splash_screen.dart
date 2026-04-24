@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
+import '../providers/auth_provider.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key});
@@ -13,12 +15,28 @@ class _PantallaInicioState extends State<PantallaInicio> {
   void initState() {
     super.initState();
     
-    // Espera 2 segundos y navega al login
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
+    // Restaurar sesión y navegar según resultado
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    // Restaurar sesión desde almacenamiento local
+    await authProvider.restoreSession();
+    
+    // Esperar un momento para mostrar el splash
+    await Future.delayed(const Duration(seconds: 1));
+    
+    if (mounted) {
+      if (authProvider.isAuthenticated) {
+        // Usuario autenticado, navegar a home
+        Navigator.of(context).pushReplacementNamed('/main');
+      } else {
+        // No autenticado, navegar a login
         Navigator.of(context).pushReplacementNamed('/login');
       }
-    });
+    }
   }
 
   @override
