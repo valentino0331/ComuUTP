@@ -58,10 +58,11 @@ class DefaultFirebaseOptions {
 
   // Android uses google-services.json, no need for explicit config
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'DUMMY_API_KEY',
-    appId: 'DUMMY_APP_ID',
-    messagingSenderId: 'DUMMY_SENDER_ID',
-    projectId: 'DUMMY_PROJECT_ID',
+    apiKey: 'AIzaSyDRg3wtDrv-8QUo--_wFiAY1qCNMkJlzQE',
+    appId: '1:400138742768:android:8b4e3a19597e04987f0b35',
+    messagingSenderId: '400138742768',
+    projectId: 'comunidades-9325c',
+    storageBucket: 'comunidades-9325c.firebasestorage.app',
   );
 
   // iOS uses GoogleService-Info.plist, no need for explicit config
