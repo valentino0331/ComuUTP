@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -524,13 +525,21 @@ class _PostCardState extends State<PostCard> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    widget.post.imagenUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                  child: widget.post.imagenUrl!.startsWith('data:')
+                      ? Image.memory(
+                          base64Decode(widget.post.imagenUrl!.split(',')[1]),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.shrink();
+                          },
+                        )
+                      : Image.network(
+                          widget.post.imagenUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.shrink();
+                          },
+                        ),
                 ),
               ),
             _PostStats(post: widget.post),

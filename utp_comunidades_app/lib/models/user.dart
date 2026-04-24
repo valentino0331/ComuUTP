@@ -19,6 +19,7 @@ class User {
   final bool esAdmin;
 
   // Preferencias y privacidad
+  final String? gustos;
   final bool? notificacionesActivas;
   final bool? emailNotificaciones;
   final bool? notificacionesMenciones;
@@ -46,6 +47,7 @@ class User {
     this.role,
     this.fechaCreacion,
     this.esAdmin = false,
+    this.gustos,
     this.notificacionesActivas,
     this.emailNotificaciones,
     this.notificacionesMenciones,
@@ -79,6 +81,7 @@ class User {
           ? DateTime.parse(json['fecha_creacion']) 
           : null,
       esAdmin: (json['role'] == 'admin') || (json['es_admin'] ?? json['esAdmin'] ?? false),
+      gustos: json['gustos'],
       notificacionesActivas: json['notificaciones_activas'],
       emailNotificaciones: json['email_notificaciones'],
       notificacionesMenciones: json['notificaciones_menciones'],
@@ -107,6 +110,7 @@ class User {
       'premium_hasta': premiumHasta?.toIso8601String(),
       'puede_crear_comunidad': puedeCrearComunidad,
       'role': role,
+      'gustos': gustos,
       'notificaciones_activas': notificacionesActivas,
       'email_notificaciones': emailNotificaciones,
       'notificaciones_menciones': notificacionesMenciones,

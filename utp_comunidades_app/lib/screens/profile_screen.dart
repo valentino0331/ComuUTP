@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -580,7 +581,12 @@ class _ProfileScreenState extends State<ProfileScreen>
               fit: StackFit.expand,
               children: [
                 (post.contenido.isNotEmpty && post.contenido.startsWith('http'))
-                    ? Image.network(post.contenido, fit: BoxFit.cover)
+                    ? post.contenido.startsWith('data:')
+                        ? Image.memory(
+                            base64Decode(post.contenido.split(',')[1]),
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(post.contenido, fit: BoxFit.cover)
                     : Container(
                         color: const Color(0xFFB21132).withOpacity(0.1),
                         padding: const EdgeInsets.all(8),

@@ -15,8 +15,10 @@ class _PantallaInicioState extends State<PantallaInicio> {
   void initState() {
     super.initState();
     
-    // Restaurar sesión y navegar según resultado
-    _checkAuthAndNavigate();
+    // Restaurar sesión y navegar según resultado después del build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthAndNavigate();
+    });
   }
 
   Future<void> _checkAuthAndNavigate() async {

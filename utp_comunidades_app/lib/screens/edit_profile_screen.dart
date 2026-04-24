@@ -40,7 +40,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _usernameController = TextEditingController(text: widget.user?.email?.split('@').first ?? '');
     _bioController = TextEditingController(text: widget.user?.biografia ?? '');
     _careerController = TextEditingController(text: widget.user?.carrera ?? '');
-    _selectedInterests = [];
+    // Cargar gustos existentes del usuario
+    if (widget.user?.gustos != null && widget.user!.gustos!.isNotEmpty) {
+      _selectedInterests = widget.user!.gustos!.split(',').where((g) => g.isNotEmpty).toList();
+    } else {
+      _selectedInterests = [];
+    }
   }
 
   @override
