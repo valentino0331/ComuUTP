@@ -3,6 +3,7 @@ class Post {
   final int usuarioId;
   final int comunidadId;
   final String contenido;
+  final String? imagenUrl;
   final DateTime fecha;
   final String? nombreUsuario;
   final String? nombreComunidad;
@@ -15,6 +16,7 @@ class Post {
     required this.usuarioId,
     required this.comunidadId,
     required this.contenido,
+    this.imagenUrl,
     required this.fecha,
     this.nombreUsuario,
     this.nombreComunidad,
@@ -37,6 +39,7 @@ class Post {
         usuarioId: parseToInt(json['usuario_id']),
         comunidadId: parseToInt(json['comunidad_id']),
         contenido: json['contenido']?.toString() ?? 'Sin contenido',
+        imagenUrl: json['imagen_url']?.toString(),
         fecha: DateTime.parse(json['fecha']?.toString() ?? DateTime.now().toIso8601String()),
         nombreUsuario: json['nombre_usuario']?.toString() ?? 'Usuario',
         nombreComunidad: json['nombre_comunidad']?.toString() ?? 'Comunidad',

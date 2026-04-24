@@ -519,6 +519,20 @@ class _PostCardState extends State<PostCard> {
                 ),
               ),
             ),
+            if (widget.post.imagenUrl != null && widget.post.imagenUrl!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    widget.post.imagenUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
+              ),
             _PostStats(post: widget.post),
             Divider(height: 1, color: Colors.grey[200]),
             _PostActions(

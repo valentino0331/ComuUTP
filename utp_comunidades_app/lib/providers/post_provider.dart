@@ -47,10 +47,11 @@ class PostProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> createPost(int comunidadId, String contenido) async {
+  Future<bool> createPost(int comunidadId, String contenido, String? imagenUrl) async {
     final res = await ApiService.post('/posts', {
       'comunidad_id': comunidadId,
       'contenido': contenido,
+      'imagen_url': imagenUrl,
     }, auth: true);
     if (res.statusCode == 201) {
       await fetchPostsByCommunity(comunidadId);

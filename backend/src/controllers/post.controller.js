@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 exports.create = async (req, res) => {
-  const { comunidad_id, contenido } = req.body;
+  const { comunidad_id, contenido, imagen_url } = req.body;
   try {
     if (!comunidad_id || !contenido) {
       return res.status(400).json({ error: 'Comunidad y contenido son requeridos' });
@@ -18,8 +18,8 @@ exports.create = async (req, res) => {
     }
 
     const result = await pool.query(
-      'INSERT INTO publicaciones (usuario_id, comunidad_id, contenido, fecha) VALUES ($1, $2, $3, NOW()) RETURNING *',
-      [req.user.id, comunidad_id, contenido]
+      'INSERT INTO publicaciones (usuario_id, comunidad_id, contenido, imagen_url, fecha) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      [req.user.id, comunidad_id, contenido, imagen_url || null]
     );
     
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_post', `Post en comunidad ${comunidad_id}`]);
@@ -49,6 +49,7 @@ exports.list = async (req, res) => {
           p.usuario_id,
           p.comunidad_id,
           p.contenido,
+          p.imagen_url,
           p.fecha,
           u.nombre as nombre_usuario,
           c.nombre as nombre_comunidad,
@@ -74,6 +75,7 @@ exports.list = async (req, res) => {
           p.usuario_id,
           p.comunidad_id,
           p.contenido,
+          p.imagen_url,
           p.fecha,
           u.nombre as nombre_usuario,
           c.nombre as nombre_comunidad,
@@ -129,6 +131,7 @@ exports.listByCommunity = async (req, res) => {
         p.usuario_id,
         p.comunidad_id,
         p.contenido,
+        p.imagen_url,
         p.fecha,
         u.nombre as nombre_usuario,
         c.nombre as nombre_comunidad,

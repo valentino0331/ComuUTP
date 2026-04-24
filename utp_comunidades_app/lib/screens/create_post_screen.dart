@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
 import '../providers/post_provider.dart';
 import '../providers/community_provider.dart';
 
@@ -61,13 +62,30 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
   }
 
+  Future<String?> _convertImageToBase64(File image) async {
+    try {
+      final bytes = await image.readAsBytes();
+      final base64 = base64Encode(bytes);
+      return 'data:image/jpeg;base64,$base64';
+    } catch (e) {
+      print('Error converting image to base64: $e');
+      return null;
+    }
+  }
+
   Future<void> createPost() async {
     if (comunidadId == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Selecciona una comunidad')));
       return;
     }
     setState(() { loading = true; error = null; });
-    final success = await Provider.of<PostProvider>(context, listen: false).createPost(comunidadId!, contenido);
+    
+    String? imagenUrl;
+    if (_selectedImage != null) {
+      imagenUrl = await _convertImageToBase64(_selectedImage!);
+    }
+    
+    final success = await Provider.of<PostProvider>(context, listen: false).createPost(comunidadId!, contenido, imagenUrl);
     setState(() { loading = false; });
     if (success && mounted) {
       Navigator.pop(context);

@@ -57,6 +57,17 @@ const initDatabase = async () => {
       console.log('ℹ️ Columnas historias:', err.message.substring(0, 100));
     }
 
+    // Migración 5: Agregar columna imagen_url a publicaciones
+    try {
+      await pool.query(`
+        ALTER TABLE publicaciones
+        ADD COLUMN IF NOT EXISTS imagen_url TEXT;
+      `);
+      console.log('✅ Columna imagen_url en publicaciones verificada');
+    } catch (err) {
+      console.log('ℹ️ Columna imagen_url:', err.message.substring(0, 100));
+    }
+
     // Crear índices de performance
     try {
       await pool.query(`
