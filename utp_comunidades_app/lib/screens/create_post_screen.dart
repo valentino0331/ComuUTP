@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:convert';
 import '../providers/post_provider.dart';
 import '../providers/community_provider.dart';
@@ -22,6 +24,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   bool loading = false;
   String? error;
   File? _selectedImage;
+  Uint8List? _imageBytes;
   String? _imageFileName;
   List<dynamic> _myCommunities = [];
   bool _loadingCommunities = true;
@@ -36,10 +39,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       );
       
       if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-          _imageFileName = pickedFile.name;
-        });
+        // En web, usar los bytes directamente en lugar de File
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            _selectedImage = null; // No usar File en web
+            _imageBytes = bytes;
+            _imageFileName = pickedFile.name;
+          });
+        } else {
+          setState(() {
+            _selectedImage = File(pickedFile.path);
+            _imageBytes = null;
+            _imageFileName = pickedFile.name;
+          });
+        }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Imagen seleccionada: ${pickedFile.name}')),
@@ -58,15 +72,27 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void _removeImage() {
     setState(() {
       _selectedImage = null;
+      _imageBytes = null;
       _imageFileName = null;
     });
   }
 
-  Future<String?> _convertImageToBase64(File image) async {
+  Future<String?> _convertImageToBase64() async {
     try {
-      final bytes = await image.readAsBytes();
+      Uint8List bytes;
+      if (_imageBytes != null) {
+        bytes = _imageBytes!;
+      } else if (_selectedImage != null) {
+        bytes = await _selectedImage!.readAsBytes();
+      } else {
+        return null;
+      }
+      print('Tamaño de imagen: ${bytes.length} bytes');
       final base64 = base64Encode(bytes);
-      return 'data:image/jpeg;base64,$base64';
+      print('Tamaño de base64: ${base64.length} caracteres');
+      final result = 'data:image/jpeg;base64,$base64';
+      print('Resultado de conversión exitoso');
+      return result;
     } catch (e) {
       print('Error converting image to base64: $e');
       return null;
@@ -81,8 +107,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     setState(() { loading = true; error = null; });
     
     String? imagenUrl;
-    if (_selectedImage != null) {
-      imagenUrl = await _convertImageToBase64(_selectedImage!);
+    if (_selectedImage != null || _imageBytes != null) {
+      imagenUrl = await _convertImageToBase64();
+      if (imagenUrl == null) {
+        setState(() { loading = false; });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error al procesar la imagen'), backgroundColor: Colors.red),
+          );
+        }
+        return;
+      }
     }
     
     final success = await Provider.of<PostProvider>(context, listen: false).createPost(comunidadId!, contenido, imagenUrl);
@@ -92,6 +127,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Publicación creada')));
     } else {
       setState(() { error = 'No se pudo crear la publicación'; });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al crear la publicación'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -429,7 +469,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     onTap: () => _pickImage(ImageSource.camera),
                   ),
                   const SizedBox(width: 12),
-                  if (_selectedImage != null)
+                  if (_selectedImage != null || _imageBytes != null)
                     _buildAttachmentButton(
                       icon: PhosphorIcons.trash(PhosphorIconsStyle.regular),
                       label: 'Limpiar',
@@ -439,7 +479,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
               
               // Preview de imagen seleccionada
-              if (_selectedImage != null) ...[
+              if (_selectedImage != null || _imageBytes != null) ...[
                 const SizedBox(height: 16),
                 Container(
                   decoration: BoxDecoration(
@@ -451,12 +491,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     borderRadius: BorderRadius.circular(12),
                     child: Stack(
                       children: [
-                        Image.file(
-                          _selectedImage!,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+                        _imageBytes != null
+                            ? Image.memory(
+                                _imageBytes!,
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                _selectedImage!,
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                         Positioned(
                           top: 8,
                           right: 8,
