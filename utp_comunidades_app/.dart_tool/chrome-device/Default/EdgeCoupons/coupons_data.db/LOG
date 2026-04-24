@@ -1,49 +1,67 @@
-2026/04/23-18:29:27.379 2924 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.a177596\flutter_tools_chrome_device.921323a7\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/04/23-18:29:27.385 2924 Recovering log #78
-2026/04/23-18:29:27.386 2924 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.a177596\flutter_tools_chrome_device.921323a7\Default\EdgeCoupons/coupons_data.db/000078.log 
-2026/04/23-18:29:27.391 2924 Delete type=0 #4
-2026/04/23-18:29:27.391 2924 Delete type=0 #7
-2026/04/23-18:29:27.391 2924 Delete type=2 #8
-2026/04/23-18:29:27.392 2924 Delete type=0 #10
-2026/04/23-18:29:27.392 2924 Delete type=2 #11
-2026/04/23-18:29:27.392 2924 Delete type=0 #13
-2026/04/23-18:29:27.392 2924 Delete type=2 #14
-2026/04/23-18:29:27.393 2924 Delete type=0 #16
-2026/04/23-18:29:27.393 2924 Delete type=2 #17
-2026/04/23-18:29:27.394 2924 Delete type=0 #19
-2026/04/23-18:29:27.394 2924 Delete type=2 #21
-2026/04/23-18:29:27.394 2924 Delete type=0 #23
-2026/04/23-18:29:27.395 2924 Delete type=2 #24
-2026/04/23-18:29:27.395 2924 Delete type=0 #26
-2026/04/23-18:29:27.395 2924 Delete type=2 #27
-2026/04/23-18:29:27.396 2924 Delete type=0 #29
-2026/04/23-18:29:27.396 2924 Delete type=2 #30
-2026/04/23-18:29:27.396 2924 Delete type=0 #32
-2026/04/23-18:29:27.397 2924 Delete type=2 #34
-2026/04/23-18:29:27.397 2924 Delete type=0 #36
-2026/04/23-18:29:27.413 2924 Delete type=2 #37
-2026/04/23-18:29:27.413 2924 Delete type=0 #39
-2026/04/23-18:29:27.414 2924 Delete type=2 #40
-2026/04/23-18:29:27.414 2924 Delete type=0 #42
-2026/04/23-18:29:27.414 2924 Delete type=2 #43
-2026/04/23-18:29:27.428 2924 Delete type=0 #45
-2026/04/23-18:29:27.429 2924 Delete type=2 #47
-2026/04/23-18:29:27.429 2924 Delete type=0 #49
-2026/04/23-18:29:27.430 2924 Delete type=2 #50
-2026/04/23-18:29:27.430 2924 Delete type=0 #52
-2026/04/23-18:29:27.430 2924 Delete type=2 #53
-2026/04/23-18:29:27.431 2924 Delete type=0 #55
-2026/04/23-18:29:27.431 2924 Delete type=2 #56
-2026/04/23-18:29:27.431 2924 Delete type=0 #58
-2026/04/23-18:29:27.432 2924 Delete type=2 #60
-2026/04/23-18:29:27.432 2924 Delete type=0 #62
-2026/04/23-18:29:27.432 2924 Delete type=2 #63
-2026/04/23-18:29:27.433 2924 Delete type=0 #65
-2026/04/23-18:29:27.433 2924 Delete type=2 #66
-2026/04/23-18:29:27.433 2924 Delete type=0 #68
-2026/04/23-18:29:27.433 2924 Delete type=2 #69
-2026/04/23-18:29:27.434 2924 Delete type=0 #71
-2026/04/23-18:29:27.434 2924 Delete type=0 #75
-2026/04/23-18:29:27.608 2c4c Level-0 table #82: started
-2026/04/23-18:29:27.616 2c4c Level-0 table #82: 682224 bytes OK
-2026/04/23-18:29:27.618 2c4c Delete type=0 #78
+2026/04/24-13:56:10.365 f5c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.9825a7ca\flutter_tools_chrome_device.99aa43d5\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/24-13:56:10.368 f5c Recovering log #94
+2026/04/24-13:56:10.370 f5c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.9825a7ca\flutter_tools_chrome_device.99aa43d5\Default\EdgeCoupons/coupons_data.db/000094.log 
+2026/04/24-13:56:10.373 f5c Delete type=0 #4
+2026/04/24-13:56:10.373 f5c Delete type=0 #7
+2026/04/24-13:56:10.373 f5c Delete type=2 #8
+2026/04/24-13:56:10.373 f5c Delete type=0 #10
+2026/04/24-13:56:10.373 f5c Delete type=2 #11
+2026/04/24-13:56:10.374 f5c Delete type=0 #13
+2026/04/24-13:56:10.374 f5c Delete type=2 #14
+2026/04/24-13:56:10.374 f5c Delete type=0 #16
+2026/04/24-13:56:10.388 f5c Delete type=2 #17
+2026/04/24-13:56:10.389 f5c Delete type=0 #19
+2026/04/24-13:56:10.405 f5c Delete type=2 #21
+2026/04/24-13:56:10.406 f5c Delete type=0 #23
+2026/04/24-13:56:10.406 f5c Delete type=2 #24
+2026/04/24-13:56:10.420 f5c Delete type=0 #26
+2026/04/24-13:56:10.420 f5c Delete type=2 #27
+2026/04/24-13:56:10.420 f5c Delete type=0 #29
+2026/04/24-13:56:10.420 f5c Delete type=2 #30
+2026/04/24-13:56:10.421 f5c Delete type=0 #32
+2026/04/24-13:56:10.421 f5c Delete type=2 #34
+2026/04/24-13:56:10.421 f5c Delete type=0 #36
+2026/04/24-13:56:10.421 f5c Delete type=2 #37
+2026/04/24-13:56:10.421 f5c Delete type=0 #39
+2026/04/24-13:56:10.421 f5c Delete type=2 #40
+2026/04/24-13:56:10.422 f5c Delete type=0 #42
+2026/04/24-13:56:10.422 f5c Delete type=2 #43
+2026/04/24-13:56:10.422 f5c Delete type=0 #45
+2026/04/24-13:56:10.422 f5c Delete type=2 #47
+2026/04/24-13:56:10.422 f5c Delete type=0 #49
+2026/04/24-13:56:10.422 f5c Delete type=2 #50
+2026/04/24-13:56:10.422 f5c Delete type=0 #52
+2026/04/24-13:56:10.423 f5c Delete type=2 #53
+2026/04/24-13:56:10.423 f5c Delete type=0 #55
+2026/04/24-13:56:10.450 f5c Delete type=2 #56
+2026/04/24-13:56:10.451 f5c Delete type=0 #58
+2026/04/24-13:56:10.451 f5c Delete type=2 #60
+2026/04/24-13:56:10.451 f5c Delete type=0 #62
+2026/04/24-13:56:10.451 f5c Delete type=2 #63
+2026/04/24-13:56:10.451 f5c Delete type=0 #65
+2026/04/24-13:56:10.451 f5c Delete type=2 #66
+2026/04/24-13:56:10.451 f5c Delete type=0 #68
+2026/04/24-13:56:10.452 f5c Delete type=2 #69
+2026/04/24-13:56:10.452 f5c Delete type=0 #71
+2026/04/24-13:56:10.452 f5c Delete type=2 #73
+2026/04/24-13:56:10.452 f5c Delete type=0 #75
+2026/04/24-13:56:10.452 f5c Delete type=2 #76
+2026/04/24-13:56:10.453 f5c Delete type=0 #78
+2026/04/24-13:56:10.453 f5c Delete type=2 #79
+2026/04/24-13:56:10.453 f5c Delete type=0 #81
+2026/04/24-13:56:10.453 f5c Delete type=2 #82
+2026/04/24-13:56:10.453 f5c Delete type=0 #84
+2026/04/24-13:56:10.453 f5c Delete type=0 #88
+2026/04/24-13:56:10.454 f5c Delete type=0 #91
+2026/04/24-13:56:20.495 2324 Level-0 table #98: started
+2026/04/24-13:56:20.498 2324 Level-0 table #98: 682224 bytes OK
+2026/04/24-13:56:20.499 2324 Delete type=0 #94
+2026/04/24-13:56:20.500 2324 Compacting 4@0 + 1@1 files
+2026/04/24-13:56:20.504 2324 Generated table #99@0: 4 keys, 682247 bytes
+2026/04/24-13:56:20.504 2324 Compacted 4@0 + 1@1 files => 682247 bytes
+2026/04/24-13:56:20.505 2324 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/24-13:56:20.505 2324 Delete type=2 #86
+2026/04/24-13:56:20.505 2324 Delete type=2 #89
+2026/04/24-13:56:20.505 2324 Delete type=2 #92
+2026/04/24-13:56:20.506 2324 Delete type=2 #95
+2026/04/24-13:56:20.506 2324 Delete type=2 #98
