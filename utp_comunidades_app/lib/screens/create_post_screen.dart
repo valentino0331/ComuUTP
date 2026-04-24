@@ -33,9 +33,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 60,
+        maxWidth: 400,
+        maxHeight: 400,
+        imageQuality: 30,
       );
       
       if (pickedFile != null) {
@@ -455,27 +455,30 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               const SizedBox(height: 16),
               
               // Opciones de adjunto
-              Row(
-                children: [
-                  _buildAttachmentButton(
-                    icon: PhosphorIcons.image(PhosphorIconsStyle.regular),
-                    label: 'Galería',
-                    onTap: () => _pickImage(ImageSource.gallery),
-                  ),
-                  const SizedBox(width: 12),
-                  _buildAttachmentButton(
-                    icon: PhosphorIcons.camera(PhosphorIconsStyle.regular),
-                    label: 'Cámara',
-                    onTap: () => _pickImage(ImageSource.camera),
-                  ),
-                  const SizedBox(width: 12),
-                  if (_selectedImage != null || _imageBytes != null)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
                     _buildAttachmentButton(
-                      icon: PhosphorIcons.trash(PhosphorIconsStyle.regular),
-                      label: 'Limpiar',
-                      onTap: _removeImage,
+                      icon: PhosphorIcons.image(PhosphorIconsStyle.regular),
+                      label: 'Galería',
+                      onTap: () => _pickImage(ImageSource.gallery),
                     ),
-                ],
+                    const SizedBox(width: 12),
+                    _buildAttachmentButton(
+                      icon: PhosphorIcons.camera(PhosphorIconsStyle.regular),
+                      label: 'Cámara',
+                      onTap: () => _pickImage(ImageSource.camera),
+                    ),
+                    const SizedBox(width: 12),
+                    if (_selectedImage != null || _imageBytes != null)
+                      _buildAttachmentButton(
+                        icon: PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                        label: 'Limpiar',
+                        onTap: _removeImage,
+                      ),
+                  ],
+                ),
               ),
               
               // Preview de imagen seleccionada
