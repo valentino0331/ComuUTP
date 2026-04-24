@@ -190,3 +190,9 @@
 2026-04-23 23:24:49.712: [INFO] BookmarkNodeAdded, ABU: 0
 2026-04-23 23:24:49.712: [INFO] BookmarkModelLoaded, ids_reassigned: 0
 2026-04-23 23:24:49.712: [INFO] OnDoneLoading sync enabled: 1
+2026-04-23 23:29:03.146: [INFO] VisibilityChanged: 0
+2026-04-23 23:29:03.287: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 23:29:03.288: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 23:29:03.290: [INFO] BookmarkNodeAdded, ABU: 0
+2026-04-23 23:29:03.290: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-04-23 23:29:03.290: [INFO] OnDoneLoading sync enabled: 0
