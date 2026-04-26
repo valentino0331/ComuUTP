@@ -60,6 +60,9 @@ dependencies:
   
   # Shimmer effect
   shimmer: ^3.0.0
+  
+  # Animations
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_test:

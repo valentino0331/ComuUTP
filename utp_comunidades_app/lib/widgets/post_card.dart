@@ -6,11 +6,21 @@ import '../theme/app_theme.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final VoidCallback? onTap;
+  final VoidCallback? onLikeTap;
+  final VoidCallback? onCommentTap;
+  final VoidCallback? onShareTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
   
   const PostCard({
     super.key,
     required this.post,
     this.onTap,
+    this.onLikeTap,
+    this.onCommentTap,
+    this.onShareTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
   });
 
   @override
@@ -47,6 +57,7 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
         _likeController.reverse();
       });
     }
+    widget.onLikeTap?.call();
   }
 
   @override
