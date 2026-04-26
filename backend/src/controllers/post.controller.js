@@ -2,31 +2,45 @@ const pool = require('../config/db');
 
 exports.create = async (req, res) => {
   const { comunidad_id, contenido, imagen_url } = req.body;
+  console.log('=== CREATE POST DEBUG ===');
+  console.log('comunidad_id:', comunidad_id);
+  console.log('contenido length:', contenido?.length);
+  console.log('imagen_url length:', imagen_url?.length);
+  console.log('usuario_id:', req.user?.id);
+  
   try {
     if (!comunidad_id || !contenido) {
+      console.log('Error: Comunidad y contenido son requeridos');
       return res.status(400).json({ error: 'Comunidad y contenido son requeridos' });
     }
 
     // Verificar que el usuario es miembro de la comunidad
+    console.log('Verificando membresía...');
     const isMember = await pool.query(
       'SELECT id FROM miembros_comunidad WHERE usuario_id = $1 AND comunidad_id = $2',
       [req.user.id, comunidad_id]
     );
+    console.log('Es miembro:', isMember.rows.length > 0);
 
     if (isMember.rows.length === 0) {
+      console.log('Error: No eres miembro de esta comunidad');
       return res.status(403).json({ error: 'No eres miembro de esta comunidad' });
     }
 
+    console.log('Insertando post...');
     const result = await pool.query(
       'INSERT INTO publicaciones (usuario_id, comunidad_id, contenido, imagen_url, fecha) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
       [req.user.id, comunidad_id, contenido, imagen_url || null]
     );
+    console.log('Post insertado exitosamente:', result.rows[0]);
     
     await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_post', `Post en comunidad ${comunidad_id}`]);
     
     res.status(201).json({ publicacion: result.rows[0] });
   } catch (err) {
-    console.error('Error creating post:', err.message);
+    console.error('=== ERROR CREATING POST ===');
+    console.error('Error message:', err.message);
+    console.error('Error stack:', err.stack);
     res.status(500).json({ error: 'Error al crear publicación', details: err.message });
   }
 };
