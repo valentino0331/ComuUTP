@@ -73,6 +73,19 @@ class ApiService {
     );
   }
 
+  static Future<http.Response> put(String endpoint, Map<String, dynamic> data, {bool auth = false}) async {
+    final headers = {'Content-Type': 'application/json'};
+    if (auth) {
+      final token = await getToken();
+      if (token != null) headers['Authorization'] = 'Bearer $token';
+    }
+    return await http.put(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: headers,
+      body: jsonEncode(data),
+    );
+  }
+
   static Future<http.Response> patch(String endpoint, Map<String, dynamic> data, {bool auth = false}) async {
     final headers = {'Content-Type': 'application/json'};
     if (auth) {

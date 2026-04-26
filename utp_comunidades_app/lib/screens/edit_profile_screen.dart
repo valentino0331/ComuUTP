@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
 import 'dart:convert';
 
@@ -121,34 +120,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       imageQuality: 80,
                     );
                     if (photo != null && mounted) {
-                      // Solo aplicar cropper para foto de perfil
-                      if (isProfile) {
-                        final croppedFile = await ImageCropper().cropImage(
-                          sourcePath: photo.path,
-                          aspectRatioPresets: [
-                            CropAspectRatioPreset.square,
-                          ],
-                          uiSettings: const AndroidUiSettings(
-                            toolbarTitle: 'Recortar foto de perfil',
-                            toolbarColor: Color(0xFFB21132),
-                            toolbarWidgetColor: Colors.white,
-                            initAspectRatio: CropAspectRatioPreset.original,
-                            lockAspectRatio: false,
-                          ),
-                          iosSettings: const IOSUiSettings(
-                            title: 'Recortar foto de perfil',
-                          ),
-                        );
-                        if (croppedFile != null && mounted) {
-                          setState(() {
-                            _profileImage = File(croppedFile.path);
-                          });
-                        }
-                      } else {
-                        setState(() {
+                      setState(() {
+                        if (isProfile) {
+                          _profileImage = File(photo.path);
+                        } else {
                           _coverImage = File(photo.path);
-                        });
-                      }
+                        }
+                      });
                     }
                   } catch (e) {
                     if (mounted) {
@@ -173,34 +151,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       imageQuality: 80,
                     );
                     if (image != null && mounted) {
-                      // Solo aplicar cropper para foto de perfil
-                      if (isProfile) {
-                        final croppedFile = await ImageCropper().cropImage(
-                          sourcePath: image.path,
-                          aspectRatioPresets: [
-                            CropAspectRatioPreset.square,
-                          ],
-                          uiSettings: const AndroidUiSettings(
-                            toolbarTitle: 'Recortar foto de perfil',
-                            toolbarColor: Color(0xFFB21132),
-                            toolbarWidgetColor: Colors.white,
-                            initAspectRatio: CropAspectRatioPreset.original,
-                            lockAspectRatio: false,
-                          ),
-                          iosSettings: const IOSUiSettings(
-                            title: 'Recortar foto de perfil',
-                          ),
-                        );
-                        if (croppedFile != null && mounted) {
-                          setState(() {
-                            _profileImage = File(croppedFile.path);
-                          });
-                        }
-                      } else {
-                        setState(() {
+                      setState(() {
+                        if (isProfile) {
+                          _profileImage = File(image.path);
+                        } else {
                           _coverImage = File(image.path);
-                        });
-                      }
+                        }
+                      });
                     }
                   } catch (e) {
                     if (mounted) {

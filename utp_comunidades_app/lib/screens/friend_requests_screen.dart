@@ -28,7 +28,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
         backgroundColor: const Color(0xFFB21132),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(PhosphorIcons.arrowLeft, color: Colors.white),
+          icon: Icon(PhosphorIcons.arrowLeft(), color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -183,7 +183,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     PhosphorIcons.check(),
                     color: Colors.white,
                     size: 24,

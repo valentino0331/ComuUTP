@@ -48,7 +48,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(PhosphorIcons.userPlus(), color: Colors.white),
+            icon: Icon(PhosphorIcons.userPlus(), color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
