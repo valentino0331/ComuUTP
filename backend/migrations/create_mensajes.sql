@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS conversaciones (
     usuario2_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(LEAST(usuario1_id, usuario2_id), GREATEST(usuario1_id, usuario2_id))
+    CONSTRAINT unique_conversation UNIQUE (usuario1_id, usuario2_id)
 );
 
 -- Crear tabla de mensajes
