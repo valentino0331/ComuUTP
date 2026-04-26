@@ -795,44 +795,70 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     required String confirmText,
   }) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 8,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.white,
+              Colors.grey[50]!,
+            ],
+          ),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
-                color: Colors.red[50],
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.red[400]!,
+                    Colors.red[600]!,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Icon(
                 PhosphorIcons.trash(PhosphorIconsStyle.fill),
-                color: Colors.red,
-                size: 28,
+                color: Colors.white,
+                size: 32,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
               title,
               style: const TextStyle(
                 fontFamily: 'Montserrat',
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               message,
               style: TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 14,
                 color: Colors.grey[600],
-                height: 1.4,
+                height: 1.5,
               ),
               textAlign: TextAlign.center,
             ),
@@ -843,17 +869,18 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   child: TextButton(
                     onPressed: () => Navigator.pop(context, false),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.grey[300]!),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Cancelar',
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                        color: Colors.grey[700],
                       ),
                     ),
                   ),
