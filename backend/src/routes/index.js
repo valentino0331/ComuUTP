@@ -12,5 +12,6 @@ router.use('/ban', require('./ban.routes'));
 router.use('/notifications', require('./notification.routes'));
 router.use('/stories', require('./story.routes'));
 router.use('/admin', require('./admin.routes'));
+router.use('/friendship', require('./friendship.routes'));
 
 module.exports = router;

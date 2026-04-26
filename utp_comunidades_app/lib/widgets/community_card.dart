@@ -106,6 +106,25 @@ class CommunityCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
+                      if (community.creador != null)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person_outline,
+                              size: 12,
+                              color: AppTheme.colorPrimary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Creado por ${community.creador}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.colorPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       if (community.miembros != null || community.posts != null)
                         Row(
                           children: [

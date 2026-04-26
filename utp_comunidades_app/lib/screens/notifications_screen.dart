@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../providers/notification_provider.dart';
+import '../providers/friendship_provider.dart';
 import '../models/notification.dart';
 import '../theme/app_theme.dart';
+import 'friend_requests_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -44,6 +47,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(PhosphorIcons.userPlus(), color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FriendRequestsScreen(),
+                ),
+              );
+            },
+          ),
           if (notificationProvider.notifications.isNotEmpty)
             PopupMenuButton(
               icon: const Icon(Icons.more_vert, color: Colors.white),

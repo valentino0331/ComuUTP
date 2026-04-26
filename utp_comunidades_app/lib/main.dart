@@ -13,12 +13,14 @@ import 'screens/create_story_screen.dart';
 import 'screens/story_viewer_screen.dart';
 import 'screens/admin_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/friend_requests_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/community_provider.dart';
 import 'providers/post_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/story_provider.dart';
 import 'providers/follower_provider.dart';
+import 'providers/friendship_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +50,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => StoryProvider()),
         ChangeNotifierProvider(create: (_) => FollowerProvider()),
+        ChangeNotifierProvider(create: (_) => FriendshipProvider()),
       ],
       child: MaterialApp(
         title: 'UTP Comunidades',
@@ -67,6 +70,7 @@ class MyApp extends StatelessWidget {
           '/create_story': (context) => CreateStoryScreen(),
           '/admin': (context) => const AdminScreen(),
           '/notifications': (context) => const NotificationsScreen(),
+          '/friend_requests': (context) => const FriendRequestsScreen(),
         },
       ),
     );

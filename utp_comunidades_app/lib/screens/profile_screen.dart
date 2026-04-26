@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 import '../providers/post_provider.dart';
 import '../providers/community_provider.dart';
 import '../providers/follower_provider.dart';
+import '../providers/friendship_provider.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -24,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   late TabController _tabController;
   int _selectedTab = 0;
   bool _isFollowing = false;
+  String? _friendshipStatus;
 
   @override
   void initState() {
@@ -34,6 +36,20 @@ class _ProfileScreenState extends State<ProfileScreen>
         _selectedTab = _tabController.index;
       });
     });
+    _checkFriendshipStatus();
+  }
+
+  Future<void> _checkFriendshipStatus() async {
+    final currentUser = context.read<AuthProvider>().user;
+    if (currentUser != null && currentUser.id != widget.user.id) {
+      final friendshipProvider = context.read<FriendshipProvider>();
+      final status = await friendshipProvider.checkFriendshipStatus(widget.user.id);
+      if (mounted) {
+        setState(() {
+          _friendshipStatus = status;
+        });
+      }
+    }
   }
 
   @override
@@ -162,89 +178,38 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildProfileHeader(User user, bool isCurrentUser) {
-    return Column(
-      children: [
-        // Foto de portada
-        Container(
-          height: 180,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: user.fotoPortada != null
-                ? null
-                : LinearGradient(
-                    colors: [
-                      const Color(0xFFB21132),
-                      const Color(0xFFB21132).withOpacity(0.6),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-            color: user.fotoPortada == null ? null : Colors.transparent,
-          ),
-          child: user.fotoPortada != null
-              ? (user.fotoPortada!.startsWith('data:')
-                  ? Image.memory(
-                      base64Decode(user.fotoPortada!.split(',')[1]),
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                    )
-                  : Image.network(
-                      user.fotoPortada!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Color(0xFFB21132),
-                                Color(0xFFB21132).withOpacity(0.6),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                        );
-                      },
-                    ))
-              : null,
-        ),
-        // Avatar superpuesto
-        Transform.translate(
-          offset: const Offset(0, -70),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                Container(
-                  width: 140,
-                  height: 140,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: user.esPremium ? const Color(0xFFB21132) : Colors.white,
-                      width: 4,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 70,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage: user.fotoPerfil != null
-                        ? (user.fotoPerfil!.startsWith('data:')
-                            ? MemoryImage(base64Decode(user.fotoPerfil!.split(',')[1]))
-                            : NetworkImage(user.fotoPerfil!))
-                        : null,
-                    child: user.fotoPerfil == null
-                        ? Text(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Column(
+        children: [
+          // Avatar mejorado
+          Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: user.esPremium ? const Color(0xFFB21132) : Colors.transparent,
+                width: 4,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 70,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: user.fotoPerfil != null
+                  ? (user.fotoPerfil!.startsWith('data:')
+                      ? MemoryImage(base64Decode(user.fotoPerfil!.split(',')[1]))
+                      : NetworkImage(user.fotoPerfil!))
+                  : null,
+              child: user.fotoPerfil == null
+                  ? Text(
                       user.nombre.isNotEmpty
                           ? user.nombre[0].toUpperCase()
                           : 'U',
@@ -256,29 +221,32 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     )
                   : null,
-                  ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // User info
+          Column(
+            children: [
+              // Nombre - más grande y prominente
+              Text(
+                user.nombre,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
                 ),
-                const SizedBox(height: 12),
-                // Nombre - más grande y prominente
-                Text(
-                  user.nombre,
-                  style: const TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                // Username/Email
-                Text(
-                  '@${user.email.split('@').first.toLowerCase()}',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.grey[600],
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              // Username/Email
+              Text(
+                '@${user.email.split('@').first.toLowerCase()}',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey[600],
                 ),
               ),
               const SizedBox(height: 12),
@@ -291,28 +259,26 @@ class _ProfileScreenState extends State<ProfileScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFB21132).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFFB21132).withOpacity(0.3),
+                          color: const Color(0xFFB21132),
                           width: 1,
                         ),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            PhosphorIcons.crown(PhosphorIconsStyle.fill),
-                            size: 14,
+                            Icons.star,
+                            size: 12,
                             color: const Color(0xFFB21132),
                           ),
-                          const SizedBox(width: 6),
-                          const Text(
+                          const SizedBox(width: 4),
+                          Text(
                             'Premium',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFFB21132),
                             ),
                           ),
                         ],
@@ -322,9 +288,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ],
           ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -481,82 +446,97 @@ class _ProfileScreenState extends State<ProfileScreen>
           else ...[
             Expanded(
               flex: 4,
-              child: !_isFollowing
+              child: _friendshipStatus == 'aceptada'
                   ? Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: const Color(0xFFB21132),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFB21132).withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() => _isFollowing = true);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Ahora sigues a este usuario'),
-                                behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(10),
-                          child: const Center(
-                            child: Text(
-                              'Seguir',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : Container(
                       height: 48,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.grey[300]!, width: 1),
                       ),
-                      child: Material(
+                      child: const Material(
                         color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() => _isFollowing = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Has dejado de seguir a este usuario'),
-                                behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(10),
-                          child: const Center(
-                            child: Text(
-                              'Siguiendo',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                color: Colors.black87,
-                              ),
+                        child: Center(
+                          child: Text(
+                            'Amigos',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    )
+                  : _friendshipStatus == 'pendiente'
+                      ? Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey[300]!, width: 1),
+                          ),
+                          child: const Material(
+                            color: Colors.transparent,
+                            child: Center(
+                              child: Text(
+                                'Solicitud enviada',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: const Color(0xFFB21132),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFB21132).withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () async {
+                                final friendshipProvider = context.read<FriendshipProvider>();
+                                final success = await friendshipProvider.sendFriendRequest(user.id);
+                                if (success && mounted) {
+                                  setState(() {
+                                    _friendshipStatus = 'pendiente';
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Solicitud de amistad enviada'),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(10),
+                              child: const Center(
+                                child: Text(
+                                  'Añadir amigo',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
             ),
             const SizedBox(width: 8),
             Container(

@@ -5,10 +5,12 @@ import 'communities_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 import 'create_post_screen.dart';
+import 'friend_requests_screen.dart';
 import '../widgets/bottom_nav.dart';
 import '../providers/community_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
+import '../providers/friendship_provider.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});

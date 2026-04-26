@@ -98,6 +98,15 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                     color: Colors.white,
                   ),
                 ),
+                if (widget.community.creador != null)
+                  Text(
+                    'Creado por ${widget.community.creador}',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
                 Text(
                   '${_messages.length} mensajes',
                   style: TextStyle(
