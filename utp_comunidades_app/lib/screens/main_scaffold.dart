@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'home_screen.dart';
 import 'communities_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 import 'create_post_screen.dart';
 import 'friend_requests_screen.dart';
+import 'conversations_screen.dart';
 import '../widgets/bottom_nav.dart';
 import '../providers/community_provider.dart';
 import '../providers/auth_provider.dart';
@@ -55,6 +57,26 @@ class _MainScaffoldState extends State<MainScaffold> {
       user != null ? ProfileScreen(user: user) : const Center(child: Text('No autenticado')),
     ];
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFB21132),
+        elevation: 0,
+        title: const Text(
+          'UTP Comunidades',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(PhosphorIcons.chatCircleDots(PhosphorIconsStyle.fill), color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/conversations');
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: screens[_currentIndex],
       ),
