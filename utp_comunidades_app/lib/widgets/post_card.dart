@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/post.dart';
 import '../screens/post_detail_screen.dart';
 import '../theme/app_theme.dart';
+import '../widgets/reactions_widget.dart';
+import '../providers/reaction_provider.dart';
+import 'package:provider/provider.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -31,6 +34,7 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
   late bool _isLiked = false;
   late AnimationController _likeController;
   late Animation<double> _likeAnimation;
+  bool _showReactions = false;
 
   @override
   void initState() {
@@ -42,6 +46,11 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
     _likeAnimation = Tween<double>(begin: 1, end: 1.2).animate(
       CurvedAnimation(parent: _likeController, curve: Curves.elasticOut),
     );
+    
+    // Cargar reacción del usuario
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReactionProvider>().fetchUserReaction(widget.post.id);
+    });
   }
 
   @override
@@ -58,6 +67,11 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
       });
     }
     widget.onLikeTap?.call();
+  }
+
+  void _handleReaction(String tipo) {
+    context.read<ReactionProvider>().toggleReaction(widget.post.id, tipo);
+    setState(() => _showReactions = false);
   }
 
   @override
@@ -257,18 +271,35 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
               // Divisor
               Divider(height: 1, color: AppTheme.colorBorder.withOpacity(0.5)),
               // Acciones
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _ActionButton(
-                      icon: _isLiked ? Icons.favorite : Icons.favorite_border,
-                      label: 'Me gusta',
-                      onTap: _toggleLike,
-                      isActive: _isLiked,
-                      animation: _likeAnimation,
-                    ),
+              Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        GestureDetector(
+                          onLongPress: () {
+                            setState(() => _showReactions = true);
+                          },
+                          child: _ActionButton(
+                            icon: _isLiked ? Icons.favorite : Icons.favorite_border,
+                            label: 'Me gusta',
+                            onTap: _toggleLike,
+                            isActive: _isLiked,
+                            animation: _likeAnimation,
+                          ),
+                        ),
+                        if (_showReactions)
+                          Positioned(
+                            bottom: 60,
+                            left: 10,
+                            child: ReactionsWidget(
+                              postId: widget.post.id,
+                              currentReaction: context.watch<ReactionProvider>().getUserReaction(widget.post.id),
+                              onReactionSelected: _handleReaction,
+                            ),
+                          ),
                     _ActionButton(
                       icon: Icons.chat_bubble_outline,
                       label: 'Comentar',
@@ -295,6 +326,8 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
+                  ),
+                ],
               ),
             ],
           ),

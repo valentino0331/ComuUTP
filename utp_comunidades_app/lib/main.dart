@@ -21,6 +21,7 @@ import 'providers/notification_provider.dart';
 import 'providers/story_provider.dart';
 import 'providers/follower_provider.dart';
 import 'providers/friendship_provider.dart';
+import 'providers/reaction_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => StoryProvider()),
         ChangeNotifierProvider(create: (_) => FollowerProvider()),
         ChangeNotifierProvider(create: (_) => FriendshipProvider()),
+        ChangeNotifierProvider(create: (_) => ReactionProvider()),
       ],
       child: MaterialApp(
         title: 'UTP Comunidades',
