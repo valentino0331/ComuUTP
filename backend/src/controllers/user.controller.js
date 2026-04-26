@@ -50,6 +50,10 @@ exports.updateProfile = async (req, res) => {
       modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma
     } = req.body;
 
+    console.log('Actualizando perfil para usuario:', userId);
+    console.log('foto_perfil length:', foto_perfil ? foto_perfil.length : 0);
+    console.log('foto_portada length:', foto_portada ? foto_portada.length : 0);
+
     if (!nombre) {
       return res.status(400).json({ error: 'El nombre es requerido' });
     }

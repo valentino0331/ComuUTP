@@ -61,9 +61,11 @@ exports.list = async (req, res) => {
       result = await pool.query(
         `SELECT
           c.*,
+          u.nombre as creador,
           CASE WHEN mc.id IS NOT NULL THEN true ELSE false END as es_miembro,
           (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros
         FROM comunidades c
+        LEFT JOIN usuarios u ON c.usuario_creador_id = u.id
         LEFT JOIN miembros_comunidad mc ON c.id = mc.comunidad_id AND mc.usuario_id = $1
         ORDER BY c.id DESC`,
         [userId]
@@ -73,9 +75,11 @@ exports.list = async (req, res) => {
       result = await pool.query(
         `SELECT
           c.*,
+          u.nombre as creador,
           CASE WHEN mc.id IS NOT NULL THEN true ELSE false END as es_miembro,
           (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros
         FROM comunidades c
+        LEFT JOIN usuarios u ON c.usuario_creador_id = u.id
         LEFT JOIN miembros_comunidad mc ON c.id = mc.comunidad_id AND mc.usuario_id = $1
         ORDER BY c.id DESC`,
         [userId]
@@ -85,9 +89,11 @@ exports.list = async (req, res) => {
       result = await pool.query(
         `SELECT
           c.*,
+          u.nombre as creador,
           false as es_miembro,
           (SELECT COUNT(*) FROM miembros_comunidad WHERE comunidad_id = c.id) as total_miembros
         FROM comunidades c
+        LEFT JOIN usuarios u ON c.usuario_creador_id = u.id
         ORDER BY c.id DESC`
       );
     }
