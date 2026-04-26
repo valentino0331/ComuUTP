@@ -10,6 +10,7 @@ import '../providers/post_provider.dart';
 import '../providers/community_provider.dart';
 import '../providers/follower_provider.dart';
 import '../providers/friendship_provider.dart';
+import '../services/api_service.dart';
 import 'edit_profile_screen.dart';
 import 'saved_posts_screen.dart';
 
@@ -46,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     final currentUser = context.read<AuthProvider>().user;
     if (currentUser != null && currentUser.id == widget.user.id) {
       try {
-        final response = await context.read<AuthProvider>().apiService.get('/users/stats', auth: true);
+        final response = await ApiService.get('/users/stats', auth: true);
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           setState(() {
@@ -2705,7 +2706,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Future<void> _toggleDarkMode() async {
     try {
-      final response = await context.read<AuthProvider>().apiService.post(
+      final response = await ApiService.post(
         '/users/dark-mode',
         {'modo_oscuro': true},
         auth: true,

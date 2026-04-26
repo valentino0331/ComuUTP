@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import '../providers/message_provider.dart';
+import '../providers/auth_provider.dart';
+import 'chat_screen.dart';
 import '../theme/app_theme.dart';
 
 class ConversationsScreen extends StatefulWidget {

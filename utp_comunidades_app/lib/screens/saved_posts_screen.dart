@@ -153,7 +153,7 @@ class _SavedPostsScreenState extends State<SavedPostsScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.fill), color: const Color(0xFFB21132)),
+                icon: Icon(PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.fill), color: const Color(0xFFB21132)),
                 onPressed: () {
                   savedProvider.unsavePost(post['post_id']);
                 },

@@ -70,25 +70,25 @@ class _MainScaffoldState extends State<MainScaffold> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.fill), color: Colors.white),
+            icon: Icon(PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.fill), color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/search');
             },
           ),
           IconButton(
-            icon: const Icon(PhosphorIcons.at(PhosphorIconsStyle.fill), color: Colors.white),
+            icon: Icon(PhosphorIcons.at(PhosphorIconsStyle.fill), color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/mentions');
             },
           ),
           IconButton(
-            icon: const Icon(PhosphorIcons.hashtag(PhosphorIconsStyle.fill), color: Colors.white),
+            icon: Icon(PhosphorIcons.hash(PhosphorIconsStyle.fill), color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/hashtags');
             },
           ),
           IconButton(
-            icon: const Icon(PhosphorIcons.chatCircleDots(PhosphorIconsStyle.fill), color: Colors.white),
+            icon: Icon(PhosphorIcons.chatCircleDots(PhosphorIconsStyle.fill), color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/conversations');
             },
