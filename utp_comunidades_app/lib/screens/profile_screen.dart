@@ -11,6 +11,7 @@ import '../providers/community_provider.dart';
 import '../providers/follower_provider.dart';
 import '../providers/friendship_provider.dart';
 import 'edit_profile_screen.dart';
+import 'saved_posts_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
@@ -188,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           children: [
             _buildPostsGrid(context, user, postProvider),
             _buildCommunitiesList(context, user, communityProvider),
-            _buildSharedPosts(user),
+            const SavedPostsScreen(),
           ],
         ),
       ),
