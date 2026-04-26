@@ -380,6 +380,7 @@ class AuthProvider with ChangeNotifier {
     String? bio,
     String? carrera,
     List<String>? gustos,
+    String? fotoPortada,
   }) async {
     _loading = true;
     _error = null;
@@ -391,6 +392,7 @@ class AuthProvider with ChangeNotifier {
         'bio': bio,
         'carrera': carrera,
         'gustos': gustos,
+        'foto_portada': fotoPortada,
       }, auth: true);
 
       if (res.statusCode == 200) {

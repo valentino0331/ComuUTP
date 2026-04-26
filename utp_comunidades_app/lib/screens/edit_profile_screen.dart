@@ -3,6 +3,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
 
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
@@ -227,11 +228,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onPressed: () async {
                   final authProvider = Provider.of<AuthProvider>(context, listen: false);
                   
+                  // Convertir foto de portada a base64 si existe
+                  String? fotoPortadaBase64;
+                  if (_coverImage != null) {
+                    final bytes = await _coverImage!.readAsBytes();
+                    fotoPortadaBase64 = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+                  }
+                  
                   final success = await authProvider.updateProfile(
                     nombre: _nameController.text.trim(),
                     bio: _bioController.text.trim(),
                     carrera: _careerController.text.trim(),
                     gustos: _selectedInterests,
+                    fotoPortada: fotoPortadaBase64,
                   );
 
                   if (mounted) {

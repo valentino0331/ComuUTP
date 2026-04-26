@@ -162,36 +162,89 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildProfileHeader(User user, bool isCurrentUser) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Column(
-        children: [
-          // Avatar mejorado
-          Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: user.esPremium ? const Color(0xFFB21132) : Colors.transparent,
-                width: 4,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 70,
-              backgroundColor: Colors.grey[200],
-              backgroundImage: user.fotoPerfil != null
-                  ? NetworkImage(user.fotoPerfil!)
-                  : null,
-              child: user.fotoPerfil == null
-                  ? Text(
+    return Column(
+      children: [
+        // Foto de portada
+        Container(
+          height: 180,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: user.fotoPortada != null
+                ? null
+                : LinearGradient(
+                    colors: [
+                      const Color(0xFFB21132),
+                      const Color(0xFFB21132).withOpacity(0.6),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+            color: user.fotoPortada == null ? null : Colors.transparent,
+          ),
+          child: user.fotoPortada != null
+              ? (user.fotoPortada!.startsWith('data:')
+                  ? Image.memory(
+                      base64Decode(user.fotoPortada!.split(',')[1]),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    )
+                  : Image.network(
+                      user.fotoPortada!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Color(0xFFB21132),
+                                Color(0xFFB21132).withOpacity(0.6),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                        );
+                      },
+                    ))
+              : null,
+        ),
+        // Avatar superpuesto
+        Transform.translate(
+          offset: const Offset(0, -70),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: user.esPremium ? const Color(0xFFB21132) : Colors.white,
+                      width: 4,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 70,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: user.fotoPerfil != null
+                        ? (user.fotoPerfil!.startsWith('data:')
+                            ? MemoryImage(base64Decode(user.fotoPerfil!.split(',')[1]))
+                            : NetworkImage(user.fotoPerfil!))
+                        : null,
+                    child: user.fotoPerfil == null
+                        ? Text(
                       user.nombre.isNotEmpty
                           ? user.nombre[0].toUpperCase()
                           : 'U',
@@ -203,32 +256,29 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     )
                   : null,
-            ),
-          ),
-          const SizedBox(height: 20),
-          // User info
-          Column(
-            children: [
-              // Nombre - más grande y prominente
-              Text(
-                user.nombre,
-                style: const TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              // Username/Email
-              Text(
-                '@${user.email.split('@').first.toLowerCase()}',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.grey[600],
+                const SizedBox(height: 12),
+                // Nombre - más grande y prominente
+                Text(
+                  user.nombre,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                // Username/Email
+                Text(
+                  '@${user.email.split('@').first.toLowerCase()}',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey[600],
                 ),
               ),
               const SizedBox(height: 12),
@@ -272,8 +322,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ],
           ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 

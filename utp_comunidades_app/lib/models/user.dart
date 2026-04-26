@@ -7,6 +7,7 @@ class User {
   final int? ciclo;
   final String? biografia;
   final String? fotoPerfil;
+  final String? fotoPortada;
   final int? postsCount;
   final int? comunidadesCount;
   final int? seguidoresCount;
@@ -37,6 +38,7 @@ class User {
     this.ciclo,
     this.biografia,
     this.fotoPerfil,
+    this.fotoPortada,
     this.postsCount,
     this.comunidadesCount,
     this.seguidoresCount,
@@ -67,6 +69,7 @@ class User {
       ciclo: json['ciclo'],
       biografia: json['biografia'],
       fotoPerfil: json['foto_perfil'] ?? json['fotoPerfil'],
+      fotoPortada: json['foto_portada'] ?? json['fotoPortada'],
       postsCount: json['posts_count'] ?? json['postsCount'] ?? 0,
       comunidadesCount: json['comunidades_count'] ?? json['comunidadesCount'] ?? 0,
       seguidoresCount: json['seguidores_count'] ?? json['seguidoresCount'] ?? 0,
@@ -102,6 +105,7 @@ class User {
       'ciclo': ciclo,
       'biografia': biografia,
       'foto_perfil': fotoPerfil,
+      'foto_portada': fotoPortada,
       'posts_count': postsCount,
       'comunidades_count': comunidadesCount,
       'seguidores_count': seguidoresCount,
