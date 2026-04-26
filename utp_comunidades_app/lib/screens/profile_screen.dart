@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   int _selectedTab = 0;
   bool _isFollowing = false;
   String? _friendshipStatus;
+  Map<String, dynamic>? _stats;
 
   @override
   void initState() {
@@ -37,6 +38,24 @@ class _ProfileScreenState extends State<ProfileScreen>
       });
     });
     _checkFriendshipStatus();
+    _fetchStats();
+  }
+
+  Future<void> _fetchStats() async {
+    final currentUser = context.read<AuthProvider>().user;
+    if (currentUser != null && currentUser.id == widget.user.id) {
+      try {
+        final response = await context.read<AuthProvider>().apiService.get('/users/stats', auth: true);
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          setState(() {
+            _stats = data['stats'];
+          });
+        }
+      } catch (e) {
+        print('Error al obtener estadísticas: $e');
+      }
+    }
   }
 
   Future<void> _checkFriendshipStatus() async {
@@ -294,6 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildStatsRow(User user) {
+    final stats = _stats;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Container(
@@ -308,20 +328,20 @@ class _ProfileScreenState extends State<ProfileScreen>
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildStatColumn(
-              user.seguidosCount?.toString() ?? '0',
-              'Siguiendo',
-              () => _showFollowersList(context, 'Siguiendo'),
+              stats?['posts']?.toString() ?? '0',
+              'Posts',
+              () {},
             ),
             Container(width: 1, height: 40, color: Colors.grey[200]),
             _buildStatColumn(
-              user.seguidoresCount?.toString() ?? '0',
-              'Seguidores',
-              () => _showFollowersList(context, 'Seguidores'),
+              stats?['friends']?.toString() ?? '0',
+              'Amigos',
+              () {},
             ),
             Container(width: 1, height: 40, color: Colors.grey[200]),
             _buildStatColumn(
-              '0',
-              'Me gusta',
+              stats?['likes_received']?.toString() ?? '0',
+              'Likes',
               () {},
             ),
           ],
@@ -1433,6 +1453,24 @@ class _ProfileScreenState extends State<ProfileScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // SECCIÓN: Apariencia
+                      _buildSettingsSection(
+                        title: 'Apariencia',
+                        items: [
+                          (
+                            icon: PhosphorIcons.moon(PhosphorIconsStyle.bold),
+                            title: 'Modo oscuro',
+                            subtitle: 'Activar tema oscuro',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _toggleDarkMode();
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
                       // SECCIÓN: Cuenta
                       _buildSettingsSection(
                         title: 'Cuenta',
@@ -1444,6 +1482,24 @@ class _ProfileScreenState extends State<ProfileScreen>
                             onTap: () {
                               Navigator.pop(context);
                               _showChangePasswordDialog(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
+                      // SECCIÓN: Apariencia
+                      _buildSettingsSection(
+                        title: 'Apariencia',
+                        items: [
+                          (
+                            icon: PhosphorIcons.moon(PhosphorIconsStyle.bold),
+                            title: 'Modo oscuro',
+                            subtitle: 'Activar tema oscuro',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _toggleDarkMode();
                             },
                           ),
                         ],
@@ -2644,6 +2700,31 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _toggleDarkMode() async {
+    try {
+      final response = await context.read<AuthProvider>().apiService.post(
+        '/users/dark-mode',
+        {'modo_oscuro': true},
+        auth: true,
+      );
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Modo oscuro activado'),
+            backgroundColor: Color(0xFFB21132),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error al cambiar modo oscuro: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al cambiar modo oscuro'),
+        ),
+      );
+    }
   }
 }
 
