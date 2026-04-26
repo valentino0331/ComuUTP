@@ -18,6 +18,7 @@ import 'screens/conversations_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/hashtags_screen.dart';
 import 'screens/saved_posts_screen.dart';
+import 'screens/search_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/community_provider.dart';
 import 'providers/post_provider.dart';
@@ -29,6 +30,7 @@ import 'providers/reaction_provider.dart';
 import 'providers/message_provider.dart';
 import 'providers/hashtag_provider.dart';
 import 'providers/saved_provider.dart';
+import 'providers/search_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +65,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MessageProvider()),
         ChangeNotifierProvider(create: (_) => HashtagProvider()),
         ChangeNotifierProvider(create: (_) => SavedProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
       ],
       child: MaterialApp(
         title: 'UTP Comunidades',
@@ -86,6 +89,7 @@ class MyApp extends StatelessWidget {
           '/conversations': (context) => const ConversationsScreen(),
           '/hashtags': (context) => const HashtagsScreen(),
           '/saved_posts': (context) => const SavedPostsScreen(),
+          '/search': (context) => const SearchScreen(),
         },
       ),
     );
