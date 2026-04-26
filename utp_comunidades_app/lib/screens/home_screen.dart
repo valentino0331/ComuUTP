@@ -52,8 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'Inicio',
         style: TextStyle(
           fontFamily: 'Montserrat',
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
       ),

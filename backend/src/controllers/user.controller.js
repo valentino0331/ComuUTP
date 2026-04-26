@@ -45,7 +45,7 @@ exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const {
-      nombre, bio, carrera, gustos, foto_portada,
+      nombre, bio, carrera, gustos, foto_perfil, foto_portada,
       notificaciones_activas, email_notificaciones, notificaciones_menciones,
       modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma
     } = req.body;
@@ -58,24 +58,26 @@ exports.updateProfile = async (req, res) => {
     const gustosStr = Array.isArray(gustos) ? gustos.join(',') : gustos;
 
     const result = await pool.query(
-      `UPDATE usuarios 
+      `UPDATE usuarios
          SET nombre = $1, bio = COALESCE($2, bio), carrera = COALESCE($3, carrera), gustos = COALESCE($4, gustos),
-         foto_portada = COALESCE($5, foto_portada),
-         notificaciones_activas = COALESCE($6, notificaciones_activas),
-         email_notificaciones = COALESCE($7, email_notificaciones),
-         notificaciones_menciones = COALESCE($8, notificaciones_menciones),
-         modo_oscuro = COALESCE($9, modo_oscuro),
-         privacidad_perfil_publico = COALESCE($10, privacidad_perfil_publico),
-         privacidad_mostrar_email = COALESCE($11, privacidad_mostrar_email),
-         idioma = COALESCE($12, idioma),
+         foto_perfil = COALESCE($5, foto_perfil),
+         foto_portada = COALESCE($6, foto_portada),
+         notificaciones_activas = COALESCE($7, notificaciones_activas),
+         email_notificaciones = COALESCE($8, email_notificaciones),
+         notificaciones_menciones = COALESCE($9, notificaciones_menciones),
+         modo_oscuro = COALESCE($10, modo_oscuro),
+         privacidad_perfil_publico = COALESCE($11, privacidad_perfil_publico),
+         privacidad_mostrar_email = COALESCE($12, privacidad_mostrar_email),
+         idioma = COALESCE($13, idioma),
          updated_at = CURRENT_TIMESTAMP
-       WHERE id = $13
+       WHERE id = $14
        RETURNING id, email, nombre, bio, carrera, gustos, notificaciones_activas, email_notificaciones, notificaciones_menciones, modo_oscuro, privacidad_perfil_publico, privacidad_mostrar_email, idioma, foto_perfil, foto_portada, created_at`,
       [
         nombre,
         bio,
         carrera,
         gustosStr,
+        foto_perfil,
         foto_portada,
         notificaciones_activas,
         email_notificaciones,

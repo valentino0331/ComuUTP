@@ -27,10 +27,8 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFB21132),
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(PhosphorIcons.arrowLeft(), color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Solicitudes de amistad',
           style: TextStyle(

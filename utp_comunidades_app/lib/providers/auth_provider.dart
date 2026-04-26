@@ -380,6 +380,7 @@ class AuthProvider with ChangeNotifier {
     String? bio,
     String? carrera,
     List<String>? gustos,
+    String? fotoPerfil,
     String? fotoPortada,
   }) async {
     _loading = true;
@@ -392,6 +393,7 @@ class AuthProvider with ChangeNotifier {
         'bio': bio,
         'carrera': carrera,
         'gustos': gustos,
+        'foto_perfil': fotoPerfil,
         'foto_portada': fotoPortada,
       }, auth: true);
 

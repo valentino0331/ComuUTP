@@ -227,19 +227,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               TextButton(
                 onPressed: () async {
                   final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                  
+
+                  // Convertir foto de perfil a base64 si existe
+                  String? fotoPerfilBase64;
+                  if (_profileImage != null) {
+                    final bytes = await _profileImage!.readAsBytes();
+                    fotoPerfilBase64 = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+                  }
+
                   // Convertir foto de portada a base64 si existe
                   String? fotoPortadaBase64;
                   if (_coverImage != null) {
                     final bytes = await _coverImage!.readAsBytes();
                     fotoPortadaBase64 = 'data:image/jpeg;base64,${base64Encode(bytes)}';
                   }
-                  
+
                   final success = await authProvider.updateProfile(
                     nombre: _nameController.text.trim(),
                     bio: _bioController.text.trim(),
                     carrera: _careerController.text.trim(),
                     gustos: _selectedInterests,
+                    fotoPerfil: fotoPerfilBase64,
                     fotoPortada: fotoPortadaBase64,
                   );
 
