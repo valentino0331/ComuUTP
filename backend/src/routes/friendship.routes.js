@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const friendshipController = require('../controllers/friendship.controller');
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 // Enviar solicitud de amistad
 router.post('/send', authMiddleware, friendshipController.sendFriendRequest);
