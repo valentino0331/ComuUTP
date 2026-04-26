@@ -174,6 +174,51 @@ exports.getFollowing = async (req, res) => {
   }
 };
 
+// Obtener estadísticas del usuario
+exports.getStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Obtener conteos
+    const postsCount = await pool.query('SELECT COUNT(*) as count FROM publicaciones WHERE usuario_id = $1', [userId]);
+    const likesReceived = await pool.query('SELECT COUNT(*) as count FROM likes WHERE publicacion_id IN (SELECT id FROM publicaciones WHERE usuario_id = $1)', [userId]);
+    const commentsReceived = await pool.query('SELECT COUNT(*) as count FROM comentarios WHERE publicacion_id IN (SELECT id FROM publicaciones WHERE usuario_id = $1)', [userId]);
+    const friendsCount = await pool.query('SELECT COUNT(*) as count FROM amistades WHERE (usuario_id = $1 OR amigo_id = $1) AND estado = "aceptada"', [userId]);
+    const communitiesCount = await pool.query('SELECT COUNT(*) as count FROM miembros_comunidad WHERE usuario_id = $1', [userId]);
+
+    res.json({
+      stats: {
+        posts: parseInt(postsCount.rows[0].count),
+        likes_received: parseInt(likesReceived.rows[0].count),
+        comments_received: parseInt(commentsReceived.rows[0].count),
+        friends: parseInt(friendsCount.rows[0].count),
+        communities: parseInt(communitiesCount.rows[0].count),
+      }
+    });
+  } catch (err) {
+    console.error('Error al obtener estadísticas:', err.message);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+};
+
+// Cambiar modo oscuro
+exports.toggleDarkMode = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { modo_oscuro } = req.body;
+
+    const result = await pool.query(
+      'UPDATE usuarios SET modo_oscuro = $1 WHERE id = $2 RETURNING modo_oscuro',
+      [modo_oscuro, userId]
+    );
+
+    res.json({ modo_oscuro: result.rows[0].modo_oscuro });
+  } catch (err) {
+    console.error('Error al cambiar modo oscuro:', err.message);
+    res.status(500).json({ error: 'Error al cambiar modo oscuro' });
+  }
+};
+
 // Eliminar cuenta de usuario (GDPR Art. 17 - Derecho al olvido)
 exports.deleteAccount = async (req, res) => {
   try {
