@@ -28,7 +28,21 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
         backgroundColor: const Color(0xFFB21132),
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              PhosphorIcons.arrowLeft(),
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text(
           'Solicitudes de amistad',
           style: TextStyle(
