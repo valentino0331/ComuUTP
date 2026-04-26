@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 import 'dart:io';
 import 'dart:convert';
 
@@ -21,9 +23,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _usernameController;
   late final TextEditingController _bioController;
   late final TextEditingController _careerController;
-  
-  File? _profileImage;
-  File? _coverImage;
+
+  Uint8List? _profileImageBytes;
+  Uint8List? _coverImageBytes;
   
   final List<String> _availableInterests = [
     'Tecnología', 'Deportes', 'Música', 'Arte', 'Ciencia',
@@ -120,11 +122,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       imageQuality: 80,
                     );
                     if (photo != null && mounted) {
+                      final bytes = await photo.readAsBytes();
                       setState(() {
                         if (isProfile) {
-                          _profileImage = File(photo.path);
+                          _profileImageBytes = bytes;
                         } else {
-                          _coverImage = File(photo.path);
+                          _coverImageBytes = bytes;
                         }
                       });
                     }
@@ -151,11 +154,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       imageQuality: 80,
                     );
                     if (image != null && mounted) {
+                      final bytes = await image.readAsBytes();
                       setState(() {
                         if (isProfile) {
-                          _profileImage = File(image.path);
+                          _profileImageBytes = bytes;
                         } else {
-                          _coverImage = File(image.path);
+                          _coverImageBytes = bytes;
                         }
                       });
                     }
@@ -168,7 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   }
                 },
               ),
-              if ((isProfile && _profileImage != null) || (!isProfile && _coverImage != null))
+              if ((isProfile && _profileImageBytes != null) || (!isProfile && _coverImageBytes != null))
                 ListTile(
                   leading: Icon(PhosphorIcons.trash(), color: Colors.red),
                   title: const Text(
@@ -178,9 +182,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   onTap: () {
                     setState(() {
                       if (isProfile) {
-                        _profileImage = null;
+                        _profileImageBytes = null;
                       } else {
-                        _coverImage = null;
+                        _coverImageBytes = null;
                       }
                     });
                     Navigator.pop(context);
@@ -230,16 +234,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   // Convertir foto de perfil a base64 si existe
                   String? fotoPerfilBase64;
-                  if (_profileImage != null) {
-                    final bytes = await _profileImage!.readAsBytes();
-                    fotoPerfilBase64 = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+                  if (_profileImageBytes != null) {
+                    fotoPerfilBase64 = 'data:image/jpeg;base64,${base64Encode(_profileImageBytes!)}';
                   }
 
                   // Convertir foto de portada a base64 si existe
                   String? fotoPortadaBase64;
-                  if (_coverImage != null) {
-                    final bytes = await _coverImage!.readAsBytes();
-                    fotoPortadaBase64 = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+                  if (_coverImageBytes != null) {
+                    fotoPortadaBase64 = 'data:image/jpeg;base64,${base64Encode(_coverImageBytes!)}';
                   }
 
                   final success = await authProvider.updateProfile(
@@ -289,8 +291,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     onTap: () => _showImagePickerOptions(false),
                     child: Container(
                       color: Colors.grey[800],
-                      child: _coverImage != null
-                          ? Image.file(_coverImage!, fit: BoxFit.cover)
+                      child: _coverImageBytes != null
+                          ? Image.memory(_coverImageBytes!, fit: BoxFit.cover)
                           : Container(
                               color: const Color(0xFFB21132).withOpacity(0.8),
                               child: Center(
@@ -354,8 +356,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ],
                               ),
                               child: ClipOval(
-                                child: _profileImage != null
-                                    ? Image.file(_profileImage!, fit: BoxFit.cover)
+                                child: _profileImageBytes != null
+                                    ? Image.memory(_profileImageBytes!, fit: BoxFit.cover)
                                     : Container(
                                         color: Colors.grey[200],
                                         child: Icon(
