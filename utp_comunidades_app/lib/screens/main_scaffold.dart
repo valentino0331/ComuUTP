@@ -57,19 +57,6 @@ class _MainScaffoldState extends State<MainScaffold> {
       user != null ? ProfileScreen(user: user) : const Center(child: Text('No autenticado')),
     ];
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFB21132),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'UTP Comunidades',
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-      ),
       body: SafeArea(
         child: screens[_currentIndex],
       ),
