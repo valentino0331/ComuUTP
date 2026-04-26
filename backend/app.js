@@ -73,6 +73,7 @@ const sanitizeInput = require('./src/middlewares/sanitize.middleware');
 app.use(sanitizeInput);
 
 // Limit request payload (aumentado a 10MB para permitir imágenes en base64)
+// Railway deployment: force redeploy
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
