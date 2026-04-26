@@ -60,11 +60,14 @@ class PostProvider with ChangeNotifier {
     return false;
   }
 
-  void toggleLike(int postId) {
+  Future<void> toggleLike(int postId) async {
     final index = _posts.indexWhere((p) => p.id == postId);
     if (index != -1) {
       final post = _posts[index];
-      if (_likedPosts.contains(postId)) {
+      final isLiked = _likedPosts.contains(postId);
+
+      // Actualizar estado local inmediatamente para respuesta rápida
+      if (isLiked) {
         _likedPosts.remove(postId);
         _posts[index] = Post(
           id: post.id,
@@ -77,6 +80,8 @@ class PostProvider with ChangeNotifier {
           likes: (post.likes ?? 0) - 1,
           comentarios: post.comentarios,
         );
+        // Llamar al backend para quitar like
+        await ApiService.delete('/likes', body: {'publicacion_id': postId}, auth: true);
       } else {
         _likedPosts.add(postId);
         _posts[index] = Post(
@@ -90,6 +95,8 @@ class PostProvider with ChangeNotifier {
           likes: (post.likes ?? 0) + 1,
           comentarios: post.comentarios,
         );
+        // Llamar al backend para dar like
+        await ApiService.post('/likes', {'publicacion_id': postId}, auth: true);
       }
       notifyListeners();
     }

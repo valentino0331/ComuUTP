@@ -61,7 +61,7 @@ class ApiService {
     );
   }
 
-  static Future<http.Response> delete(String endpoint, {bool auth = false}) async {
+  static Future<http.Response> delete(String endpoint, {bool auth = false, Map<String, dynamic>? body}) async {
     final headers = {'Content-Type': 'application/json'};
     if (auth) {
       final token = await getToken();
@@ -70,6 +70,7 @@ class ApiService {
     return await http.delete(
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
+      body: body != null ? jsonEncode(body) : null,
     );
   }
 
