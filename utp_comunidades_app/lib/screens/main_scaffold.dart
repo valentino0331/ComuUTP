@@ -76,6 +76,12 @@ class _MainScaffoldState extends State<MainScaffold> {
             },
           ),
           IconButton(
+            icon: const Icon(PhosphorIcons.at(PhosphorIconsStyle.fill), color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/mentions');
+            },
+          ),
+          IconButton(
             icon: const Icon(PhosphorIcons.hashtag(PhosphorIconsStyle.fill), color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/hashtags');
