@@ -60,6 +60,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFB21132),
         elevation: 0,
+        centerTitle: true,
         title: const Text(
           'UTP Comunidades',
           style: TextStyle(
@@ -68,32 +69,6 @@ class _MainScaffoldState extends State<MainScaffold> {
             color: Colors.white,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.fill), color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/search');
-            },
-          ),
-          IconButton(
-            icon: Icon(PhosphorIcons.at(PhosphorIconsStyle.fill), color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/mentions');
-            },
-          ),
-          IconButton(
-            icon: Icon(PhosphorIcons.hash(PhosphorIconsStyle.fill), color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/hashtags');
-            },
-          ),
-          IconButton(
-            icon: Icon(PhosphorIcons.chatCircleDots(PhosphorIconsStyle.fill), color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/conversations');
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: screens[_currentIndex],

@@ -1455,6 +1455,51 @@ class _ProfileScreenState extends State<ProfileScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // SECCIÓN: Explorar
+                      _buildSettingsSection(
+                        title: 'Explorar',
+                        items: [
+                          (
+                            icon: PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold),
+                            title: 'Búsqueda',
+                            subtitle: 'Buscar usuarios, posts, comunidades',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/search');
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.at(PhosphorIconsStyle.bold),
+                            title: 'Menciones',
+                            subtitle: 'Ver tus menciones',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/mentions');
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.hash(PhosphorIconsStyle.bold),
+                            title: 'Hashtags',
+                            subtitle: 'Trending hashtags',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/hashtags');
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.chatCircleDots(PhosphorIconsStyle.bold),
+                            title: 'Mensajes',
+                            subtitle: 'Conversaciones privadas',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/conversations');
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
                       // SECCIÓN: Apariencia
                       _buildSettingsSection(
                         title: 'Apariencia',
