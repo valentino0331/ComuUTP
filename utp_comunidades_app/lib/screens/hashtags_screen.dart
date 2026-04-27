@@ -27,6 +27,10 @@ class _HashtagsScreenState extends State<HashtagsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFB21132),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         centerTitle: true,
         title: const Text(
           'Trending Hashtags',
