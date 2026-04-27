@@ -43,7 +43,7 @@ class _SearchScreenState extends State<SearchScreen> {
         title: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: TextField(
             controller: _searchController,
@@ -54,10 +54,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 color: Colors.grey[600],
               ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.search, color: Color(0xFFB21132)),
                 onPressed: _performSearch,
+                padding: EdgeInsets.zero,
               ),
             ),
             onSubmitted: (_) => _performSearch(),
