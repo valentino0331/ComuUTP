@@ -1467,10 +1467,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      // SECCIÓN: Explorar
-                      _buildSettingsSection(
-                        title: 'Explorar',
-                        items: [
+                        // SECCIÓN: Explorar
+                        _buildSettingsSection(
+                          title: 'Explorar',
+                          items: [
                           (
                             icon: PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold),
                             title: 'Búsqueda',
@@ -1541,24 +1541,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                             onTap: () {
                               Navigator.pop(context);
                               _showChangePasswordDialog(context);
-                            },
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 28),
-                      
-                      // SECCIÓN: Apariencia
-                      _buildSettingsSection(
-                        title: 'Apariencia',
-                        items: [
-                          (
-                            icon: PhosphorIcons.moon(PhosphorIconsStyle.bold),
-                            title: 'Modo oscuro',
-                            subtitle: 'Activar tema oscuro',
-                            onTap: () {
-                              Navigator.pop(context);
-                              _toggleDarkMode();
                             },
                           ),
                         ],
