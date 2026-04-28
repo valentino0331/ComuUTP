@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const savedController = require('../controllers/saved.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 // Guardar post
-router.post('/save', authMiddleware, savedController.savePost);
+router.post('/save', authenticate, savedController.savePost);
 
 // Desguardar post
-router.delete('/unsave/:post_id', authMiddleware, savedController.unsavePost);
+router.delete('/unsave/:post_id', authenticate, savedController.unsavePost);
 
 // Obtener posts guardados del usuario
-router.get('/posts', authMiddleware, savedController.getSavedPosts);
+router.get('/posts', authenticate, savedController.getSavedPosts);
 
 // Crear colección
-router.post('/collection', authMiddleware, savedController.createCollection);
+router.post('/collection', authenticate, savedController.createCollection);
 
 // Obtener colecciones del usuario
-router.get('/collections', authMiddleware, savedController.getCollections);
+router.get('/collections', authenticate, savedController.getCollections);
 
 module.exports = router;
