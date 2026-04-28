@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const pollController = require('../controllers/poll.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 // Crear encuesta
-router.post('/create', authMiddleware, pollController.createPoll);
+router.post('/create', authenticate, pollController.createPoll);
 
 // Votar en encuesta
-router.post('/vote', authMiddleware, pollController.votePoll);
+router.post('/vote', authenticate, pollController.votePoll);
 
 // Obtener resultados de encuesta
-router.get('/results/:encuesta_id', authMiddleware, pollController.getPollResults);
+router.get('/results/:encuesta_id', authenticate, pollController.getPollResults);
 
 // Obtener voto del usuario en encuesta
-router.get('/vote/:encuesta_id', authMiddleware, pollController.getUserVote);
+router.get('/vote/:encuesta_id', authenticate, pollController.getUserVote);
 
 module.exports = router;
