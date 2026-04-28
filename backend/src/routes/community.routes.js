@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const communityController = require('../controllers/community.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 // Validación Joi temporalmente deshabilitada hasta que Railway reinstale dependencias
 // const { validate, createCommunitySchema } = require('../validators/user.validator');
@@ -15,18 +15,18 @@ router.options('*', (req, res) => {
 });
 
 // Rutas específicas primero
-router.post('/', authMiddleware, communityController.create);
-router.get('/my-communities', authMiddleware, communityController.getMyCommunities);
-router.post('/join', authMiddleware, communityController.join);
-router.post('/leave', authMiddleware, communityController.leave);
-router.get('/is-member/:comunidad_id', authMiddleware, communityController.isMember);
-router.get('/members/:comunidadId', authMiddleware, communityController.getMembers);
+router.post('/', authenticate, communityController.create);
+router.get('/my-communities', authenticate, communityController.getMyCommunities);
+router.post('/join', authenticate, communityController.join);
+router.post('/leave', authenticate, communityController.leave);
+router.get('/is-member/:comunidad_id', authenticate, communityController.isMember);
+router.get('/members/:comunidadId', authenticate, communityController.getMembers);
 
 // Rutas genéricas al final
 router.get('/', (req, res) => {
   // Pasar el usuario si está autenticado, pero no requerir autenticación
   if (req.headers.authorization) {
-    authMiddleware(req, res, () => {
+    authenticate(req, res, () => {
       communityController.list(req, res);
     });
   } else {
@@ -35,6 +35,6 @@ router.get('/', (req, res) => {
 });
 
 // Eliminar comunidad (solo creador o admin)
-router.delete('/:id', authMiddleware, communityController.delete);
+router.delete('/:id', authenticate, communityController.delete);
 
 module.exports = router;
