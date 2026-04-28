@@ -1467,10 +1467,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // SECCIÓN: Explorar
-                        _buildSettingsSection(
-                          title: 'Explorar',
-                          items: [
+                      // SECCIÓN: Explorar
+                      _buildSettingsSection(
+                        title: 'Explorar',
+                        items: [
                           (
                             icon: PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold),
                             title: 'Búsqueda',
@@ -1548,6 +1548,24 @@ class _ProfileScreenState extends State<ProfileScreen>
                       
                       const SizedBox(height: 28),
                       
+                      // SECCIÓN: Apariencia
+                      _buildSettingsSection(
+                        title: 'Apariencia',
+                        items: [
+                          (
+                            icon: PhosphorIcons.moon(PhosphorIconsStyle.bold),
+                            title: 'Modo oscuro',
+                            subtitle: 'Activar tema oscuro',
+                            onTap: () {
+                              Navigator.pop(context);
+                              _toggleDarkMode();
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 28),
+                      
                       // SECCIÓN: Privacidad y Seguridad
                       _buildSettingsSection(
                         title: 'Privacidad y Seguridad',
@@ -1597,6 +1615,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ],
                         ),
                         const SizedBox(height: 28),
+                      ],
                       
                       // SECCIÓN: Información
                       _buildSettingsSection(
