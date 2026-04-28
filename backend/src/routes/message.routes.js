@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/message.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 // Obtener todas las conversaciones del usuario
-router.get('/conversations', authMiddleware, messageController.getConversations);
+router.get('/conversations', authenticate, messageController.getConversations);
 
 // Obtener mensajes de una conversación
-router.get('/conversation/:conversacion_id/messages', authMiddleware, messageController.getMessages);
+router.get('/conversation/:conversacion_id/messages', authenticate, messageController.getMessages);
 
 // Enviar mensaje
-router.post('/send', authMiddleware, messageController.sendMessage);
+router.post('/send', authenticate, messageController.sendMessage);
 
 // Crear nueva conversación
-router.post('/conversation', authMiddleware, messageController.createConversation);
+router.post('/conversation', authenticate, messageController.createConversation);
 
 // Eliminar conversación
-router.delete('/conversation/:conversacion_id', authMiddleware, messageController.deleteConversation);
+router.delete('/conversation/:conversacion_id', authenticate, messageController.deleteConversation);
 
 module.exports = router;
