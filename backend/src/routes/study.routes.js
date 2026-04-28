@@ -1,4 +1,5 @@
 // backend/src/routes/study.routes.js
+// Study routes - Modo Estudio + IA
 
 const express = require('express');
 const router = express.Router();
