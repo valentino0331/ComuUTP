@@ -1,11 +1,11 @@
 const express = require('express');
 const storyController = require('../controllers/story.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
 // Todas las rutas requieren autenticación
-router.use(authMiddleware);
+router.use(authenticate);
 
 // Crear historia
 router.post('/create', storyController.create);
