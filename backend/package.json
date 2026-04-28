@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "echo 'CORS Fix v2 - Starting server...' && node server.js",
+    "start": "echo 'CORS Fix v3 - OpenAI integration - Starting server...' && node server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
