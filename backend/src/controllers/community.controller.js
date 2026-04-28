@@ -184,6 +184,31 @@ exports.isMember = async (req, res) => {
   }
 };
 
+exports.getMembers = async (req, res) => {
+  const { comunidadId } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT 
+        u.id,
+        u.nombre,
+        u.apellido,
+        u.foto_perfil,
+        mc.fecha_union,
+        CASE WHEN c.usuario_creador_id = u.id THEN true ELSE false END as es_creador
+      FROM miembros_comunidad mc
+      JOIN usuarios u ON mc.usuario_id = u.id
+      JOIN comunidades c ON mc.comunidad_id = c.id
+      WHERE mc.comunidad_id = $1
+      ORDER BY mc.fecha_union ASC
+    `, [comunidadId]);
+
+    res.json({ miembros: result.rows });
+  } catch (err) {
+    console.error('Error getting community members:', err.message);
+    res.status(500).json({ error: 'Error al obtener miembros', details: err.message });
+  }
+};
+
 exports.leave = async (req, res) => {
   const { comunidad_id } = req.body;
   const userId = req.user.id;
