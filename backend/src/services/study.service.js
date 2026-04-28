@@ -2,11 +2,17 @@
 
 const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
-const OpenAI = require('openai');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Importación condicional de OpenAI
+let openai = null;
+try {
+  const OpenAI = require('openai');
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+} catch (error) {
+  console.log('⚠️ OpenAI package not installed. AI features will use placeholders.');
+}
 
 class StudyService {
   
