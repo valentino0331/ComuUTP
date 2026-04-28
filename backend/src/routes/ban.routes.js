@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const banController = require('../controllers/ban.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
-router.post('/', authMiddleware, banController.ban);
+router.post('/', authenticate, banController.ban);
 
 module.exports = router;
