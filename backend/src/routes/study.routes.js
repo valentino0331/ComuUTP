@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const studyController = require('../controllers/study.controller');
-const { authenticate } = require('../middleware/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 // Rutas de cursos
 router.get('/courses', authenticate, studyController.getUserCourses);
