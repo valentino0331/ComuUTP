@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { validateRegister, validateLogin } = require('../middlewares/auth.validation');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
 
 // Validación Joi temporalmente deshabilitada hasta que Railway reinstale dependencias
 // const { validate, registerSchema, loginSchema } = require('../validators/user.validator');
@@ -20,13 +20,13 @@ router.options('*', (req, res) => {
 router.post('/register', validateRegister, authController.register);
 router.post('/login', validateLogin, authController.login);
 router.post('/sync-user', authController.syncUser);
-router.get('/me', authMiddleware, authController.me);
+router.get('/me', authenticate, authController.me);
 
 // Email verification endpoints
 router.get('/verify-email', authController.verifyEmail);
 router.post('/resend-verification', authController.resendVerification);
 
 // Password management
-router.post('/change-password', authMiddleware, authController.changePassword);
+router.post('/change-password', authenticate, authController.changePassword);
 
 module.exports = router;
