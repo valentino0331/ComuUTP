@@ -22,4 +22,7 @@ router.use('/stories', require('./story.routes'));
 router.use('/admin', require('./admin.routes'));
 router.use('/friendship', require('./friendship.routes'));
 
+// ===== MODO ESTUDIO =====
+router.use('/study', require('./study.routes'));
+
 module.exports = router;
