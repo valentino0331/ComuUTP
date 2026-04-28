@@ -3,16 +3,9 @@
 const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
-// Importación condicional de OpenAI
-let openai = null;
-try {
-  const OpenAI = require('openai');
-  openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-} catch (error) {
-  console.log('⚠️ OpenAI package not installed. AI features will use placeholders.');
-}
+// Hugging Face Inference API (gratuito)
+const HF_API_URL = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2';
+const HF_API_KEY = process.env.HF_API_KEY || null; // Opcional, pero recomendado para mayor límite
 
 class StudyService {
   
@@ -339,40 +332,73 @@ class StudyService {
     }
   }
 
-  // Generación de resumen con IA usando OpenAI
+  // Generación de resumen con IA usando Hugging Face
   async generateAISummary(material) {
     try {
-      if (!process.env.OPENAI_API_KEY) {
-        return `Resumen generado para "${material.name}":\n\nEste es un resumen automático del material. Para usar la funcionalidad completa de IA, configura OPENAI_API_KEY en Railway.`;
-      }
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "Eres un asistente académico experto que genera resúmenes concisos y útiles de materiales de estudio universitario."
-          },
-          {
-            role: "user",
-            content: `Genera un resumen del siguiente material de estudio: "${material.name}". El resumen debe incluir los puntos clave, conceptos importantes y cualquier información relevante para estudiar.`
+      const response = await fetch(HF_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(HF_API_KEY && { 'Authorization': `Bearer ${HF_API_KEY}` })
+        },
+        body: JSON.stringify({
+          inputs: `<s>[INST] Eres un asistente académico experto. Genera un resumen conciso del siguiente material de estudio: "${material.name}". Incluye puntos clave y conceptos importantes. [/INST]`,
+          parameters: {
+            max_new_tokens: 500,
+            temperature: 0.7,
+            return_full_text: false
           }
-        ],
-        max_tokens: 500,
-        temperature: 0.7,
+        })
       });
 
-      return response.choices[0].message.content || 'No se pudo generar el resumen.';
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const summary = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
+      
+      return summary || 'No se pudo generar el resumen.';
     } catch (error) {
-      console.error('Error calling OpenAI:', error);
-      return `Error al generar resumen con IA: ${error.message}`;
+      console.error('Error calling Hugging Face:', error);
+      return `Resumen generado para "${material.name}":\n\nEste es un resumen automático. La API de IA está teniendo problemas temporales.`;
     }
   }
 
-  // Generación de preguntas con IA usando OpenAI
+  // Generación de preguntas con IA usando Hugging Face
   async generateAIQuestions(courseId, materials, count, difficulty) {
     try {
-      if (!process.env.OPENAI_API_KEY) {
+      const materialNames = materials.map(m => m.name).join(', ');
+      
+      const response = await fetch(HF_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(HF_API_KEY && { 'Authorization': `Bearer ${HF_API_KEY}` })
+        },
+        body: JSON.stringify({
+          inputs: `<s>[INST] Eres un profesor experto. Genera ${count} preguntas de opción múltiple de dificultad ${difficulty} basadas en: ${materialNames}. Formato JSON: [{"questionText", "options": {"A", "B", "C", "D"}, "correctOption", "explanation"}]. [/INST]`,
+          parameters: {
+            max_new_tokens: 1000,
+            temperature: 0.7,
+            return_full_text: false
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
+      
+      // Intentar parsear JSON, si falla usar placeholders
+      try {
+        const questions = JSON.parse(content);
+        return Array.isArray(questions) ? questions : [questions];
+      } catch {
+        // Fallback a preguntas generadas
         const questions = [];
         for (let i = 0; i < count; i++) {
           questions.push({
@@ -389,32 +415,8 @@ class StudyService {
         }
         return questions;
       }
-
-      const materialNames = materials.map(m => m.name).join(', ');
-      
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "Eres un profesor experto que genera preguntas de opción múltiple para cuestionarios académicos. Genera preguntas en formato JSON con estructura: {questionText, options: {A, B, C, D}, correctOption, explanation}."
-          },
-          {
-            role: "user",
-            content: `Genera ${count} preguntas de opción múltiple de dificultad ${difficulty} basadas en los siguientes materiales: ${materialNames}. Devuelve SOLO un array JSON con las preguntas.`
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7,
-      });
-
-      const content = response.choices[0].message.content;
-      const questions = JSON.parse(content);
-      
-      return Array.isArray(questions) ? questions : [questions];
     } catch (error) {
-      console.error('Error calling OpenAI for questions:', error);
-      // Fallback a preguntas placeholder si falla OpenAI
+      console.error('Error calling Hugging Face for questions:', error);
       const questions = [];
       for (let i = 0; i < count; i++) {
         questions.push({
@@ -433,33 +435,36 @@ class StudyService {
     }
   }
 
-  // Respuesta de IA usando OpenAI
+  // Respuesta de IA usando Hugging Face
   async generateAIAnswer(courseId, question) {
     try {
-      if (!process.env.OPENAI_API_KEY) {
-        return `Respuesta generada por IA para: "${question}"\n\nPara usar la funcionalidad completa de IA, configura OPENAI_API_KEY en Railway.`;
-      }
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "Eres un tutor académico experto que responde preguntas de estudiantes de manera clara y útil."
-          },
-          {
-            role: "user",
-            content: question
+      const response = await fetch(HF_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(HF_API_KEY && { 'Authorization': `Bearer ${HF_API_KEY}` })
+        },
+        body: JSON.stringify({
+          inputs: `<s>[INST] Eres un tutor académico experto. Responde esta pregunta de estudiante de manera clara y útil: "${question}" [/INST]`,
+          parameters: {
+            max_new_tokens: 500,
+            temperature: 0.7,
+            return_full_text: false
           }
-        ],
-        max_tokens: 500,
-        temperature: 0.7,
+        })
       });
 
-      return response.choices[0].message.content || 'No se pudo generar la respuesta.';
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const answer = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
+      
+      return answer || 'No se pudo generar la respuesta.';
     } catch (error) {
-      console.error('Error calling OpenAI for answer:', error);
-      return `Error al generar respuesta con IA: ${error.message}`;
+      console.error('Error calling Hugging Face for answer:', error);
+      return `Respuesta generada para: "${question}"\n\nLa API de IA está teniendo problemas temporales. Intenta más tarde.`;
     }
   }
 }
