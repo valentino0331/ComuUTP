@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 import '../models/community.dart';
+import '../services/api_service.dart';
+import '../providers/friendship_provider.dart';
+import 'dart:convert';
 
 class CommunityMembersScreen extends StatefulWidget {
   final Community community;
@@ -17,32 +21,85 @@ class CommunityMembersScreen extends StatefulWidget {
 class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   late List<Map<String, dynamic>> members = [];
   bool _isLoading = true;
+  Map<int, String?> _friendshipStatus = {};
 
   @override
   void initState() {
     super.initState();
-    // Load members from API (no hardcoded fake data)
     _loadMembers();
   }
 
   Future<void> _loadMembers() async {
     setState(() => _isLoading = true);
     try {
-      // TODO: Fetch members from API endpoint
-      // final response = await ApiService.get('/communities/${widget.community.id}/members', auth: true);
-      // if (response.statusCode == 200) {
-      //   final data = jsonDecode(response.body);
-      //   setState(() {
-      //     members = (data['members'] as List).cast<Map<String, dynamic>>();
-      //   });
-      // }
-      setState(() {
-        members = []; // Empty list for now - will be populated from API
-      });
+      final response = await ApiService.get('/communities/members/${widget.community.id}', auth: true);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          members = (data['miembros'] as List).cast<Map<String, dynamic>>();
+        });
+        
+        // Check friendship status for each member
+        for (var member in members) {
+          if (member['id'] != null) {
+            _checkFriendshipStatus(member['id']);
+          }
+        }
+      }
     } catch (e) {
       print('Error loading members: $e');
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _checkFriendshipStatus(int userId) async {
+    final friendshipProvider = context.read<FriendshipProvider>();
+    final status = await friendshipProvider.checkFriendshipStatus(userId);
+    if (mounted) {
+      setState(() {
+        _friendshipStatus[userId] = status;
+      });
+    }
+  }
+
+  Future<void> _sendFriendRequest(int userId, String userName) async {
+    final friendshipProvider = context.read<FriendshipProvider>();
+    final success = await friendshipProvider.sendFriendRequest(userId);
+    if (success && mounted) {
+      setState(() {
+        _friendshipStatus[userId] = 'pendiente';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Solicitud de amistad enviada a $userName',
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFFB21132),
+          duration: const Duration(milliseconds: 2500),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     }
   }
 
@@ -56,7 +113,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
         toolbarHeight: 56,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(PhosphorIcons.arrowLeft(PhosphorIconsStyle.bold), color: Colors.white, size: 24),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -189,7 +246,9 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   }
 
   Widget _buildMemberCard(BuildContext context, Map<String, dynamic> member, int index) {
-    final solicitudEnviada = member['solicitudEnviada'] ?? false;
+    final friendshipStatus = _friendshipStatus[member['id']];
+    final isCreator = member['es_creador'] ?? false;
+    final userName = '${member['nombre'] ?? ''} ${member['apellido'] ?? ''}'.trim();
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -223,7 +282,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
               ),
               child: Center(
                 child: Text(
-                  member['nombre'][0].toUpperCase(),
+                  userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -234,7 +293,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            // InformaciÃ³n
+            // Información
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +302,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          member['nombre'],
+                          userName,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -255,7 +314,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      if (member['rol'] == 'admin')
+                      if (isCreator)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
@@ -263,7 +322,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
-                            'Admin',
+                            'Creador',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -276,7 +335,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    member['email'],
+                    'Miembro desde ${_formatDate(member['fecha_union'])}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -290,68 +349,32 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
             ),
             const SizedBox(width: 8),
             // Button for action
-            if (member['rol'] != 'admin')
+            if (!isCreator)
               GestureDetector(
-                onTap: solicitudEnviada
+                onTap: friendshipStatus == 'aceptada' || friendshipStatus == 'pendiente'
                     ? null
-                    : () async {
-                        // Send real friendship request to API
-                        try {
-                          setState(() {
-                            members[index]['solicitudEnviada'] = true;
-                          });
-                          
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                children: [
-                                  Icon(
-                                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'Solicitud de amistad enviada a ${member['nombre']}',
-                                      style: const TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              backgroundColor: const Color(0xFFB21132),
-                              duration: const Duration(milliseconds: 2500),
-                              behavior: SnackBarBehavior.floating,
-                              margin: const EdgeInsets.all(16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        } catch (e) {
-                          setState(() {
-                            members[index]['solicitudEnviada'] = false;
-                          });
-                        }
-                      },
+                    : () => _sendFriendRequest(member['id'], userName),
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: solicitudEnviada
-                        ? Colors.grey[200]
-                        : const Color(0xFFB21132).withOpacity(0.1),
+                    color: friendshipStatus == 'aceptada'
+                        ? Colors.green.withOpacity(0.1)
+                        : friendshipStatus == 'pendiente'
+                            ? Colors.grey[200]
+                            : const Color(0xFFB21132).withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    solicitudEnviada
+                    friendshipStatus == 'aceptada'
                         ? PhosphorIcons.checkCircle(PhosphorIconsStyle.fill)
-                        : PhosphorIcons.userPlus(PhosphorIconsStyle.fill),
-                    color: solicitudEnviada
-                        ? Colors.grey[600]
-                        : const Color(0xFFB21132),
+                        : friendshipStatus == 'pendiente'
+                            ? PhosphorIcons.clock(PhosphorIconsStyle.fill)
+                            : PhosphorIcons.userPlus(PhosphorIconsStyle.fill),
+                    color: friendshipStatus == 'aceptada'
+                        ? Colors.green
+                        : friendshipStatus == 'pendiente'
+                            ? Colors.grey[600]
+                            : const Color(0xFFB21132),
                     size: 20,
                   ),
                 ),
@@ -360,5 +383,15 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
         ),
       ),
     );
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (e) {
+      return '';
+    }
   }
 }

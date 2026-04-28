@@ -20,6 +20,7 @@ router.get('/my-communities', authMiddleware, communityController.getMyCommuniti
 router.post('/join', authMiddleware, communityController.join);
 router.post('/leave', authMiddleware, communityController.leave);
 router.get('/is-member/:comunidad_id', authMiddleware, communityController.isMember);
+router.get('/members/:comunidadId', authMiddleware, communityController.getMembers);
 
 // Rutas genéricas al final
 router.get('/', (req, res) => {

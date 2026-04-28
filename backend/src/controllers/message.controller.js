@@ -104,6 +104,12 @@ exports.sendMessage = async (req, res) => {
       [conversacion_id, remitente_id, contenido.trim()]
     );
 
+    // Emitir evento de Socket.io para mensaje en tiempo real
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`conversation_${conversacion_id}`).emit('new_message', result.rows[0]);
+    }
+
     res.status(201).json({ mensaje: result.rows[0] });
   } catch (err) {
     console.error('Error al enviar mensaje:', err.message);
@@ -119,6 +125,19 @@ exports.createConversation = async (req, res) => {
   try {
     if (usuario2_id === usuario1_id) {
       return res.status(400).json({ error: 'No puedes crear una conversación contigo mismo' });
+    }
+
+    // Verificar que los usuarios sean amigos
+    const friendship = await pool.query(
+      `SELECT id FROM amistades 
+       WHERE ((usuario1_id = $1 AND usuario2_id = $2) 
+       OR (usuario1_id = $2 AND usuario2_id = $1))
+       AND estado = 'aceptada'`,
+      [usuario1_id, usuario2_id]
+    );
+
+    if (friendship.rows.length === 0) {
+      return res.status(403).json({ error: 'Solo puedes enviar mensajes a tus amigos' });
     }
 
     // Verificar si ya existe una conversación entre estos usuarios

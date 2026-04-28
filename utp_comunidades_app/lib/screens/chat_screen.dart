@@ -30,7 +30,16 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MessageProvider>().fetchMessages(widget.conversationId);
+      context.read<MessageProvider>().joinConversation(widget.conversationId);
     });
+  }
+
+  @override
+  void dispose() {
+    context.read<MessageProvider>().leaveConversation(widget.conversationId);
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _sendMessage() {

@@ -2,6 +2,8 @@ const app = require('./app');
 const initDatabase = require('./src/config/db-init');
 const { logger } = require('./src/utils/logger');
 const { LOG_MESSAGES } = require('./src/utils/constants');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -81,8 +83,52 @@ const start = async () => {
     logger.info('ServerInit', LOG_MESSAGES.DB_CONNECTED);
     console.log('✅ Conexión a BD establecida');
     
+    // Crear servidor HTTP
+    const httpServer = createServer(app);
+    
+    // Configurar Socket.io
+    const io = new Server(httpServer, {
+      cors: {
+        origin: process.env.NODE_ENV === 'production' 
+          ? process.env.FRONTEND_URL 
+          : ['http://localhost:3000', 'http://localhost:49232', 'http://localhost:8080'],
+        credentials: true
+      }
+    });
+    
+    // Exponer io en app para que los controladores puedan acceder
+    app.set('io', io);
+    
+    // Manejar conexiones Socket.io
+    io.on('connection', (socket) => {
+      console.log('Usuario conectado:', socket.id);
+      
+      // Unirse a sala de conversación
+      socket.on('join_conversation', (conversationId) => {
+        socket.join(`conversation_${conversationId}`);
+        console.log(`Usuario ${socket.id} se unió a conversación ${conversationId}`);
+      });
+      
+      // Salir de sala de conversación
+      socket.on('leave_conversation', (conversationId) => {
+        socket.leave(`conversation_${conversationId}`);
+        console.log(`Usuario ${socket.id} salió de conversación ${conversationId}`);
+      });
+      
+      // Enviar mensaje a sala
+      socket.on('send_message', (data) => {
+        const { conversationId, message } = data;
+        io.to(`conversation_${conversationId}`).emit('new_message', message);
+        console.log(`Mensaje enviado a conversación ${conversationId}`);
+      });
+      
+      socket.on('disconnect', () => {
+        console.log('Usuario desconectado:', socket.id);
+      });
+    });
+    
     // Iniciar listener HTTP
-    const server = app.listen(PORT, HOST, () => {
+    httpServer.listen(PORT, HOST, () => {
       logger.info('ServerInit', LOG_MESSAGES.SERVER_STARTED, {
         port: PORT,
         host: HOST,

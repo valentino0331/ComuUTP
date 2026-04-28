@@ -1,15 +1,55 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class MessageProvider with ChangeNotifier {
   List<dynamic> _conversations = [];
   List<dynamic> _messages = [];
   bool _loading = false;
+  IO.Socket? _socket;
+  int? _currentConversationId;
 
   List<dynamic> get conversations => _conversations;
   List<dynamic> get messages => _messages;
   bool get loading => _loading;
+
+  MessageProvider() {
+    _initSocket();
+  }
+
+  void _initSocket() {
+    _socket = IO.io('http://localhost:3000', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+
+    _socket!.on('new_message', (data) {
+      if (_currentConversationId != null) {
+        _messages.add(data);
+        notifyListeners();
+      }
+    });
+
+    _socket!.connect();
+  }
+
+  void joinConversation(int conversationId) {
+    _currentConversationId = conversationId;
+    _socket!.emit('join_conversation', conversationId);
+  }
+
+  void leaveConversation(int conversationId) {
+    _socket!.emit('leave_conversation', conversationId);
+    _currentConversationId = null;
+  }
+
+  @override
+  void dispose() {
+    _socket?.disconnect();
+    _socket?.dispose();
+    super.dispose();
+  }
 
   Future<void> fetchConversations() async {
     _loading = true;
@@ -55,7 +95,7 @@ class MessageProvider with ChangeNotifier {
       }, auth: true);
 
       if (res.statusCode == 201) {
-        await fetchMessages(conversationId);
+        // El mensaje se agregará automáticamente por Socket.io
         return true;
       }
     } catch (e) {

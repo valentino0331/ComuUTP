@@ -11,6 +11,9 @@ dotenv.config();
 
 const app = express();
 
+// Variable para almacenar la instancia de Socket.io
+app.set('io', null);
+
 // Rate limiting general
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
