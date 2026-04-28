@@ -13,6 +13,7 @@ import '../providers/friendship_provider.dart';
 import '../services/api_service.dart';
 import 'edit_profile_screen.dart';
 import 'saved_posts_screen.dart';
+import 'study_hub_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
@@ -1495,26 +1496,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                               Navigator.pushNamed(context, '/conversations');
                             },
                           ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 28),
-                      
-                      // SECCIÓN: Apariencia
-                      _buildSettingsSection(
-                        title: 'Apariencia',
-                        items: [
                           (
-                            icon: PhosphorIcons.moon(PhosphorIconsStyle.bold),
-                            title: 'Modo oscuro',
-                            subtitle: 'Activar tema oscuro',
+                            icon: PhosphorIcons.bookOpen(PhosphorIconsStyle.bold),
+                            title: 'Modo Estudio + IA',
+                            subtitle: 'Herramientas de estudio e IA',
                             onTap: () {
                               Navigator.pop(context);
-                              _toggleDarkMode();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const StudyHubScreen()),
+                              );
                             },
                           ),
                         ],
                       ),
+                      
+                      const SizedBox(height: 28),
                       
                       const SizedBox(height: 28),
                       
@@ -1616,6 +1613,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                             onTap: () {
                               Navigator.pop(context);
                               _showTermsDialog(context);
+                            },
+                          ),
+                          (
+                            icon: PhosphorIcons.bookOpen(PhosphorIconsStyle.bold),
+                            title: 'Modo Estudio + IA',
+                            subtitle: 'Herramientas de estudio e IA',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const StudyHubScreen()),
+                              );
                             },
                           ),
                           (
