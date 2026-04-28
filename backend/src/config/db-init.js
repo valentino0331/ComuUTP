@@ -82,6 +82,132 @@ const initDatabase = async () => {
       console.log('ℹ️ Índices:', err.message.substring(0, 100));
     }
 
+    // Migración 6: Crear tablas de Modo Estudio + IA
+    try {
+      // Tabla study_courses
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS study_courses (
+          id VARCHAR(36) PRIMARY KEY,
+          user_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          course_code VARCHAR(50),
+          professor_name VARCHAR(255),
+          description TEXT,
+          semester INTEGER,
+          year INTEGER,
+          is_archived BOOLEAN DEFAULT FALSE,
+          created_by_user_id INTEGER REFERENCES usuarios(id),
+          metadata JSONB,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('✅ Tabla study_courses creada/verificada');
+    } catch (err) {
+      console.log('ℹ️ Tabla study_courses:', err.message.substring(0, 100));
+    }
+
+    try {
+      // Tabla study_materials
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS study_materials (
+          id VARCHAR(36) PRIMARY KEY,
+          course_id VARCHAR(36) REFERENCES study_courses(id) ON DELETE CASCADE,
+          user_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          file_url TEXT NOT NULL,
+          file_size_bytes BIGINT,
+          file_type VARCHAR(50) DEFAULT 'pdf',
+          page_count INTEGER,
+          category VARCHAR(100),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('✅ Tabla study_materials creada/verificada');
+    } catch (err) {
+      console.log('ℹ️ Tabla study_materials:', err.message.substring(0, 100));
+    }
+
+    try {
+      // Tabla ai_responses
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS ai_responses (
+          id VARCHAR(36) PRIMARY KEY,
+          user_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+          material_id VARCHAR(36) REFERENCES study_materials(id) ON DELETE CASCADE,
+          course_id VARCHAR(36) REFERENCES study_courses(id) ON DELETE CASCADE,
+          type VARCHAR(50) NOT NULL,
+          content TEXT NOT NULL,
+          prompt TEXT,
+          from_cache BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('✅ Tabla ai_responses creada/verificada');
+    } catch (err) {
+      console.log('ℹ️ Tabla ai_responses:', err.message.substring(0, 100));
+    }
+
+    try {
+      // Tabla study_questions
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS study_questions (
+          id VARCHAR(36) PRIMARY KEY,
+          course_id VARCHAR(36) REFERENCES study_courses(id) ON DELETE CASCADE,
+          user_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+          question_text TEXT NOT NULL,
+          options JSONB NOT NULL,
+          correct_option VARCHAR(10) NOT NULL,
+          explanation TEXT,
+          difficulty_level VARCHAR(20) DEFAULT 'medium',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('✅ Tabla study_questions creada/verificada');
+    } catch (err) {
+      console.log('ℹ️ Tabla study_questions:', err.message.substring(0, 100));
+    }
+
+    try {
+      // Tabla quiz_attempts
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS quiz_attempts (
+          id VARCHAR(36) PRIMARY KEY,
+          user_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+          course_id VARCHAR(36) REFERENCES study_courses(id) ON DELETE CASCADE,
+          answers JSONB NOT NULL,
+          time_seconds INTEGER,
+          score INTEGER,
+          total_questions INTEGER,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('✅ Tabla quiz_attempts creada/verificada');
+    } catch (err) {
+      console.log('ℹ️ Tabla quiz_attempts:', err.message.substring(0, 100));
+    }
+
+    try {
+      // Crear índices de study
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_study_courses_user ON study_courses(user_id);
+        CREATE INDEX IF NOT EXISTS idx_study_courses_code ON study_courses(course_code);
+        CREATE INDEX IF NOT EXISTS idx_study_materials_course ON study_materials(course_id);
+        CREATE INDEX IF NOT EXISTS idx_study_materials_user ON study_materials(user_id);
+        CREATE INDEX IF NOT EXISTS idx_ai_responses_user ON ai_responses(user_id);
+        CREATE INDEX IF NOT EXISTS idx_ai_responses_material ON ai_responses(material_id);
+        CREATE INDEX IF NOT EXISTS idx_ai_responses_course ON ai_responses(course_id);
+        CREATE INDEX IF NOT EXISTS idx_ai_responses_type ON ai_responses(type);
+        CREATE INDEX IF NOT EXISTS idx_study_questions_course ON study_questions(course_id);
+        CREATE INDEX IF NOT EXISTS idx_study_questions_user ON study_questions(user_id);
+        CREATE INDEX IF NOT EXISTS idx_quiz_attempts_user ON quiz_attempts(user_id);
+        CREATE INDEX IF NOT EXISTS idx_quiz_attempts_course ON quiz_attempts(course_id);
+      `);
+      console.log('✅ Índices de study creados/verificados');
+    } catch (err) {
+      console.log('ℹ️ Índices de study:', err.message.substring(0, 100));
+    }
+
     // NO insertar usuarios de prueba - base de datos limpia para datos reales
     console.log('📊 Base de datos lista para usuarios reales');
 
