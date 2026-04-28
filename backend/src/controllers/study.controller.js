@@ -1,4 +1,5 @@
 // backend/src/controllers/study.controller.js
+// Study controller - Modo Estudio + IA
 
 const studyService = require('../services/study.service');
 
