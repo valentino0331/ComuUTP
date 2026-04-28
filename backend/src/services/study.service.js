@@ -2,6 +2,11 @@
 
 const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
+const OpenAI = require('openai');
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 class StudyService {
   
@@ -328,36 +333,128 @@ class StudyService {
     }
   }
 
-  // Placeholder para generación de resumen con IA
+  // Generación de resumen con IA usando OpenAI
   async generateAISummary(material) {
-    // TODO: Integrar OpenAI API
-    return `Resumen generado para "${material.name}":\n\nEste es un resumen automático del material. Para implementar la funcionalidad completa de IA, necesitas configurar la API de OpenAI en el backend.`;
-  }
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        return `Resumen generado para "${material.name}":\n\nEste es un resumen automático del material. Para usar la funcionalidad completa de IA, configura OPENAI_API_KEY en Railway.`;
+      }
 
-  // Placeholder para generación de preguntas con IA
-  async generateAIQuestions(courseId, materials, count, difficulty) {
-    // TODO: Integrar OpenAI API
-    const questions = [];
-    for (let i = 0; i < count; i++) {
-      questions.push({
-        questionText: `Pregunta ${i + 1} sobre el curso (dificultad: ${difficulty})`,
-        options: {
-          A: 'Opción A',
-          B: 'Opción B',
-          C: 'Opción C',
-          D: 'Opción D'
-        },
-        correctOption: 'A',
-        explanation: 'Explicación de la respuesta correcta'
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "Eres un asistente académico experto que genera resúmenes concisos y útiles de materiales de estudio universitario."
+          },
+          {
+            role: "user",
+            content: `Genera un resumen del siguiente material de estudio: "${material.name}". El resumen debe incluir los puntos clave, conceptos importantes y cualquier información relevante para estudiar.`
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
       });
+
+      return response.choices[0].message.content || 'No se pudo generar el resumen.';
+    } catch (error) {
+      console.error('Error calling OpenAI:', error);
+      return `Error al generar resumen con IA: ${error.message}`;
     }
-    return questions;
   }
 
-  // Placeholder para respuesta de IA
+  // Generación de preguntas con IA usando OpenAI
+  async generateAIQuestions(courseId, materials, count, difficulty) {
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        const questions = [];
+        for (let i = 0; i < count; i++) {
+          questions.push({
+            questionText: `Pregunta ${i + 1} sobre el curso (dificultad: ${difficulty})`,
+            options: {
+              A: 'Opción A',
+              B: 'Opción B',
+              C: 'Opción C',
+              D: 'Opción D'
+            },
+            correctOption: 'A',
+            explanation: 'Explicación de la respuesta correcta'
+          });
+        }
+        return questions;
+      }
+
+      const materialNames = materials.map(m => m.name).join(', ');
+      
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "Eres un profesor experto que genera preguntas de opción múltiple para cuestionarios académicos. Genera preguntas en formato JSON con estructura: {questionText, options: {A, B, C, D}, correctOption, explanation}."
+          },
+          {
+            role: "user",
+            content: `Genera ${count} preguntas de opción múltiple de dificultad ${difficulty} basadas en los siguientes materiales: ${materialNames}. Devuelve SOLO un array JSON con las preguntas.`
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+      });
+
+      const content = response.choices[0].message.content;
+      const questions = JSON.parse(content);
+      
+      return Array.isArray(questions) ? questions : [questions];
+    } catch (error) {
+      console.error('Error calling OpenAI for questions:', error);
+      // Fallback a preguntas placeholder si falla OpenAI
+      const questions = [];
+      for (let i = 0; i < count; i++) {
+        questions.push({
+          questionText: `Pregunta ${i + 1} sobre el curso (dificultad: ${difficulty})`,
+          options: {
+            A: 'Opción A',
+            B: 'Opción B',
+            C: 'Opción C',
+            D: 'Opción D'
+          },
+          correctOption: 'A',
+          explanation: 'Explicación de la respuesta correcta'
+        });
+      }
+      return questions;
+    }
+  }
+
+  // Respuesta de IA usando OpenAI
   async generateAIAnswer(courseId, question) {
-    // TODO: Integrar OpenAI API
-    return `Respuesta generada por IA para: "${question}"\n\nPara implementar la funcionalidad completa de IA, necesitas configurar la API de OpenAI en el backend.`;
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        return `Respuesta generada por IA para: "${question}"\n\nPara usar la funcionalidad completa de IA, configura OPENAI_API_KEY en Railway.`;
+      }
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "Eres un tutor académico experto que responde preguntas de estudiantes de manera clara y útil."
+          },
+          {
+            role: "user",
+            content: question
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
+      });
+
+      return response.choices[0].message.content || 'No se pudo generar la respuesta.';
+    } catch (error) {
+      console.error('Error calling OpenAI for answer:', error);
+      return `Error al generar respuesta con IA: ${error.message}`;
+    }
   }
 }
 
