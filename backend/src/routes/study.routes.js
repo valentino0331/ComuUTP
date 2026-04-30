@@ -15,6 +15,16 @@ router.patch('/courses/:courseId/archive', authenticate, studyController.archive
 
 // Rutas de materiales
 router.post('/courses/:courseId/materials', authenticate, studyController.uploadMaterial);
+router.post('/materials/upload', authenticate, (req, res) => {
+  // Compatibilidad con frontend - extraer courseId del body
+  const { courseId } = req.body;
+  if (!courseId) {
+    return res.status(400).json({ error: 'courseId is required' });
+  }
+  // Llamar al controlador con el courseId en params
+  req.params.courseId = courseId;
+  studyController.uploadMaterial(req, res);
+});
 router.delete('/materials/:materialId', authenticate, studyController.deleteMaterial);
 
 // Rutas de IA
