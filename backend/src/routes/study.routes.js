@@ -13,6 +13,7 @@ router.post('/courses', authenticate, studyController.createCourse);
 router.get('/courses/:courseId', authenticate, studyController.getCourseDetail);
 router.put('/courses/:courseId', authenticate, studyController.updateCourse);
 router.patch('/courses/:courseId/archive', authenticate, studyController.archiveCourse);
+router.delete('/courses/:courseId', authenticate, studyController.deleteCourse);
 
 // Rutas de materiales
 router.post('/courses/:courseId/materials', authenticate, upload.single('file'), studyController.uploadMaterial);

@@ -245,3 +245,20 @@ exports.submitQuizAttempt = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+exports.deleteCourse = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { courseId } = req.params;
+    
+    await studyService.deleteCourse(courseId, userId);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Curso eliminado exitosamente'
+    });
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(400).json({ error: err.message });
+  }
+};

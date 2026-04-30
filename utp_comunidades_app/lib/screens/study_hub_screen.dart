@@ -1814,88 +1814,406 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: EstudIAColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        maxChildSize: 0.8,
+        minChildSize: 0.4,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            children: [
+              // Header con nombre del archivo
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: EstudIAColors.primaryGradient,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                ),
+                child: Column(
+                  children: [
+                    // Handle bar
+                    Center(
+                      child: Container(
+                        width: 48,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
                     ),
-                    child: Icon(
-                      Icons.visibility,
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.description,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                material.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${(material.fileSize / 1024).toStringAsFixed(1)} KB • ${material.fileType.toUpperCase()}',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Opciones en Grid
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    const Text(
+                      'Acciones',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Ver PDF
+                    _buildMaterialOptionTile(
+                      icon: Icons.visibility_rounded,
+                      title: 'Ver PDF',
+                      subtitle: 'Abrir documento',
                       color: EstudIAColors.primary,
+                      onTap: () {
+                        Navigator.pop(context);
+                        // TODO: Open PDF viewer
+                      },
                     ),
-                  ),
-                  title: const Text(
-                    'Ver PDF',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    // Open PDF viewer
-                  },
-                ),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: EstudIAColors.accent.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 12),
+                    // Divisor IA
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey[200])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            children: [
+                              Icon(
+                                PhosphorIcons.brain(PhosphorIconsStyle.fill),
+                                size: 16,
+                                color: EstudIAColors.accent,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Funciones IA',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: EstudIAColors.accent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.grey[200])),
+                      ],
                     ),
-                    child: Icon(
-                      Icons.summarize,
+                    const SizedBox(height: 16),
+                    // Resumen IA
+                    _buildMaterialOptionTile(
+                      icon: Icons.summarize_rounded,
+                      title: 'Generar Resumen',
+                      subtitle: 'Resumen automático con IA',
                       color: EstudIAColors.accent,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showAISummaryDialog(materialId: material.id);
+                      },
                     ),
-                  ),
-                  title: const Text(
-                    'Generar Resumen IA',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showAISummaryDialog(materialId: material.id);
-                  },
-                ),
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 12),
+                    // Generar Cuestionario
+                    _buildMaterialOptionTile(
+                      icon: Icons.quiz_rounded,
+                      title: 'Generar Cuestionario',
+                      subtitle: 'Crear preguntas del material',
+                      color: Colors.purple,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showGenerateQuizDialog();
+                      },
                     ),
-                    child: const Icon(
-                      Icons.delete,
+                    const SizedBox(height: 12),
+                    // Explicar Concepto
+                    _buildMaterialOptionTile(
+                      icon: Icons.lightbulb_rounded,
+                      title: 'Explicar Concepto',
+                      subtitle: 'La IA explica temas del PDF',
+                      color: EstudIAColors.warning,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showAIExplainDialog();
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    // Chat con IA
+                    _buildMaterialOptionTile(
+                      icon: Icons.chat_bubble_rounded,
+                      title: 'Chat con IA',
+                      subtitle: 'Pregunta sobre el material',
+                      color: EstudIAColors.success,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showAIChatDialog();
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    // Divisor Peligro
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.red[100])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Zona de peligro',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red[400],
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.red[100])),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Eliminar
+                    _buildMaterialOptionTile(
+                      icon: Icons.delete_forever_rounded,
+                      title: 'Eliminar Material',
+                      subtitle: 'Eliminar permanentemente',
                       color: Colors.red,
+                      isDanger: true,
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final confirmed = await _showDeleteConfirmation(material.name);
+                        if (confirmed == true && mounted) {
+                          await context.read<StudyProvider>().deleteMaterial(material.id);
+                          showEstudIANotification(context, 'Material eliminado');
+                        }
+                      },
                     ),
-                  ),
-                  title: const Text(
-                    'Eliminar',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.red,
-                    ),
-                  ),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await context.read<StudyProvider>().deleteMaterial(material.id);
-                    if (mounted) {
-                      showEstudIANotification(context, 'Material eliminado');
-                    }
-                  },
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialOptionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+    bool isDanger = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDanger ? Colors.red[50] : color.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDanger ? Colors.red[200]! : color.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDanger ? Colors.red.withOpacity(0.1) : color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isDanger ? Colors.red : color,
+                size: 24,
+              ),
             ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: isDanger ? Colors.red[700] : EstudIAColors.dark,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDanger ? Colors.red[400] : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: isDanger ? Colors.red[300] : color.withOpacity(0.5),
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmation(String materialName) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  Icons.delete_forever,
+                  color: Colors.red[400],
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                '¿Eliminar material?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: EstudIAColors.dark,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '"$materialName" se eliminará permanentemente',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context, false),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context, true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Eliminar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

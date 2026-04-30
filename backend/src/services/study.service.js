@@ -467,6 +467,46 @@ class StudyService {
       return `Respuesta generada para: "${question}"\n\nLa API de IA está teniendo problemas temporales. Intenta más tarde.`;
     }
   }
+
+  // Eliminar curso y todos sus materiales
+  async deleteCourse(courseId, userId) {
+    try {
+      // Verificar que el curso existe y pertenece al usuario
+      const checkResult = await db.query(
+        'SELECT id FROM study_courses WHERE id = $1 AND user_id = $2',
+        [courseId, userId]
+      );
+      
+      if (checkResult.rows.length === 0) {
+        throw new Error('Curso no encontrado o no pertenece al usuario');
+      }
+      
+      // Obtener todos los materiales para eliminar de Cloudinary
+      const materialsResult = await db.query(
+        'SELECT id, cloudinary_public_id FROM study_materials WHERE course_id = $1',
+        [courseId]
+      );
+      
+      // Eliminar archivos de Cloudinary
+      const cloudinary = require('../config/cloudinary');
+      for (const material of materialsResult.rows) {
+        if (material.cloudinary_public_id) {
+          try {
+            await cloudinary.uploader.destroy(material.cloudinary_public_id);
+          } catch (err) {
+            console.warn('Error deleting from Cloudinary:', err.message);
+          }
+        }
+      }
+      
+      // Eliminar curso (cascade eliminará materiales, preguntas, etc.)
+      await db.query('DELETE FROM study_courses WHERE id = $1', [courseId]);
+      
+      return { deleted: true };
+    } catch (err) {
+      throw new Error(`Error deleting course: ${err.message}`);
+    }
+  }
 }
 
 module.exports = new StudyService();
