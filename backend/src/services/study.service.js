@@ -139,17 +139,17 @@ class StudyService {
   // Subir material
   async uploadMaterial(userId, courseId, materialData) {
     try {
-      const { name, fileUrl, fileSizeBytes, fileType, pageCount, category } = materialData;
+      const { name, fileUrl, fileSizeBytes, fileType, pageCount, category, cloudinaryPublicId } = materialData;
       
       if (!name || !fileUrl) throw new Error('Name and fileUrl are required');
 
       const materialId = uuidv4();
       const result = await pool.query(
         `INSERT INTO study_materials 
-         (id, course_id, user_id, name, file_url, file_size_bytes, file_type, page_count, category)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         (id, course_id, uploaded_by_user_id, name, file_url, file_size_bytes, file_type, page_count, category, cloudinary_public_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING *`,
-        [materialId, courseId, userId, name, fileUrl, fileSizeBytes, fileType || 'pdf', pageCount, category]
+        [materialId, courseId, userId, name, fileUrl, fileSizeBytes, fileType || 'pdf', pageCount, category, cloudinaryPublicId]
       );
 
       return result.rows[0];

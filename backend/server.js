@@ -144,14 +144,14 @@ const start = async () => {
     });
     
     // Configurar timeout
-    server.setTimeout(120000); // 2 minutos
+    httpServer.setTimeout(120000); // 2 minutos
     
     // Graceful shutdown
     process.on('SIGTERM', () => {
       logger.info('ServerShutdown', 'SIGTERM recibido - iniciando shutdown graceful');
       console.log('\n⏹️  Deteniendo servidor...');
       
-      server.close(() => {
+      httpServer.close(() => {
         logger.info('ServerShutdown', 'Servidor detenido correctamente');
         console.log('✅ Servidor detenido');
         process.exit(0);
@@ -169,7 +169,7 @@ const start = async () => {
       logger.info('ServerShutdown', 'SIGINT recibido - iniciando shutdown graceful');
       console.log('\n⏹️  Deteniendo servidor...');
       
-      server.close(() => {
+      httpServer.close(() => {
         logger.info('ServerShutdown', 'Servidor detenido correctamente');
         console.log('✅ Servidor detenido');
         process.exit(0);

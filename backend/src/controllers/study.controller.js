@@ -2,6 +2,8 @@
 // Study controller - Modo Estudio + IA
 
 const studyService = require('../services/study.service');
+const cloudinary = require('../config/cloudinary');
+const fs = require('fs');
 
 exports.getUserCourses = async (req, res) => {
   try {
@@ -90,15 +92,46 @@ exports.uploadMaterial = async (req, res) => {
   try {
     const userId = req.user.id;
     const { courseId } = req.params;
-    const { name, fileUrl, fileSizeBytes, fileType, pageCount, category } = req.body;
+    
+    let fileUrl, name, fileSizeBytes, fileType;
+    
+    // Si hay un archivo subido (multer)
+    if (req.file) {
+      // Subir a Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: 'raw',
+        folder: 'estudia_materials',
+        public_id: `course_${courseId}_${Date.now()}_${req.file.originalname.replace(/\.[^/.]+$/, '')}`
+      });
+      
+      fileUrl = result.secure_url;
+      name = req.body.name || req.file.originalname;
+      fileSizeBytes = req.file.size;
+      fileType = 'pdf';
+      
+      // Eliminar archivo temporal
+      fs.unlinkSync(req.file.path);
+    } else {
+      // Modo sin archivo (URL directa)
+      const { name: bodyName, fileUrl: bodyFileUrl, fileSizeBytes: bodySize } = req.body;
+      name = bodyName;
+      fileUrl = bodyFileUrl;
+      fileSizeBytes = bodySize;
+      fileType = req.body.fileType || 'pdf';
+    }
+    
+    if (!name || !fileUrl) {
+      return res.status(400).json({ error: 'Name and file are required' });
+    }
     
     const material = await studyService.uploadMaterial(userId, courseId, {
       name,
       fileUrl,
       fileSizeBytes,
       fileType,
-      pageCount,
-      category
+      pageCount: req.body.pageCount,
+      category: req.body.category || 'PDF',
+      cloudinaryPublicId: req.file ? `course_${courseId}_${Date.now()}` : null
     });
     
     res.status(201).json({
