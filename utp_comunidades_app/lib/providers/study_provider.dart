@@ -274,10 +274,11 @@ class StudyProvider extends ChangeNotifier {
       // Check demo mode first to avoid file operations
       if (_demoMode) {
         // Simulate upload in demo mode
+        final fileName = filePath.split('/').last.split('\\').last;
         final material = StudyMaterial(
           id: 'demo-upload-${DateTime.now().millisecondsSinceEpoch}',
           courseId: courseId,
-          name: filePath.split('/').last.split('\\').last,
+          name: fileName,
           fileUrl: 'https://www.example.com/demo/file.pdf',
           fileSizeBytes: 123456,
           fileType: 'pdf',
@@ -291,23 +292,30 @@ class StudyProvider extends ChangeNotifier {
         return material;
       }
 
+      // Create multipart request
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('${ApiService.baseUrl}/materials/upload'),
+        Uri.parse('${ApiService.baseUrl}/materials/upload?courseId=$courseId'),
       );
 
-      request.fields['courseId'] = courseId;
+      // Add file
       request.files.add(
-        await http.MultipartFile.fromPath('file', filePath),
+        await http.MultipartFile.fromPath('file', filePath, filename: filePath.split('/').last.split('\\').last),
       );
 
+      // Add authorization header
       request.headers['Authorization'] = 'Bearer ${await ApiService.getToken()}';
 
+      // Send request
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
+      print('Upload response: ${response.statusCode} - $responseBody');
+
+      // Parse response data
+      final data = jsonDecode(responseBody);
+
       if (response.statusCode == 201) {
-        final data = jsonDecode(responseBody);
         final material = StudyMaterial.fromJson(data['data']);
         
         if (_materials[courseId] == null) {
@@ -319,10 +327,11 @@ class StudyProvider extends ChangeNotifier {
       } else if (response.statusCode == 404) {
         // Backend not available - fallback to demo mode
         _demoMode = true;
+        final fileName = filePath.split('/').last.split('\\').last;
         final material = StudyMaterial(
           id: 'demo-upload-${DateTime.now().millisecondsSinceEpoch}',
           courseId: courseId,
-          name: filePath.split('/').last.split('\\').last,
+          name: fileName,
           fileUrl: 'https://www.example.com/demo/file.pdf',
           fileSizeBytes: 123456,
           fileType: 'pdf',
@@ -334,10 +343,12 @@ class StudyProvider extends ChangeNotifier {
         _materials[courseId]!.insert(0, material);
         notifyListeners();
         return material;
+      } else {
+        throw Exception('Error ${response.statusCode}: ${data['error'] ?? 'Unknown error'}');
       }
     } catch (err) {
       _error = err.toString();
-      print('Error en uploadMaterial: $err');
+      print('Error en uploadMaterial: $_error');
       // Fallback to demo mode on error
       _demoMode = true;
       final material = StudyMaterial(
