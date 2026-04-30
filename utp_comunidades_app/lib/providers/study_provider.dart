@@ -531,7 +531,7 @@ class StudyProvider extends ChangeNotifier {
   }
 
   // Generate quiz
-  Future<bool> generateQuiz(String courseId, {int count = 5}) async {
+  Future<bool> generateQuiz(String courseId, {int count = 5, String difficulty = 'medium'}) async {
     try {
       _isLoading = true;
       _error = null;

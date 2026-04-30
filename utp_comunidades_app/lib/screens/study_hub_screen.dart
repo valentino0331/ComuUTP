@@ -1367,7 +1367,7 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                 ),
                 const SizedBox(height: 32),
                 GestureDetector(
-                  onTap: () => _showGeneratingQuizDialog(),
+                  onTap: () => _showGenerateQuizDialog(),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 18),
