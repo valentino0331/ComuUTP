@@ -2033,11 +2033,14 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       color: Colors.red,
                       isDanger: true,
                       onTap: () async {
+                        final provider = context.read<StudyProvider>();
                         Navigator.pop(context);
                         final confirmed = await _showDeleteConfirmation(material.name);
                         if (confirmed == true && mounted) {
-                          await context.read<StudyProvider>().deleteMaterial(material.id);
-                          showEstudIANotification(context, 'Material eliminado');
+                          await provider.deleteMaterial(material.id);
+                          if (mounted) {
+                            showEstudIANotification(context, 'Material eliminado');
+                          }
                         }
                       },
                     ),

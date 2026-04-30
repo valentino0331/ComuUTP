@@ -22,22 +22,7 @@ class _SavedPostsScreenState extends State<SavedPostsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFB21132),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Posts Guardados',
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: Consumer<SavedProvider>(
+    return Consumer<SavedProvider>(
         builder: (context, savedProvider, child) {
           if (savedProvider.loading) {
             return const Center(child: CircularProgressIndicator());
@@ -94,8 +79,7 @@ class _SavedPostsScreenState extends State<SavedPostsScreen> {
             },
           );
         },
-      ),
-    );
+      );
   }
 
   Widget _buildSavedPostTile(dynamic post, SavedProvider savedProvider) {

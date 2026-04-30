@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { authenticate } = require('../middlewares/auth.middleware');
+const { upload } = require('../middlewares/upload.middleware');
+const studyController = require('../controllers/study.controller');
 
 router.use('/auth', require('./auth.routes'));
 router.use('/users', require('./user.routes'));
@@ -21,6 +24,17 @@ router.use('/notifications', require('./notification.routes'));
 router.use('/stories', require('./story.routes'));
 router.use('/admin', require('./admin.routes'));
 router.use('/friendship', require('./friendship.routes'));
+
+// ===== RUTA DIRECTA PARA MATERIALS (compatibilidad con frontend) =====
+router.post('/materials/upload', authenticate, upload.single('file'), (req, res, next) => {
+  const courseId = req.body.courseId || req.query.courseId;
+  if (!courseId) {
+    return res.status(400).json({ error: 'courseId is required' });
+  }
+  req.params.courseId = courseId;
+  studyController.uploadMaterial(req, res, next);
+});
+router.delete('/materials/:materialId', authenticate, studyController.deleteMaterial);
 
 // ===== MODO ESTUDIO =====
 router.use('/study', require('./study.routes'));
