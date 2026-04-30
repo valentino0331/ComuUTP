@@ -2,11 +2,13 @@
 // Tu asistente inteligente de estudio
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/study_provider.dart';
 import '../models/study_models.dart';
 import '../widgets/course_card.dart';
@@ -1921,9 +1923,9 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       title: 'Ver PDF',
                       subtitle: 'Abrir documento',
                       color: EstudIAColors.primary,
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context);
-                        // TODO: Open PDF viewer
+                        await _openPDF(material.fileUrl, material.name);
                       },
                     ),
                     const SizedBox(height: 12),
@@ -2475,144 +2477,232 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
   }
 
   void _showAIChatDialog() {
+    final textController = TextEditingController();
+    final messages = <Map<String, dynamic>>[
+      {
+        'text': '¡Hola! Soy EstudIA, tu asistente de estudio. Puedo ayudarte a resumir documentos, explicar conceptos o responder preguntas sobre tus materiales. ¿Qué necesitas?',
+        'isAI': true,
+        'time': DateTime.now(),
+      }
+    ];
+    var isLoading = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.8,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: Column(
-            children: [
-              // Chat Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: EstudIAColors.accentGradient,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.chat_bubble,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Chat con EstudIA',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            Text(
-                              'Tu asistente de estudio',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(
-                          Icons.close,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          maxChildSize: 0.95,
+          minChildSize: 0.5,
+          builder: (context, scrollController) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              children: [
+                // Chat Header
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: EstudIAColors.accentGradient,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                  ),
+                  child: SafeArea(
+                    bottom: false,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.chat_bubble,
                           color: Colors.white,
                           size: 28,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Chat Messages Area
-              Expanded(
-                child: Container(
-                  color: EstudIAColors.light,
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      // Welcome message
-                      _buildChatBubble(
-                        '¡Hola! Soy EstudIA, tu asistente de estudio. Puedo ayudarte a resumir documentos, explicar conceptos o responder preguntas sobre tus materiales. ¿Qué necesitas?',
-                        isAI: true,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Chat Input
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: EstudIAColors.light,
-                            borderRadius: BorderRadius.circular(24),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Chat con EstudIA',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              Text(
+                                'Tu asistente de estudio',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Escribe tu pregunta...',
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(
-                                color: EstudIAColors.dark.withOpacity(0.4),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Chat Messages Area
+                Expanded(
+                  child: Container(
+                    color: EstudIAColors.light,
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = messages[index];
+                        return _buildChatBubble(
+                          msg['text'] as String,
+                          isAI: msg['isAI'] as bool,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Chat Input
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: EstudIAColors.light,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: TextField(
+                              controller: textController,
+                              enabled: !isLoading,
+                              decoration: InputDecoration(
+                                hintText: isLoading ? 'EstudIA está escribiendo...' : 'Escribe tu pregunta...',
+                                border: InputBorder.none,
+                                hintStyle: TextStyle(
+                                  color: EstudIAColors.dark.withOpacity(0.4),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          // Send message
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            gradient: EstudIAColors.accentGradient,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(
-                            Icons.send,
-                            color: Colors.white,
-                            size: 24,
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: isLoading || textController.text.trim().isEmpty
+                              ? null
+                              : () async {
+                                  final question = textController.text.trim();
+                                  textController.clear();
+                                  
+                                  setDialogState(() {
+                                    messages.add({
+                                      'text': question,
+                                      'isAI': false,
+                                      'time': DateTime.now(),
+                                    });
+                                    isLoading = true;
+                                  });
+
+                                  // Call AI API
+                                  final response = await context.read<StudyProvider>().askQuestion(
+                                    widget.course.id,
+                                    question,
+                                  );
+
+                                  setDialogState(() {
+                                    isLoading = false;
+                                    if (response != null) {
+                                      messages.add({
+                                        'text': response.content,
+                                        'isAI': true,
+                                        'time': DateTime.now(),
+                                      });
+                                    } else {
+                                      messages.add({
+                                        'text': 'Lo siento, no pude procesar tu pregunta. Intenta de nuevo más tarde.',
+                                        'isAI': true,
+                                        'time': DateTime.now(),
+                                      });
+                                    }
+                                  });
+                                },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: isLoading || textController.text.trim().isEmpty
+                                  ? LinearGradient(
+                                      colors: [Colors.grey[400]!, Colors.grey[300]!],
+                                    )
+                                  : EstudIAColors.accentGradient,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  // Open PDF viewer
+  Future<void> _openPDF(String url, String title) async {
+    try {
+      if (kIsWeb) {
+        // For web, open in new tab
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, webOnlyWindowName: '_blank');
+        } else {
+          throw 'Could not launch $url';
+        }
+      } else {
+        // For mobile, show options
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          throw 'Could not launch $url';
+        }
+      }
+    } catch (e) {
+      showEstudIANotification(context, 'Error al abrir PDF: $e');
+    }
   }
 
   Widget _buildChatBubble(String message, {required bool isAI}) {

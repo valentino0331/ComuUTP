@@ -52,6 +52,12 @@ dependencies:
   # Storage
   flutter_secure_storage: ^9.2.4
   
+  # File picker
+  file_picker: ^8.0.5
+  
+  # URL launcher for PDFs and links
+  url_launcher: ^6.2.6
+  
   # Image picker
   image_picker: ^1.1.2
   # image_cropper: ^5.0.1 # Temporalmente deshabilitado por problemas de compatibilidad con web
