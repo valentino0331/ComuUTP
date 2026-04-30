@@ -13,11 +13,20 @@ const storage = multer.diskStorage({
   }
 });
 
-// Filtro para solo aceptar PDFs
+// Filtro para solo aceptar PDFs (incluye variaciones de mimetype)
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'application/pdf') {
+  const allowedMimes = [
+    'application/pdf',
+    'application/x-pdf',
+    'application/octet-stream', // Algunos navegadores envían esto
+  ];
+  const isPDF = allowedMimes.includes(file.mimetype) || 
+                file.originalname.toLowerCase().endsWith('.pdf');
+  
+  if (isPDF) {
     cb(null, true);
   } else {
+    console.log('Rejected file:', file.originalname, 'mimetype:', file.mimetype);
     cb(new Error('Solo se permiten archivos PDF'), false);
   }
 };

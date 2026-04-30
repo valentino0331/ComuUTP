@@ -4,6 +4,13 @@
 const studyService = require('../services/study.service');
 const cloudinary = require('../config/cloudinary');
 const fs = require('fs');
+const path = require('path');
+
+// Asegurar que el directorio uploads exista
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 exports.getUserCourses = async (req, res) => {
   try {
@@ -93,26 +100,45 @@ exports.uploadMaterial = async (req, res) => {
     const userId = req.user.id;
     const { courseId } = req.params;
     
+    console.log('Upload request received:', {
+      courseId,
+      hasFile: !!req.file,
+      body: req.body,
+      file: req.file ? { name: req.file.originalname, size: req.file.size, mimetype: req.file.mimetype } : null
+    });
+    
     let fileUrl, name, fileSizeBytes, fileType;
+    let cloudinaryPublicId = null;
     
     // Si hay un archivo subido (multer)
     if (req.file) {
-      // Subir a Cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: 'raw',
-        folder: 'estudia_materials',
-        public_id: `course_${courseId}_${Date.now()}_${req.file.originalname.replace(/\.[^/.]+$/, '')}`
-      });
-      
-      fileUrl = result.secure_url;
-      name = req.body.name || req.file.originalname;
-      fileSizeBytes = req.file.size;
-      fileType = 'pdf';
-      
-      // Eliminar archivo temporal
-      fs.unlinkSync(req.file.path);
+      try {
+        // Subir a Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          resource_type: 'raw',
+          folder: 'estudia_materials',
+          public_id: `course_${courseId}_${Date.now()}_${req.file.originalname.replace(/\.[^/.]+$/, '')}`
+        });
+        
+        fileUrl = result.secure_url;
+        name = req.body.name || req.file.originalname;
+        fileSizeBytes = req.file.size;
+        fileType = 'pdf';
+        cloudinaryPublicId = result.public_id;
+        
+        // Eliminar archivo temporal
+        fs.unlinkSync(req.file.path);
+      } catch (cloudinaryError) {
+        console.error('Cloudinary upload error:', cloudinaryError);
+        // Limpiar archivo temporal si existe
+        if (req.file && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(500).json({ error: 'Error uploading to cloud storage: ' + cloudinaryError.message });
+      }
     } else {
       // Modo sin archivo (URL directa)
+      console.log('No file uploaded, checking body...');
       const { name: bodyName, fileUrl: bodyFileUrl, fileSizeBytes: bodySize } = req.body;
       name = bodyName;
       fileUrl = bodyFileUrl;
@@ -131,7 +157,7 @@ exports.uploadMaterial = async (req, res) => {
       fileType,
       pageCount: req.body.pageCount,
       category: req.body.category || 'PDF',
-      cloudinaryPublicId: req.file ? `course_${courseId}_${Date.now()}` : null
+      cloudinaryPublicId
     });
     
     res.status(201).json({
@@ -140,8 +166,8 @@ exports.uploadMaterial = async (req, res) => {
       message: 'Material subido exitosamente'
     });
   } catch (err) {
-    console.error('Error:', err);
-    res.status(400).json({ error: err.message });
+    console.error('Error in uploadMaterial:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };
 
