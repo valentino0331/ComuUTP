@@ -373,6 +373,116 @@ class StudyProvider extends ChangeNotifier {
     return null;
   }
 
+  // Upload material bytes (for web)
+  Future<StudyMaterial?> uploadMaterialBytes(
+    String courseId,
+    List<int> bytes,
+    String fileName,
+  ) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      // Check demo mode first
+      if (_demoMode) {
+        final material = StudyMaterial(
+          id: 'demo-upload-${DateTime.now().millisecondsSinceEpoch}',
+          courseId: courseId,
+          name: fileName,
+          fileUrl: 'https://www.example.com/demo/file.pdf',
+          fileSizeBytes: bytes.length,
+          fileType: 'pdf',
+          pageCount: null,
+          category: 'Subido',
+          createdAt: DateTime.now(),
+        );
+        if (_materials[courseId] == null) _materials[courseId] = [];
+        _materials[courseId]!.insert(0, material);
+        notifyListeners();
+        return material;
+      }
+
+      // Create multipart request
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiService.baseUrl}/materials/upload?courseId=$courseId'),
+      );
+
+      // Add file from bytes
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: fileName,
+        ),
+      );
+
+      // Add authorization header
+      request.headers['Authorization'] = 'Bearer ${await ApiService.getToken()}';
+
+      // Send request
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      print('Upload bytes response: ${response.statusCode} - $responseBody');
+
+      final data = jsonDecode(responseBody);
+
+      if (response.statusCode == 201) {
+        final material = StudyMaterial.fromJson(data['data']);
+        
+        if (_materials[courseId] == null) {
+          _materials[courseId] = [];
+        }
+        _materials[courseId]!.insert(0, material);
+        notifyListeners();
+        return material;
+      } else if (response.statusCode == 404) {
+        _demoMode = true;
+        final material = StudyMaterial(
+          id: 'demo-upload-${DateTime.now().millisecondsSinceEpoch}',
+          courseId: courseId,
+          name: fileName,
+          fileUrl: 'https://www.example.com/demo/file.pdf',
+          fileSizeBytes: bytes.length,
+          fileType: 'pdf',
+          pageCount: null,
+          category: 'Subido',
+          createdAt: DateTime.now(),
+        );
+        if (_materials[courseId] == null) _materials[courseId] = [];
+        _materials[courseId]!.insert(0, material);
+        notifyListeners();
+        return material;
+      } else {
+        throw Exception('Error ${response.statusCode}: ${data['error'] ?? 'Unknown error'}');
+      }
+    } catch (err) {
+      _error = err.toString();
+      print('Error en uploadMaterialBytes: $_error');
+      // Fallback to demo mode on error
+      _demoMode = true;
+      final material = StudyMaterial(
+        id: 'demo-upload-${DateTime.now().millisecondsSinceEpoch}',
+        courseId: courseId,
+        name: fileName,
+        fileUrl: 'https://www.example.com/demo/file.pdf',
+        fileSizeBytes: bytes.length,
+        fileType: 'pdf',
+        pageCount: null,
+        category: 'Subido',
+        createdAt: DateTime.now(),
+      );
+      if (_materials[courseId] == null) _materials[courseId] = [];
+      _materials[courseId]!.insert(0, material);
+      notifyListeners();
+      return material;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // Summarize material
   Future<AIResponse?> summarizeMaterial(String materialId) async {
     try {

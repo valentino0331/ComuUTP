@@ -57,13 +57,6 @@ void showEstudIANotification(BuildContext context, String message, {bool isError
                   ),
             color: isError ? Colors.red : null,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: (isError ? Colors.red : EstudIAColors.primary).withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
           ),
           child: Row(
             children: [
@@ -310,13 +303,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
               decoration: BoxDecoration(
                 gradient: EstudIAColors.accentGradient,
                 borderRadius: BorderRadius.circular(40),
-                boxShadow: [
-                  BoxShadow(
-                    color: EstudIAColors.secondary.withOpacity(0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 15),
-                  ),
-                ],
               ),
               child: const Center(
                 child: Icon(
@@ -416,7 +402,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
               style: TextStyle(
                 fontSize: 15,
                 color: EstudIAColors.dark.withOpacity(0.6),
-                height: 1.5,
               ),
               textAlign: TextAlign.center,
             ),
@@ -644,13 +629,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
       decoration: BoxDecoration(
         gradient: EstudIAColors.accentGradient,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: EstudIAColors.accent.withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
       child: FloatingActionButton.extended(
         onPressed: () => _showModernCreateCourseDialog(context),
@@ -791,13 +769,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
                         decoration: BoxDecoration(
                           gradient: EstudIAColors.primaryGradient,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: EstudIAColors.primary.withOpacity(0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
                         ),
                         child: const Center(
                           child: Text(
@@ -1391,13 +1362,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(40),
-                    boxShadow: [
-                      BoxShadow(
-                        color: EstudIAColors.accent.withOpacity(0.3),
-                        blurRadius: 30,
-                        offset: const Offset(0, 15),
-                      ),
-                    ],
                   ),
                   child: const Icon(
                     Icons.quiz_rounded,
@@ -1436,13 +1400,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                     decoration: BoxDecoration(
                       gradient: EstudIAColors.accentGradient,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: EstudIAColors.accent.withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1561,13 +1518,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -1734,38 +1684,57 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
         type: FileType.custom,
         allowedExtensions: ['pdf'],
         allowMultiple: false,
+        withData: true, // Importante: obtener bytes para web
       );
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        final fileName = result.files.single.name;
-        final fileSize = await file.length();
+      if (result == null || result.files.isEmpty) {
+        return; // Usuario canceló
+      }
 
-        if (!mounted) return;
+      final platformFile = result.files.single;
+      final fileName = platformFile.name;
 
-        // Show upload progress
-        _showUploadProgressDialog(fileName);
+      if (!mounted) return;
 
-        // Simulate upload progress
-        for (int i = 0; i <= 10; i++) {
-          await Future.delayed(const Duration(milliseconds: 200));
-          if (mounted) {
-            setState(() {
-              _uploadProgress = i / 10;
-            });
-          }
+      // Show upload progress
+      _showUploadProgressDialog(fileName);
+
+      // Simulate upload progress
+      for (int i = 0; i <= 10; i++) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (mounted) {
+          setState(() {
+            _uploadProgress = i / 10;
+          });
         }
+      }
 
-        // Upload to provider
-        final material = await context.read<StudyProvider>().uploadMaterial(
+      // Verificar si tenemos bytes (web) o path (móvil)
+      if (platformFile.bytes != null) {
+        // Web: usar bytes
+        final material = await context.read<StudyProvider>().uploadMaterialBytes(
           widget.course.id,
-          file.path,
+          platformFile.bytes!,
+          fileName,
         );
 
         if (material != null && mounted) {
           Navigator.pop(context); // Close progress dialog
           showEstudIANotification(context, '¡PDF subido exitosamente!');
         }
+      } else if (platformFile.path != null) {
+        // Móvil/Desktop: usar path
+        final material = await context.read<StudyProvider>().uploadMaterial(
+          widget.course.id,
+          platformFile.path!,
+        );
+
+        if (material != null && mounted) {
+          Navigator.pop(context); // Close progress dialog
+          showEstudIANotification(context, '¡PDF subido exitosamente!');
+        }
+      } else {
+        throw Exception('No se pudo obtener el archivo');
       }
     } catch (e) {
       if (mounted) {
@@ -2175,13 +2144,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       colors: [EstudIAColors.warning, EstudIAColors.accent],
                     ),
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: EstudIAColors.warning.withOpacity(0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
                   ),
                   child: const Center(
                     child: Text(
@@ -2325,13 +2287,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
-                    ),
-                  ],
                 ),
                 child: SafeArea(
                   top: false,
