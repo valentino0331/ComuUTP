@@ -1878,7 +1878,7 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${(material.fileSize / 1024).toStringAsFixed(1)} KB • ${material.fileType.toUpperCase()}',
+                                '${material.formattedSize} • ${material.fileType.toUpperCase()}',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.8),
                                   fontSize: 13,
