@@ -26,6 +26,6 @@ router.use('/friendship', require('./friendship.routes'));
 router.use('/study', require('./study.routes'));
 
 // ===== RUTAS AI (para compatibilidad con frontend) =====
-router.use('/ai', require('./study.routes')); // AI endpoints desde study controller
+router.use('/ai', require('./ai.routes')); // AI endpoints específicos
 
 module.exports = router;
