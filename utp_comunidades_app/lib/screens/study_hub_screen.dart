@@ -154,47 +154,33 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
                         children: [
                           GestureDetector(
                             onTap: () => Navigator.pop(context),
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.arrow_back_rounded,
+                            child: const Icon(
+                              Icons.arrow_back_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          // EstudIA Logo - simple text
+                          Row(
+                            children: [
+                              Icon(
+                                PhosphorIcons.brain(PhosphorIconsStyle.fill),
                                 color: Colors.white,
                                 size: 24,
                               ),
-                            ),
-                          ),
-                          // EstudIA Logo
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  PhosphorIcons.brain(PhosphorIconsStyle.fill),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'EstudIA',
+                                style: TextStyle(
                                   color: Colors.white,
-                                  size: 20,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.5,
                                 ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'EstudIA',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 48), // Balance
+                          const SizedBox(width: 28), // Balance
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -1031,30 +1017,18 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                         children: [
                           GestureDetector(
                             onTap: () => Navigator.pop(context),
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.arrow_back_rounded,
-                                color: Colors.white,
-                              ),
+                            child: const Icon(
+                              Icons.arrow_back_rounded,
+                              color: Colors.white,
+                              size: 28,
                             ),
                           ),
                           GestureDetector(
                             onTap: _showUploadBottomSheet,
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.upload_file_rounded,
-                                color: Colors.white,
-                              ),
+                            child: const Icon(
+                              Icons.upload_file_rounded,
+                              color: Colors.white,
+                              size: 28,
                             ),
                           ),
                         ],
@@ -1486,6 +1460,14 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
           ),
           const SizedBox(height: 12),
           _buildAIFeatureCard(
+            'Generar Cuestionario',
+            'Crea preguntas personalizadas de tus materiales',
+            Icons.quiz,
+            EstudIAColors.accent,
+            () => _showGenerateQuizDialog(),
+          ),
+          const SizedBox(height: 12),
+          _buildAIFeatureCard(
             'Explicar Concepto',
             'La IA te explica cualquier tema en detalle',
             Icons.lightbulb,
@@ -1495,7 +1477,7 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
           const SizedBox(height: 12),
           _buildAIFeatureCard(
             'Chat con IA',
-            'Haz preguntas sobre tus materiales',
+            'Haz preguntas en tiempo real sobre tus PDFs',
             Icons.chat_bubble,
             EstudIAColors.success,
             () => _showAIChatDialog(),
@@ -1948,29 +1930,17 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.summarize,
-                            color: Colors.white,
-                          ),
+                        const Icon(
+                          Icons.summarize,
+                          color: Colors.white,
+                          size: 28,
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                            ),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 28,
                           ),
                         ),
                       ],
@@ -2213,16 +2183,10 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                   bottom: false,
                   child: Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.chat_bubble,
-                          color: Colors.white,
-                        ),
+                      const Icon(
+                        Icons.chat_bubble,
+                        color: Colors.white,
+                        size: 28,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -2249,16 +2213,10 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                          ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 28,
                         ),
                       ),
                     ],
@@ -2370,7 +2328,186 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
     );
   }
 
-  void _showGeneratingQuizDialog() {
+  void _showGenerateQuizDialog() {
+    int questionCount = 5;
+    String difficulty = 'medium';
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 24,
+              right: 24,
+              top: 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Header icon
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    gradient: EstudIAColors.accentGradient,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Icon(
+                    Icons.quiz,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Generar Cuestionario',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: EstudIAColors.dark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'La IA creará preguntas personalizadas basadas en tus materiales',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: EstudIAColors.dark.withOpacity(0.6),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                // Question count selector
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildQuizOption(
+                      label: '5 preguntas',
+                      icon: Icons.looks_one,
+                      selected: questionCount == 5,
+                      onTap: () => setState(() => questionCount = 5),
+                    ),
+                    const SizedBox(width: 12),
+                    _buildQuizOption(
+                      label: '10 preguntas',
+                      icon: Icons.looks_two,
+                      selected: questionCount == 10,
+                      onTap: () => setState(() => questionCount = 10),
+                    ),
+                    const SizedBox(width: 12),
+                    _buildQuizOption(
+                      label: '20 preguntas',
+                      icon: Icons.looks_3,
+                      selected: questionCount == 20,
+                      onTap: () => setState(() => questionCount = 20),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Difficulty selector
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildDifficultyChip(
+                      label: 'Fácil',
+                      selected: difficulty == 'easy',
+                      onTap: () => setState(() => difficulty = 'easy'),
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildDifficultyChip(
+                      label: 'Medio',
+                      selected: difficulty == 'medium',
+                      onTap: () => setState(() => difficulty = 'medium'),
+                      color: EstudIAColors.warning,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildDifficultyChip(
+                      label: 'Difícil',
+                      selected: difficulty == 'hard',
+                      onTap: () => setState(() => difficulty = 'hard'),
+                      color: Colors.red,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                // Generate button
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    _generateQuizWithOptions(questionCount, difficulty);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      gradient: EstudIAColors.accentGradient,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Generar Cuestionario',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Cancel button
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          color: EstudIAColors.dark.withOpacity(0.6),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _generateQuizWithOptions(int count, String difficulty) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -2425,14 +2562,84 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
       ),
     );
 
-    // Simulate generation
-    Future.delayed(const Duration(seconds: 3), () {
+    // Generate quiz with options
+    Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.pop(context);
-        context.read<StudyProvider>().generateQuiz(widget.course.id);
-        showEstudIANotification(context, '¡Cuestionario generado!');
+        context.read<StudyProvider>().generateQuiz(widget.course.id, count: count, difficulty: difficulty);
+        showEstudIANotification(context, '¡Cuestionario de $count preguntas generado!');
       }
     });
+  }
+
+  Widget _buildQuizOption({
+    required String label,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: selected ? EstudIAColors.accent.withOpacity(0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? EstudIAColors.accent : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: selected ? EstudIAColors.accent : Colors.grey,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: selected ? EstudIAColors.accent : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDifficultyChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? color.withOpacity(0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? color : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: selected ? color : Colors.grey[600],
+          ),
+        ),
+      ),
+    );
   }
 
   void _startQuiz(List<dynamic> questions) {

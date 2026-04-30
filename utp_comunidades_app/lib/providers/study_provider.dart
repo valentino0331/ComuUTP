@@ -561,7 +561,7 @@ class StudyProvider extends ChangeNotifier {
         {
           'courseId': courseId,
           'count': count,
-          'difficulty': 'medium',
+          'difficulty': difficulty,
         },
         auth: true,
       );
