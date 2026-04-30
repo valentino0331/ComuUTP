@@ -356,13 +356,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
                 decoration: BoxDecoration(
                   gradient: EstudIAColors.primaryGradient,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: EstudIAColors.primary.withOpacity(0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -504,13 +497,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: EstudIAColors.primary.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
@@ -1110,6 +1096,8 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                       ),
                       if (widget.course.professorName != null) ...[
                         const SizedBox(height: 8),
@@ -1138,13 +1126,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: EstudIAColors.primary.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
                 ),
                 child: TabBar(
                   controller: _tabController,
@@ -1325,13 +1306,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: EstudIAColors.primary.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1712,13 +1686,6 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                   decoration: BoxDecoration(
                     gradient: EstudIAColors.primaryGradient,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: EstudIAColors.primary.withOpacity(0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
                   ),
                   child: const Center(
                     child: Text(
