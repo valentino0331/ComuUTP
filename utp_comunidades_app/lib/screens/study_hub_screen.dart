@@ -242,7 +242,6 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
             bottom: 100,
             child: GestureDetector(
               onTap: () {
-                // Show quick AI actions
                 _showQuickAIActions(context);
               },
               child: Container(
