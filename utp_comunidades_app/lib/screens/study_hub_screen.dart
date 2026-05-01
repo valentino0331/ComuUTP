@@ -213,8 +213,9 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
                 ),
               ),
             ),
-            // Content
-            SliverToBoxAdapter(
+          ),
+          // Content
+          SliverToBoxAdapter(
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: Consumer<StudyProvider>(
