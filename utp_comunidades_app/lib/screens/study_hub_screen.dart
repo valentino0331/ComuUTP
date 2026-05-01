@@ -213,30 +213,31 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
                 ),
               ),
             ),
-          ),
-          // Content
-          SliverToBoxAdapter(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Consumer<StudyProvider>(
-                builder: (context, studyProvider, _) {
-                  if (studyProvider.error != null) {
-                    return _buildUnavailableState(context, studyProvider.error!);
-                  }
-                  if (studyProvider.isLoading && studyProvider.courses.isEmpty) {
-                    return _buildLoadingState();
-                  }
+            // Content
+            SliverToBoxAdapter(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Consumer<StudyProvider>(
+                  builder: (context, studyProvider, _) {
+                    if (studyProvider.error != null) {
+                      return _buildUnavailableState(context, studyProvider.error!);
+                    }
+                    if (studyProvider.isLoading && studyProvider.courses.isEmpty) {
+                      return _buildLoadingState();
+                    }
 
-                  if (studyProvider.courses.isEmpty) {
-                    return _buildEmptyState(context);
-                  }
+                    if (studyProvider.courses.isEmpty) {
+                      return _buildEmptyState(context);
+                    }
 
-                  return _buildCoursesList(context, studyProvider);
-                },
+                    return _buildCoursesList(context, studyProvider);
+                  },
+                ),
               ),
             ),
-          ),
-          // AI Robot Mascot - Floating
+          ],
+        ),
+        // AI Robot Mascot - Floating
           Positioned(
             right: 20,
             bottom: 100,
