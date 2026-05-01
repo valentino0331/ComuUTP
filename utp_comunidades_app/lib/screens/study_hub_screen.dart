@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/study_provider.dart';
 import '../models/study_models.dart';
 import '../widgets/course_card.dart';
+import '../widgets/lottie_animations.dart';
 
 // Brand Colors for EstudIA - Usando colores de la marca UTP Comunidades
 class EstudIAColors {
@@ -132,59 +133,61 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: EstudIAColors.light,
-      body: CustomScrollView(
-        slivers: [
-          // Modern App Bar with Gradient
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: EstudIAColors.primaryGradient,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              // Modern App Bar with Gradient
+              SliverToBoxAdapter(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: EstudIAColors.primaryGradient,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: const Icon(
-                              Icons.arrow_back_rounded,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          // EstudIA Logo - simple text
+                          // Header Row
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                PhosphorIcons.brain(PhosphorIconsStyle.fill),
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'EstudIA',
-                                style: TextStyle(
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: const Icon(
+                                  Icons.arrow_back_rounded,
                                   color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.5,
+                                  size: 28,
                                 ),
                               ),
+                              // EstudIA Logo - simple text
+                              Row(
+                                children: [
+                                  Icon(
+                                    PhosphorIcons.brain(PhosphorIconsStyle.fill),
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'EstudIA',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 28), // Balance
                             ],
                           ),
-                          const SizedBox(width: 28), // Balance
-                        ],
-                      ),
                       const SizedBox(height: 24),
                       // Welcome Text
                       const Text(
@@ -233,9 +236,105 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
               ),
             ),
           ),
+          // AI Robot Mascot - Floating
+          Positioned(
+            right: 20,
+            bottom: 100,
+            child: GestureDetector(
+              onTap: () {
+                // Show quick AI actions
+                _showQuickAIActions(context);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(50),
+                  boxShadow: [
+                    BoxShadow(
+                      color: EstudIAColors.primary.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const AIRobotAnimation(
+                  size: 70,
+                  isFloating: true,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       floatingActionButton: _buildFAB(),
+    );
+  }
+
+  void _showQuickAIActions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              '¿Qué necesitas?',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: EstudIAColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.chat, color: EstudIAColors.primary),
+              ),
+              title: const Text('Chatear con EstudIA'),
+              subtitle: const Text('Haz preguntas sobre tus cursos'),
+              onTap: () {
+                Navigator.pop(context);
+                // Navigate to course detail with AI tab
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: EstudIAColors.accent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.lightbulb, color: EstudIAColors.accent),
+              ),
+              title: const Text('Consejos de estudio'),
+              subtitle: const Text('Obtén tips para aprender mejor'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -246,21 +345,7 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: EstudIAColors.primaryGradient,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const SizedBox(
-                width: 48,
-                height: 48,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 3,
-                ),
-              ),
-            ),
+            const LoadingAnimation(size: 150),
             const SizedBox(height: 24),
             Text(
               'Preparando tu espacio de estudio...',
@@ -284,22 +369,8 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animated Illustration Container
-            Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                gradient: EstudIAColors.accentGradient,
-                borderRadius: BorderRadius.circular(40),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.auto_stories_rounded,
-                  size: 80,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            // Animated Illustration
+            const EmptyStateAnimation(size: 200),
             const SizedBox(height: 40),
             Text(
               '¡Comienza tu viaje de aprendizaje!',
