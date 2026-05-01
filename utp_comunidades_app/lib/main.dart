@@ -36,6 +36,7 @@ import 'providers/search_provider.dart';
 import 'providers/mention_provider.dart';
 import 'providers/event_provider.dart';
 import 'providers/poll_provider.dart';
+import 'providers/study_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MentionProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => PollProvider()),
+        ChangeNotifierProvider(create: (_) => StudyProvider()),
       ],
       child: MaterialApp(
         title: 'UTP Comunidades',
