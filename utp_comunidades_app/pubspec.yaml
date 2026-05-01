@@ -103,6 +103,7 @@ flutter:
   assets:
     - assets/
     - assets/lottie/
+    - assets/rive/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

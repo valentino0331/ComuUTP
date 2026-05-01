@@ -13,6 +13,7 @@ import '../providers/study_provider.dart';
 import '../models/study_models.dart';
 import '../widgets/course_card.dart';
 import '../widgets/lottie_animations.dart';
+import '../widgets/advanced_animations.dart';
 
 // Brand Colors for EstudIA - Usando colores de la marca UTP Comunidades
 class EstudIAColors {
@@ -238,32 +239,26 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
             ),
           ],
         ),
-        // AI Robot Mascot - Floating
+        // AI Mascot - Interactive with State Machine
           Positioned(
             right: 20,
             bottom: 100,
-            child: GestureDetector(
+            child: InteractiveMascot(
+              state: _mascotState,
+              size: 80,
               onTap: () {
+                setState(() => _mascotState = MascotState.thinking);
                 _showQuickAIActions(context);
+                Future.delayed(const Duration(seconds: 2), () {
+                  if (mounted) setState(() => _mascotState = MascotState.idle);
+                });
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(50),
-                  boxShadow: [
-                    BoxShadow(
-                      color: EstudIAColors.primary.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(8),
-                child: const AIRobotAnimation(
-                  size: 70,
-                  isFloating: true,
-                ),
-              ),
+              onLongPress: () {
+                setState(() => _mascotState = MascotState.happy);
+                Future.delayed(const Duration(seconds: 1), () {
+                  if (mounted) setState(() => _mascotState = MascotState.idle);
+                });
+              },
             ),
           ),
         ],
@@ -346,17 +341,14 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const LoadingAnimation(size: 150),
-            const SizedBox(height: 24),
-            Text(
-              'Preparando tu espacio de estudio...',
-              style: TextStyle(
-                color: EstudIAColors.dark.withOpacity(0.6),
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
+            const InteractiveMascot(
+              state: MascotState.loading,
+              size: 120,
             ),
+            const SizedBox(height: 24),
+            const ModernSkeleton(width: 200, height: 20, borderRadius: BorderRadius.all(Radius.circular(10))),
+            const SizedBox(height: 12),
+            const ModernSkeleton(width: 150, height: 16, borderRadius: BorderRadius.all(Radius.circular(8))),
           ],
         ),
       ),
@@ -393,31 +385,17 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            // Modern Button
-            GestureDetector(
-              onTap: () => _showModernCreateCourseDialog(context),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                decoration: BoxDecoration(
-                  gradient: EstudIAColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_rounded, color: Colors.white, size: 24),
-                    SizedBox(width: 8),
-                    Text(
-                      'Crear Mi Primer Curso',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
+            // Animated Button with Micro-interactions
+            AnimatedButton(
+              width: double.infinity,
+              onPressed: () => _showModernCreateCourseDialog(context),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_rounded, color: Colors.white, size: 24),
+                  SizedBox(width: 8),
+                  Text('Crear Mi Primer Curso'),
+                ],
               ),
             ),
           ],
@@ -1046,6 +1024,7 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isUploading = false;
+  MascotState _mascotState = MascotState.idle;
   double _uploadProgress = 0;
 
   @override
