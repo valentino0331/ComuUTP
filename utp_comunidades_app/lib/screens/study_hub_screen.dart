@@ -443,13 +443,13 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
                           try {
                             // Get AI response
                             final provider = context.read<StudyProvider>();
-                            final response = await provider.askQuestion(
+                            final aiResponse = await provider.askQuestion(
                               provider.courses.isNotEmpty ? provider.courses.first.id : 'general',
                               question,
                             );
 
                             setState(() {
-                              messages.add({'isAI': true, 'message': response});
+                              messages.add({'isAI': true, 'message': aiResponse?.content ?? 'No se pudo obtener respuesta'});
                               isLoading = false;
                             });
                           } catch (e) {
@@ -489,7 +489,7 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
 
     try {
       final provider = context.read<StudyProvider>();
-      final tips = await provider.askQuestion(
+      final response = await provider.askQuestion(
         'general',
         'Dame 5 consejos prácticos para estudiar mejor y ser más productivo',
       );
@@ -509,7 +509,7 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
             ],
           ),
           content: SingleChildScrollView(
-            child: Text(tips),
+            child: Text(response?.content ?? 'No se pudo obtener respuesta'),
           ),
           actions: [
             TextButton(
@@ -532,6 +532,33 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
         if (mounted) setState(() => _mascotState = MascotState.idle);
       });
     }
+  }
+
+  // Chat bubble widget for AI chat dialog
+  Widget _buildChatBubble(String message, {required bool isAI}) {
+    return Align(
+      alignment: isAI ? Alignment.centerLeft : Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        decoration: BoxDecoration(
+          color: isAI ? Colors.grey[200] : EstudIAColors.primary,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isAI ? 4 : 16),
+            bottomRight: Radius.circular(isAI ? 16 : 4),
+          ),
+        ),
+        child: Text(
+          message,
+          style: TextStyle(
+            color: isAI ? Colors.black87 : Colors.white,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildLoadingState() {
