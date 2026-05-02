@@ -44,9 +44,11 @@ const corsOptions = {
         'http://localhost', // para desarrollo en producción temporal
         'http://localhost:3000',
         'http://localhost:49232',
+        'http://localhost:53405',
         'http://localhost:8080',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:49232',
+        'http://127.0.0.1:53405',
         'http://127.0.0.1:8080',
       ];
 
