@@ -15,7 +15,10 @@ if (!fs.existsSync(uploadsDir)) {
 exports.getUserCourses = async (req, res) => {
   try {
     const userId = req.user.id;
+    console.log('📚 getUserCourses called for userId:', userId);
+    
     const courses = await studyService.getUserCourses(userId);
+    console.log('✅ getUserCourses success:', courses.length, 'courses');
     
     res.status(200).json({
       success: true,
@@ -23,8 +26,9 @@ exports.getUserCourses = async (req, res) => {
       count: courses.length
     });
   } catch (err) {
-    console.error('Error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('❌ getUserCourses ERROR:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).json({ error: err.message, detail: err.stack });
   }
 };
 

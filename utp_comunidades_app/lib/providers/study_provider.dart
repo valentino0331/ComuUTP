@@ -83,6 +83,8 @@ class StudyProvider extends ChangeNotifier {
       }
     } catch (err) {
       _error = err.toString();
+      // Limpiar cursos para evitar mostrar datos viejos/duplicados
+      _courses = [];
     } finally {
       _isLoading = false;
       notifyListeners();
