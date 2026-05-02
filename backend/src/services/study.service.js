@@ -565,6 +565,8 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
     // Intentar Hugging Face (gratis sin API key, pero con límites)
     try {
       console.log('🤖 Trying Hugging Face...');
+      console.log('🔑 HF_API_KEY exists:', !!HF_API_KEY);
+      
       const response = await fetch(HF_API_URL, {
         method: 'POST',
         headers: {
@@ -582,16 +584,22 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
         })
       });
 
+      console.log('📡 Hugging Face status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('📊 Hugging Face data:', JSON.stringify(data).slice(0, 200));
         const answer = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
         if (answer) {
           console.log('✅ Hugging Face responded');
           return answer.trim();
         }
+      } else {
+        const errorText = await response.text();
+        console.log('❌ Hugging Face error:', response.status, errorText.slice(0, 200));
       }
     } catch (error) {
-      console.log('Hugging Face failed:', error.message);
+      console.log('❌ Hugging Face failed:', error.message);
     }
 
     // Último recurso: respuesta contextual inteligente

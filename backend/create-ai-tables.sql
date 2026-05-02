@@ -1,13 +1,30 @@
 -- Crear tabla para respuestas de IA (sin foreign keys para evitar dependencias)
+-- CORREGIDO: usar 'content' en vez de 'response' para coincidir con el código
 CREATE TABLE IF NOT EXISTS ai_responses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id VARCHAR(255),
   course_id VARCHAR(255),
-  question TEXT NOT NULL,
-  response TEXT NOT NULL,
   type VARCHAR(50) DEFAULT 'general',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  from_cache BOOLEAN DEFAULT FALSE
+  content TEXT NOT NULL,
+  prompt TEXT,
+  from_cache BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Si la tabla ya existe con columnas incorrectas, recrearla
+DROP TABLE IF EXISTS ai_responses_backup;
+ALTER TABLE IF EXISTS ai_responses RENAME TO ai_responses_backup;
+
+-- Crear tabla correcta
+CREATE TABLE ai_responses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id VARCHAR(255),
+  course_id VARCHAR(255),
+  type VARCHAR(50) DEFAULT 'general',
+  content TEXT NOT NULL,
+  prompt TEXT,
+  from_cache BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Crear índices
