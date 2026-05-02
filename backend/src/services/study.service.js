@@ -5,7 +5,11 @@ const { v4: uuidv4 } = require('uuid');
 
 // Hugging Face Inference API (gratuito)
 const HF_API_URL = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2';
-const HF_API_KEY = process.env.HF_API_KEY || null; // Opcional, pero recomendado para mayor límite
+const HF_API_KEY = process.env.HF_API_KEY || null;
+
+// Google Gemini API (gratuito - 60 req/min)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 class StudyService {
   
@@ -521,9 +525,46 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
     return questions;
   }
 
-  // Respuesta de IA usando Hugging Face
+  // Respuesta de IA - Intenta múltiples proveedores
   async generateAIAnswer(courseId, question) {
+    // Intentar Gemini primero (más estable)
+    if (GEMINI_API_KEY) {
+      try {
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `Eres EstudIA, un asistente académico amigable y natural. Responde esta pregunta de manera conversacional y útil: "${question}"`
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.8,
+              maxOutputTokens: 800,
+              topP: 0.95
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (answer) {
+            console.log('✅ Gemini responded successfully');
+            return answer.trim();
+          }
+        }
+      } catch (error) {
+        console.log('Gemini failed:', error.message);
+      }
+    }
+
+    // Intentar Hugging Face (gratis sin API key, pero con límites)
     try {
+      console.log('🤖 Trying Hugging Face...');
       const response = await fetch(HF_API_URL, {
         method: 'POST',
         headers: {
@@ -531,27 +572,31 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
           ...(HF_API_KEY && { 'Authorization': `Bearer ${HF_API_KEY}` })
         },
         body: JSON.stringify({
-          inputs: `<s>[INST] Eres un tutor académico experto. Responde esta pregunta de estudiante de manera clara y útil: "${question}" [/INST]`,
+          inputs: `<s>[INST] Eres EstudIA, un asistente académico amigable. Responde de forma natural y conversacional: "${question}" [/INST]`,
           parameters: {
-            max_new_tokens: 500,
-            temperature: 0.7,
-            return_full_text: false
+            max_new_tokens: 600,
+            temperature: 0.8,
+            return_full_text: false,
+            top_p: 0.9
           }
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.ok) {
+        const data = await response.json();
+        const answer = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
+        if (answer) {
+          console.log('✅ Hugging Face responded');
+          return answer.trim();
+        }
       }
-
-      const data = await response.json();
-      const answer = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-      
-      return answer || 'No se pudo generar la respuesta.';
     } catch (error) {
-      console.log('Using smart answer generator');
-      return this.generateSmartAnswer(question);
+      console.log('Hugging Face failed:', error.message);
     }
+
+    // Último recurso: respuesta contextual inteligente
+    console.log('⚠️ Using contextual fallback');
+    return this.generateContextualAnswer(question);
   }
 
   // Generar respuesta inteligente para chat
@@ -652,6 +697,164 @@ Basándome en los materiales del curso, te puedo decir:
 • Si tienes dudas específicas sobre conceptos, ejemplos o aplicaciones, ¡pregúntame!
 
 ¿Te gustaría que te explique algún concepto en particular o generemos un resumen? 🎓`;
+  }
+
+  // Generar respuesta contextual más natural
+  generateContextualAnswer(question) {
+    const q = question.toLowerCase();
+    const qClean = question.trim();
+    
+    // Saludos y conversación casual
+    if (/hola|hey|buenos días|buenas tardes|buenas noches|qué tal|saludos/i.test(q)) {
+      const hour = new Date().getHours();
+      let greeting = '¡Hola';
+      if (hour < 12) greeting = '¡Buenos días';
+      else if (hour < 18) greeting = '¡Buenas tardes';
+      else greeting = '¡Buenas noches';
+      
+      return `${greeting}! 👋 Soy EstudIA, tu asistente de estudio. ¿En qué puedo ayudarte hoy? Puedo explicarte conceptos, darte consejos de estudio, crear cuestionarios o resumir materiales. ¡Lo que necesites! 🎓`;
+    }
+    
+    // Preguntas sobre cómo está o emociones
+    if (/cómo estás|cómo te va|qué tal estás|todo bien/i.test(q)) {
+      return `¡Estoy genial, gracias por preguntar! 😊 Estoy aquí listo para ayudarte con tus estudios. ¿Tienes alguna duda sobre algún tema o necesitas que te explique algo? Estoy todo oídos... bueno, todo código 🤖✨`;
+    }
+    
+    // Nombre e identidad
+    if (/quién eres|cómo te llamas|tu nombre|qué eres/i.test(q)) {
+      return `Soy **EstudIA** 🤖✨, tu asistente académico personal dentro de la app ComuUTP. Estoy diseñado para ayudarte a aprender de forma más fácil y divertida.
+
+Puedo:
+• 📚 Explicarte conceptos difíciles
+• 💡 Darte consejos de estudio personalizados
+• 📝 Crear cuestionarios para practicar
+• 📖 Resumir materiales de estudio
+• 🎯 Resolver tus dudas académicas
+
+¿Qué necesitas hoy? 🚀`;
+    }
+    
+    // Agradecimientos
+    if (/gracias|muchas gracias|te agradezco|thanks/i.test(q)) {
+      const thanks = [
+        '¡De nada! 😊 Estoy aquí para lo que necesites.',
+        '¡Con gusto! 🎉 Me encanta poder ayudarte.',
+        '¡No hay de qué! 💪 Seguimos cuando quieras.',
+        '¡Para eso estoy! 🌟 ¿Necesitas algo más?'
+      ];
+      return thanks[Math.floor(Math.random() * thanks.length)];
+    }
+    
+    // Despedidas
+    if (/adiós|hasta luego|nos vemos|chao|bye|me voy/i.test(q)) {
+      return `¡Hasta luego! 👋🎓 Que tengas un excelente día de estudio. Recuerda que estaré aquí cuando me necesites. ¡Tú puedes con todo! 💪✨`;
+    }
+    
+    // Preguntas de qué puede hacer
+    if (/qué puedes hacer|qué sabes hacer|ayuda|funciones|capacidades/i.test(q)) {
+      return `¡Tengo varias habilidades para ayudarte! 🚀
+
+**Cosas que puedo hacer:**
+
+💬 **Chat académico** - Habla conmigo sobre cualquier tema de estudio
+💡 **Consejos de estudio** - Te doy tips personalizados para aprender mejor
+📝 **Cuestionarios** - Genero preguntas para que practiques
+📄 **Resúmenes** - Resumo materiales largos en puntos clave
+🔍 **Explicaciones** - Te explico conceptos paso a paso
+
+¿Cuál te gustaría probar? 😊`;
+    }
+    
+    // Chistes o humor
+    if (/chiste|cuéntame algo gracioso|hazme reír|broma/i.test(q)) {
+      const jokes = [
+        `¿Por qué los programadores prefieren el invierno? ❄️\n\nPorque tienen menos bugs... ¡los insectos no sobreviven al frío! 🐛❌😄`,
+        `¿Cómo se llama un profesor que pierde sus libros? 📚\n\n¡Desorientado! 🤭🧭`,
+        `¿Qué le dice un átomo a otro? ⚛️\n\n"¡Me robaron un electrón!" - "¿Estás seguro?" - "¡Sí, soy positivo!" ⚡😂`,
+        `¿Por qué la computadora fue al doctor? 💻\n\n¡Porque tenía un virus! 🤒🦠😄`,
+        `¿Qué hace una abeja en la universidad? 🐝\n\n¡Polenizando conocimiento! 🌸📖😆`
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+    
+    // Preguntas de motivación
+    if (/motivación|ánimo|estoy cansado|no puedo|es difícil|me rindo/i.test(q)) {
+      return `¡Ey, no te rindas! 💪✨
+
+Entiendo que a veces el estudio puede ser agotador, pero recuerda:
+
+🌟 **Tú eres capaz de más de lo que crees**
+🎯 Cada pequeño paso te acerca a tu meta
+📈 El aprendizaje es un proceso, no una carrera
+🎓 Los grandes logros vienen de la constancia
+
+Toma un descanso si lo necesitas, respira hondo y vuelve con todo. ¡Tú puedes! 🔥
+
+¿Necesitas que te ayude con algo específico para avanzar? 🤗`;
+    }
+    
+    // Preguntas matemáticas simples
+    const mathMatch = q.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+    if (mathMatch) {
+      try {
+        const num1 = parseInt(mathMatch[1]);
+        const op = mathMatch[2];
+        const num2 = parseInt(mathMatch[3]);
+        let result;
+        switch(op) {
+          case '+': result = num1 + num2; break;
+          case '-': result = num1 - num2; break;
+          case '*': case 'x': result = num1 * num2; break;
+          case '/': result = num2 !== 0 ? (num1 / num2).toFixed(2) : 'indefinido'; break;
+        }
+        return `El resultado de ${num1} ${op} ${num2} es **${result}** 🧮✨\n\n¿Necesitas ayuda con algo más de matemáticas? 📐`;
+      } catch(e) {}
+    }
+    
+    // Fecha y hora
+    if (/qué día es hoy|qué hora es|fecha actual|hora actual/i.test(q)) {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-ES', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      const timeStr = now.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      return `Hoy es **${dateStr}** 📅 y son las **${timeStr}** ⏰\n\n¿Hay algún deadline de estudio al que deberías prestar atención? 👀`;
+    }
+    
+    // Preguntas sobre estudio o consejos generales
+    if (/cómo estudiar|mejorar notas|cómo aprender|técnicas de estudio|consejos/i.test(q)) {
+      return `¡Excelente pregunta! Aquí tienes algunos consejos probados 🎯:
+
+📚 **Técnica Pomodoro**: 25 min de estudio + 5 min de descanso
+📝 **Active recall**: Prueba tu memoria sin ver las notas
+🧠 **Espaciado**: Repasa a intervalos (1 día, 3 días, 1 semana...)
+🗺️ **Mapas mentales**: Conecta ideas visualmente
+💤 **Duerme bien**: El cerebro consolida mientras duermes
+🎯 **Feynman**: Explica como si fueras profesor
+
+¿Cuál quieres que te explique más a fondo? 🤓`;
+    }
+    
+    // Respuesta genérica más conversacional y natural
+    return `¡Interesante pregunta! 🤔
+
+Sobre "${qClean}"...
+
+Como asistente de estudio, puedo ayudarte a:
+• 📖 Buscar información sobre este tema
+• 🎯 Explicarte conceptos relacionados
+• 💡 Darte ejemplos prácticos
+• 📝 Crear ejercicios para practicar
+
+Si tienes material de estudio cargado en la app, ¡puedo usarlo para darte respuestas más específicas! 📚
+
+¿Qué te gustaría saber exactamente sobre esto? ✨`;
   }
 
   // Eliminar curso y todos sus materiales

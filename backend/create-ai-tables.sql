@@ -1,8 +1,8 @@
--- Crear tabla para respuestas de IA
+-- Crear tabla para respuestas de IA (sin foreign keys para evitar dependencias)
 CREATE TABLE IF NOT EXISTS ai_responses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id),
-  course_id UUID REFERENCES courses(id),
+  user_id VARCHAR(255),
+  course_id VARCHAR(255),
   question TEXT NOT NULL,
   response TEXT NOT NULL,
   type VARCHAR(50) DEFAULT 'general',
