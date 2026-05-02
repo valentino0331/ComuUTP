@@ -146,15 +146,75 @@ class _InteractiveMascotState extends State<InteractiveMascot> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.smart_toy,
-          size: widget.size * 0.5,
+        // Robot face design
+        Container(
+          width: widget.size * 0.5,
+          height: widget.size * 0.4,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(widget.size * 0.1),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Eyes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: widget.size * 0.08,
+                    height: widget.size * 0.08,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFB21132),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: widget.size * 0.08),
+                  Container(
+                    width: widget.size * 0.08,
+                    height: widget.size * 0.08,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFB21132),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: widget.size * 0.05),
+              // Smile
+              Container(
+                width: widget.size * 0.15,
+                height: widget.size * 0.04,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB21132),
+                  borderRadius: BorderRadius.circular(widget.size * 0.02),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: widget.size * 0.05),
+        // Antenna
+        Container(
+          width: widget.size * 0.02,
+          height: widget.size * 0.08,
           color: Colors.white,
         ),
+        Container(
+          width: widget.size * 0.06,
+          height: widget.size * 0.06,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+        )
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .fadeIn(duration: const Duration(milliseconds: 500))
+            .fadeOut(duration: const Duration(milliseconds: 500)),
       ],
     )
         .animate(onPlay: (c) => c.repeat(reverse: true))
-        .moveY(begin: 0, end: -3, duration: const Duration(milliseconds: 1500), curve: Curves.easeInOut);
+        .moveY(begin: 0, end: -5, duration: const Duration(milliseconds: 2000), curve: Curves.easeInOut);
   }
 
   Widget _buildLoadingFace() {

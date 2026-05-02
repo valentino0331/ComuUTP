@@ -312,7 +312,7 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
               subtitle: const Text('Haz preguntas sobre tus cursos'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to course detail with AI tab
+                _showAIChatDialog(context);
               },
             ),
             ListTile(
@@ -328,12 +328,210 @@ class _StudyHubScreenState extends State<StudyHubScreen> with SingleTickerProvid
               subtitle: const Text('Obtén tips para aprender mejor'),
               onTap: () {
                 Navigator.pop(context);
+                _showStudyTipsDialog(context);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  // AI Chat Dialog
+  void _showAIChatDialog(BuildContext context) {
+    final textController = TextEditingController();
+    final messages = <Map<String, dynamic>>[
+      {
+        'isAI': true,
+        'message': '¡Hola! Soy EstudIA, tu asistente de aprendizaje. ¿En qué puedo ayudarte hoy?',
+      }
+    ];
+    var isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Container(
+            width: double.maxFinite,
+            height: 500,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: EstudIAColors.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.smart_toy,
+                        color: EstudIAColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Chatear con EstudIA',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                // Messages
+                Expanded(
+                  child: ListView.builder(
+                    reverse: true,
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final msg = messages[messages.length - 1 - index];
+                      return _buildChatBubble(
+                        msg['message'],
+                        isAI: msg['isAI'],
+                      );
+                    },
+                  ),
+                ),
+                // Input
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: textController,
+                          decoration: InputDecoration(
+                            hintText: 'Escribe tu pregunta...',
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      FloatingActionButton(
+                        mini: true,
+                        onPressed: () async {
+                          if (textController.text.trim().isEmpty) return;
+                          
+                          final question = textController.text.trim();
+                          setState(() {
+                            messages.add({'isAI': false, 'message': question});
+                            isLoading = true;
+                          });
+                          textController.clear();
+
+                          try {
+                            // Get AI response
+                            final provider = context.read<StudyProvider>();
+                            final response = await provider.askQuestion(
+                              provider.courses.isNotEmpty ? provider.courses.first.id : 'general',
+                              question,
+                            );
+
+                            setState(() {
+                              messages.add({'isAI': true, 'message': response});
+                              isLoading = false;
+                            });
+                          } catch (e) {
+                            setState(() {
+                              messages.add({
+                                'isAI': true,
+                                'message': 'Lo siento, hubo un error al procesar tu pregunta. Intenta de nuevo.'
+                              });
+                              isLoading = false;
+                            });
+                          }
+                        },
+                        backgroundColor: EstudIAColors.primary,
+                        child: const Icon(Icons.send, color: Colors.white),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Study Tips Dialog
+  void _showStudyTipsDialog(BuildContext context) async {
+    setState(() => _mascotState = MascotState.thinking);
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final provider = context.read<StudyProvider>();
+      final tips = await provider.askQuestion(
+        'general',
+        'Dame 5 consejos prácticos para estudiar mejor y ser más productivo',
+      );
+
+      Navigator.pop(context); // Close loading
+      setState(() => _mascotState = MascotState.success);
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.lightbulb, color: EstudIAColors.accent),
+              const SizedBox(width: 8),
+              const Text('Consejos de Estudio'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Text(tips),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Entendido'),
+            ),
+          ],
+        ),
+      );
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) setState(() => _mascotState = MascotState.idle);
+      });
+    } catch (e) {
+      Navigator.pop(context);
+      setState(() => _mascotState = MascotState.error);
+      showEstudIANotification(context, 'Error al obtener consejos: $e', isError: true);
+      
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) setState(() => _mascotState = MascotState.idle);
+      });
+    }
   }
 
   Widget _buildLoadingState() {
