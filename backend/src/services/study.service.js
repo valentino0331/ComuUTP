@@ -266,20 +266,37 @@ class StudyService {
   // Hacer pregunta a IA
   async askQuestion(userId, courseId, question) {
     try {
-      // Generar respuesta con IA (placeholder)
+      // Generar respuesta con IA
       const answerContent = await this.generateAIAnswer(courseId, question);
 
-      // Guardar en base de datos
-      const responseId = uuidv4();
-      const result = await pool.query(
-        `INSERT INTO ai_responses 
-         (id, user_id, course_id, type, content, prompt, from_cache)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         RETURNING *`,
-        [responseId, userId, courseId, 'answer', answerContent, question, false]
-      );
+      // Intentar guardar en base de datos (opcional - no bloquea la respuesta)
+      try {
+        const responseId = uuidv4();
+        await pool.query(
+          `INSERT INTO ai_responses 
+           (id, user_id, course_id, type, content, prompt, from_cache)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           RETURNING *`,
+          [responseId, userId, courseId, 'answer', answerContent, question, false]
+        );
+      } catch (dbError) {
+        // Log pero no bloquear la respuesta
+        console.log('DB save failed (non-critical):', dbError.message);
+      }
 
-      return result.rows[0];
+      // Siempre devolver la respuesta generada
+      return {
+        id: uuidv4(),
+        user_id: userId,
+        course_id: courseId,
+        question: question,
+        response: answerContent,
+        content: answerContent,
+        type: 'answer',
+        prompt: question,
+        from_cache: false,
+        created_at: new Date()
+      };
     } catch (err) {
       throw new Error(`Error asking question: ${err.message}`);
     }
