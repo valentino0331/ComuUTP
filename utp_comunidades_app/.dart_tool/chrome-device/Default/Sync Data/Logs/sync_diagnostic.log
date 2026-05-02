@@ -478,3 +478,51 @@
 2026-05-02 01:19:47.586: [INFO][Sync] Stopped: Edge Wallet
 2026-05-02 01:19:47.586: [INFO][Sync] Stopped: Edge Workspace
 2026-05-02 01:25:28.238: [INFO][Sync] Reset engine, reason: 0
+2026-05-02 01:27:49.924: [INFO][Sync] SyncState after authenticated was: FeatureNotSetup
+2026-05-02 01:34:33.464: [INFO][Sync] Reset engine, reason: 0
+2026-05-02 01:44:30.993: [INFO][Sync] Reset engine, reason: 8
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Bookmarks
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Preferences
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Passwords
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Autofill Profiles
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Autofill
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Extensions
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Sessions
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Extension settings
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: History Delete Directives
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Device Info
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: User Consents
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Send Tab To Self
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Web Apps
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: History
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Saved Tab Group
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: WebAuthn Credentials
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Collection
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Edge E Drop
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Edge Hub App Usage
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Edge Wallet
+2026-05-02 01:44:30.993: [INFO][Sync] Stopped: Edge Workspace
+2026-05-02 01:44:30.993: [INFO][Sync] SyncState after authenticated was: NotSignedIn
+2026-05-02 01:44:31.543: [INFO][Sync] Reset engine, reason: 8
+2026-05-02 01:44:31.543: [INFO][Sync] Stopped: Bookmarks
+2026-05-02 01:44:31.543: [INFO][Sync] Stopped: Preferences
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Passwords
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Autofill Profiles
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Autofill
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Extensions
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Sessions
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Extension settings
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: History Delete Directives
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Device Info
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: User Consents
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Send Tab To Self
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Web Apps
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: History
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Saved Tab Group
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: WebAuthn Credentials
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Collection
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Edge E Drop
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Edge Hub App Usage
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Edge Wallet
+2026-05-02 01:44:31.544: [INFO][Sync] Stopped: Edge Workspace
+2026-05-02 06:05:29.486: [INFO][Sync] Reset engine, reason: 0

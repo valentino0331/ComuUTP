@@ -4,8 +4,12 @@ const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
 // Hugging Face Inference API (gratuito)
-const HF_API_URL = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2';
+// Usar modelo más estable y rápido
+const HF_API_URL = 'https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill';
 const HF_API_KEY = process.env.HF_API_KEY || null;
+
+// Timeout para Hugging Face (el modelo tarda en cargar la primera vez)
+const HF_TIMEOUT = 30000; // 30 segundos
 
 // Google Gemini API (gratuito - 60 req/min)
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
@@ -589,8 +593,27 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
       if (response.ok) {
         const data = await response.json();
         console.log('📊 Hugging Face data:', JSON.stringify(data).slice(0, 200));
-        const answer = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-        if (answer) {
+        
+        // Múltiples formatos de respuesta soportados
+        let answer = null;
+        
+        if (Array.isArray(data)) {
+          // Formato de Mistral/Llama: [{generated_text: "..."}]
+          answer = data[0]?.generated_text || data[0]?.text || data[0]?.answer;
+        } else if (data.generated_text) {
+          // Formato simple: {generated_text: "..."}
+          answer = data.generated_text;
+        } else if (data.conversation?.generated_responses?.length > 0) {
+          // Formato de BlenderBot: {conversation: {generated_responses: [...]}}
+          const responses = data.conversation.generated_responses;
+          answer = responses[responses.length - 1];
+        } else if (data.text) {
+          answer = data.text;
+        } else if (data.answer) {
+          answer = data.answer;
+        }
+        
+        if (answer && typeof answer === 'string' && answer.trim()) {
           console.log('✅ Hugging Face responded');
           return answer.trim();
         }
