@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Hugging Face Inference API (gratuito)
 // Usar modelo más estable y rápido
-const HF_API_URL = 'https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill';
+const HF_API_URL = 'https://api-inference.huggingface.co/models/bigscience/T0_3B';
 const HF_API_KEY = process.env.HF_API_KEY || null;
 
 // Timeout para Hugging Face (el modelo tarda en cargar la primera vez)
