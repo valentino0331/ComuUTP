@@ -129,27 +129,17 @@ class StudyProvider extends ChangeNotifier {
         notifyListeners();
         return course;
       } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['error'] ?? 'Error al crear curso');
+        final errorBody = jsonDecode(response.body);
+        throw Exception(errorBody['error'] ?? 'Error al crear curso');
       }
     } catch (err) {
+      // Solo mostrar error, NO crear curso demo en catch para evitar duplicados
       _error = err.toString();
       print('Error en createCourse: $_error');
-      // Fallback to demo mode on error
-      _demoMode = true;
-      final course = StudyCourse(
-        id: 'demo-${DateTime.now().millisecondsSinceEpoch}',
-        name: courseData['name'] ?? 'Nuevo Curso',
-        courseCode: courseData['course_code'],
-        professorName: courseData['professor_name'],
-        description: courseData['description'],
-        semester: courseData['semester'],
-        year: courseData['year'],
-        createdAt: DateTime.now(),
-      );
-      _courses.insert(0, course);
+      // Refrescar lista de cursos para limpiar duplicados
+      _courses = List.from(_courses);
       notifyListeners();
-      return course;
+      return null;
     } finally {
       _isLoading = false;
       notifyListeners();

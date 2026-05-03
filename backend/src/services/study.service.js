@@ -3,17 +3,41 @@
 const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
-// Hugging Face Inference API (gratuito)
-// Usar modelo más estable y rápido
-const HF_API_URL = 'https://api-inference.huggingface.co/models/bigscience/T0_3B';
+// Google Gemini API (OPCIÓN PRINCIPAL - más potente)
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+// Usar API key proporcionada o de environment
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAVBC0vj95d3P4fWQJFmjjSDmB9J8thhuc';
+
+// Fallback a Hugging Face si Gemini falla
+const HF_API_URL = 'https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill';
 const HF_API_KEY = process.env.HF_API_KEY || null;
+
+// Configuración de prompts mejorados para EstudIA
+const ESTUDIA_PERSONALITY = `Eres EstudIA, un asistente académico inteligente integrado en la app Comunidades UTP.
+
+TU PERSONALIDAD:
+- Eres amigable, paciente y entusiasta por ayudar a estudiantes
+- Explicas conceptos de forma clara y accesible
+- Adaptas tu nivel según lo que necesite el estudiante
+- Usas ejemplos prácticos del mundo real
+- Eres conversacional, no robótica
+- Respondes en español de forma natural
+
+TU PROPÓSITO:
+- Ayudar con tareas académicas
+- Explicar temas de cursos universitarios  
+- Generar cuestionarios de estudio
+- Resumir documentos y materiales
+- Dar consejos de estudio útiles
+
+REGLAS:
+- Nunca inventes información
+- Si no sabes algo, dílo honestamente
+- Sé útil y concreto, no genérico
+- Usa formato markdown cuando sea útil (listas, negritas, etc.)`;
 
 // Timeout para Hugging Face (el modelo tarda en cargar la primera vez)
 const HF_TIMEOUT = 30000; // 30 segundos
-
-// Google Gemini API (gratuito - 60 req/min)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 class StudyService {
   
@@ -357,40 +381,67 @@ class StudyService {
     }
   }
 
-  // Generación de resumen con IA usando Hugging Face o fallback inteligente
+  // Generación de resumen con IA usando GEMINI como principal
   async generateAISummary(material) {
-    try {
-      // Intentar Hugging Face primero si hay API key
-      if (HF_API_KEY) {
-        const response = await fetch(HF_API_URL, {
+    console.log('📝 Generando resumen para:', material.name);
+    
+    // ✅ INTENTAR GEMINI PRIMERO
+    if (GEMINI_API_KEY) {
+      try {
+        console.log('🚀 Usando Gemini para resumen...');
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${HF_API_KEY}`
           },
           body: JSON.stringify({
-            inputs: `<s>[INST] Eres un asistente académico experto. Genera un resumen conciso del siguiente material de estudio: "${material.name}". Incluye puntos clave y conceptos importantes. [/INST]`,
-            parameters: {
-              max_new_tokens: 500,
+            contents: [{
+              role: 'user',
+              parts: [{
+                text: `${ESTUDIA_PERSONALITY}
+
+TAREA: Genera un resumen útil y completo del siguiente material de estudio.
+
+INFORMACIÓN DEL MATERIAL:
+- Nombre: "${material.name}"
+- Tipo: ${material.file_type || 'documento'}
+- Categoría: ${material.category || 'general'}
+
+El resumen debe incluir:
+1. 📋 Descripción general del contenido
+2. 🔑 Conceptos clave explicados
+3. 💡 Aplicaciones prácticas
+4. 📝 Tips de estudio específicos
+
+Formato el resumen con emojis y markdown para que sea fácil de leer.`
+              }]
+            }],
+            generationConfig: {
               temperature: 0.7,
-              return_full_text: false
+              maxOutputTokens: 1500,
+              topP: 0.95
             }
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          const summary = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-          if (summary) return summary;
+          const summary = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (summary && summary.trim()) {
+            console.log('✅ Gemini generó resumen');
+            return summary.trim();
+          }
+        } else {
+          console.log('❌ Gemini error:', await response.text());
         }
+      } catch (error) {
+        console.log('❌ Gemini failed:', error.message);
       }
-      
-      // Fallback: Generar resumen inteligente basado en el nombre del material
-      return this.generateSmartSummary(material);
-    } catch (error) {
-      console.log('Using smart fallback for summary');
-      return this.generateSmartSummary(material);
     }
+    
+    // Fallback inteligente si Gemini falla
+    console.log('⚠️ Usando fallback para resumen');
+    return this.generateSmartSummary(material);
   }
 
   // Generar resumen inteligente basado en el contenido
@@ -431,60 +482,89 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
     return summaries[type.toLowerCase()] || summaries['default'];
   }
 
-  // Generación de preguntas con IA usando Hugging Face
+  // Generación de preguntas con IA usando GEMINI como principal
   async generateAIQuestions(courseId, materials, count, difficulty) {
-    try {
-      const materialNames = materials.map(m => m.name).join(', ');
-      
-      const response = await fetch(HF_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(HF_API_KEY && { 'Authorization': `Bearer ${HF_API_KEY}` })
-        },
-        body: JSON.stringify({
-          inputs: `<s>[INST] Eres un profesor experto. Genera ${count} preguntas de opción múltiple de dificultad ${difficulty} basadas en: ${materialNames}. Formato JSON: [{"questionText", "options": {"A", "B", "C", "D"}, "correctOption", "explanation"}]. [/INST]`,
-          parameters: {
-            max_new_tokens: 1000,
-            temperature: 0.7,
-            return_full_text: false
-          }
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const content = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-      
-      // Intentar parsear JSON, si falla usar placeholders
+    const materialNames = materials.map(m => m.name).join(', ');
+    console.log(`🎯 Generando ${count} preguntas (${difficulty}) sobre:`, materialNames);
+    
+    // ✅ INTENTAR GEMINI PRIMERO
+    if (GEMINI_API_KEY) {
       try {
-        const questions = JSON.parse(content);
-        return Array.isArray(questions) ? questions : [questions];
-      } catch {
-        // Fallback a preguntas generadas
-        const questions = [];
-        for (let i = 0; i < count; i++) {
-          questions.push({
-            questionText: `Pregunta ${i + 1} sobre el curso (dificultad: ${difficulty})`,
-            options: {
-              A: 'Opción A',
-              B: 'Opción B',
-              C: 'Opción C',
-              D: 'Opción D'
-            },
-            correctOption: 'A',
-            explanation: 'Explicación de la respuesta correcta'
-          });
+        console.log('🚀 Usando Gemini para cuestionario...');
+        
+        const prompt = `${ESTUDIA_PERSONALITY}
+
+TAREA: Genera ${count} preguntas de opción múltiple de dificultad ${difficulty} basadas en estos materiales: ${materialNames}
+
+INSTRUCCIONES IMPORTANTES:
+1. Cada pregunta debe ser educativa y relevante
+2. Las opciones deben ser plausibles (no obvias)
+3. La explicación debe enseñar algo útil
+4. Devuelve SOLO un array JSON válido
+
+FORMATO REQUERIDO (JSON):
+[
+  {
+    "questionText": "¿Pregunta aquí?",
+    "options": {
+      "A": "Primera opción",
+      "B": "Segunda opción", 
+      "C": "Tercera opción",
+      "D": "Cuarta opción"
+    },
+    "correctOption": "A",
+    "explanation": "Explicación educativa de por qué es correcta"
+  }
+]
+
+SOLO devuelve el JSON, sin texto adicional.`;
+
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              role: 'user',
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              temperature: 0.8,
+              maxOutputTokens: 2000,
+              topP: 0.95
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          
+          if (content) {
+            // Limpiar el texto para extraer solo JSON
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              try {
+                const questions = JSON.parse(jsonMatch[0]);
+                if (Array.isArray(questions) && questions.length > 0) {
+                  console.log(`✅ Gemini generó ${questions.length} preguntas`);
+                  return questions.slice(0, count); // Asegurar que no exceda el count
+                }
+              } catch (parseError) {
+                console.log('⚠️ Error parseando JSON de Gemini:', parseError.message);
+              }
+            }
+          }
         }
-        return questions;
+      } catch (error) {
+        console.log('❌ Gemini failed for questions:', error.message);
       }
-    } catch (error) {
-      console.log('Using smart question generator');
-      return this.generateSmartQuestions(count, difficulty, materialNames);
     }
+    
+    // Fallback a preguntas generadas localmente
+    console.log('⚠️ Usando generador inteligente de preguntas');
+    return this.generateSmartQuestions(count, difficulty, materialNames);
   }
 
   // Generar preguntas inteligentes sin API externa
@@ -531,9 +611,10 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
 
   // Respuesta de IA - Intenta múltiples proveedores
   async generateAIAnswer(courseId, question) {
-    // Intentar Gemini primero (más estable)
+    // ✅ GEMINI ES LA OPCIÓN PRINCIPAL
     if (GEMINI_API_KEY) {
       try {
+        console.log('🚀 Using Gemini API...');
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
@@ -541,29 +622,42 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
           },
           body: JSON.stringify({
             contents: [{
+              role: 'user',
               parts: [{
-                text: `Eres EstudIA, un asistente académico amigable y natural. Responde esta pregunta de manera conversacional y útil: "${question}"`
+                text: `${ESTUDIA_PERSONALITY}\n\nPREGUNTA DEL ESTUDIANTE: "${question}"\n\nResponde de forma natural, útil y conversacional. Si es un tema académico, explícalo bien. Si es una pregunta simple, responde amigablemente.`
               }]
             }],
             generationConfig: {
               temperature: 0.8,
-              maxOutputTokens: 800,
-              topP: 0.95
+              maxOutputTokens: 1500,
+              topP: 0.95,
+              topK: 40
             }
           })
         });
 
+        console.log('📡 Gemini status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('📊 Gemini response structure:', Object.keys(data));
+          
           const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (answer) {
-            console.log('✅ Gemini responded successfully');
+          if (answer && answer.trim()) {
+            console.log('✅ Gemini responded with:', answer.slice(0, 100) + '...');
             return answer.trim();
+          } else {
+            console.log('⚠️ Gemini returned empty response');
           }
+        } else {
+          const errorText = await response.text();
+          console.log('❌ Gemini API error:', response.status, errorText.slice(0, 200));
         }
       } catch (error) {
-        console.log('Gemini failed:', error.message);
+        console.log('❌ Gemini failed:', error.message);
       }
+    } else {
+      console.log('⚠️ No Gemini API key configured');
     }
 
     // Intentar Hugging Face (gratis sin API key, pero con límites)
