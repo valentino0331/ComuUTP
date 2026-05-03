@@ -1,7 +1,5 @@
-2026/05/03-12:36:30.297 1fbc Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.e9112f6d\flutter_tools_chrome_device.b3d1adab\Default\Local Storage\leveldb/MANIFEST-000001
-2026/05/03-12:36:30.305 1fbc Recovering log #4
-2026/05/03-12:36:30.310 1fbc Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.e9112f6d\flutter_tools_chrome_device.b3d1adab\Default\Local Storage\leveldb/000004.log 
-2026/05/03-12:36:30.312 1fbc Delete type=0 #3
-2026/05/03-12:38:05.437 1fbc Level-0 table #7: started
-2026/05/03-12:38:05.441 1fbc Level-0 table #7: 14455 bytes OK
-2026/05/03-12:38:05.443 1fbc Delete type=0 #4
+2026/05/03-18:15:03.096 5894 Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.92823f9b\flutter_tools_chrome_device.cbaf927c\Default\Local Storage\leveldb/MANIFEST-000001
+2026/05/03-18:15:03.104 5894 Recovering log #6
+2026/05/03-18:15:03.108 5894 Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.92823f9b\flutter_tools_chrome_device.cbaf927c\Default\Local Storage\leveldb/000006.log 
+2026/05/03-18:15:03.109 5894 Delete type=0 #3
+2026/05/03-18:15:03.109 5894 Delete type=0 #4

@@ -837,59 +837,11 @@ Basándome en los materiales del curso, te puedo decir:
       else if (hour < 18) greeting = '¡Buenas tardes';
       else greeting = '¡Buenas noches';
       
-      return `${greeting}! 👋 Soy EstudIA, tu asistente de estudio. ¿En qué puedo ayudarte hoy? Puedo explicarte conceptos, darte consejos de estudio, crear cuestionarios o resumir materiales. ¡Lo que necesites! 🎓`;
+      return `¡${greeting}! 👋 Soy EstudIA, tu asistente académico personal. Estoy aquí para ayudarte con:\n\n• 📚 Explicaciones de conceptos complejos\n• 📝 Resolución de dudas de cualquier materia\n• 🎯 Preparación para exámenes\n• � Tips de estudio personalizados\n\n¿Qué tema te gustaría abordar hoy? Puedo ayudarte con matemáticas, ciencias, programación, idiomas y mucho más.`;
     }
-    
-    // Preguntas sobre cómo está o emociones
-    if (/cómo estás|cómo te va|qué tal estás|todo bien/i.test(q)) {
-      return `¡Estoy genial, gracias por preguntar! 😊 Estoy aquí listo para ayudarte con tus estudios. ¿Tienes alguna duda sobre algún tema o necesitas que te explique algo? Estoy todo oídos... bueno, todo código 🤖✨`;
-    }
-    
-    // Nombre e identidad
-    if (/quién eres|cómo te llamas|tu nombre|qué eres/i.test(q)) {
-      return `Soy **EstudIA** 🤖✨, tu asistente académico personal dentro de la app ComuUTP. Estoy diseñado para ayudarte a aprender de forma más fácil y divertida.
 
-Puedo:
-• 📚 Explicarte conceptos difíciles
-• 💡 Darte consejos de estudio personalizados
-• 📝 Crear cuestionarios para practicar
-• 📖 Resumir materiales de estudio
-• 🎯 Resolver tus dudas académicas
+    // ...
 
-¿Qué necesitas hoy? 🚀`;
-    }
-    
-    // Agradecimientos
-    if (/gracias|muchas gracias|te agradezco|thanks/i.test(q)) {
-      const thanks = [
-        '¡De nada! 😊 Estoy aquí para lo que necesites.',
-        '¡Con gusto! 🎉 Me encanta poder ayudarte.',
-        '¡No hay de qué! 💪 Seguimos cuando quieras.',
-        '¡Para eso estoy! 🌟 ¿Necesitas algo más?'
-      ];
-      return thanks[Math.floor(Math.random() * thanks.length)];
-    }
-    
-    // Despedidas
-    if (/adiós|hasta luego|nos vemos|chao|bye|me voy/i.test(q)) {
-      return `¡Hasta luego! 👋🎓 Que tengas un excelente día de estudio. Recuerda que estaré aquí cuando me necesites. ¡Tú puedes con todo! 💪✨`;
-    }
-    
-    // Preguntas de qué puede hacer
-    if (/qué puedes hacer|qué sabes hacer|ayuda|funciones|capacidades/i.test(q)) {
-      return `¡Tengo varias habilidades para ayudarte! 🚀
-
-**Cosas que puedo hacer:**
-
-💬 **Chat académico** - Habla conmigo sobre cualquier tema de estudio
-💡 **Consejos de estudio** - Te doy tips personalizados para aprender mejor
-📝 **Cuestionarios** - Genero preguntas para que practiques
-📄 **Resúmenes** - Resumo materiales largos en puntos clave
-🔍 **Explicaciones** - Te explico conceptos paso a paso
-
-¿Cuál te gustaría probar? 😊`;
-    }
-    
     // Chistes o humor
     if (/chiste|cuéntame algo gracioso|hazme reír|broma/i.test(q)) {
       const jokes = [

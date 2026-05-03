@@ -1,58 +1,54 @@
-2026/05/03-12:37:30.649 4d9c Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.e9112f6d\flutter_tools_chrome_device.b3d1adab\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/05/03-12:37:30.651 4d9c Recovering log #77
-2026/05/03-12:37:30.652 4d9c Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.e9112f6d\flutter_tools_chrome_device.b3d1adab\Default\EdgeCoupons/coupons_data.db/000077.log 
-2026/05/03-12:37:30.654 4d9c Delete type=0 #4
-2026/05/03-12:37:30.654 4d9c Delete type=0 #7
-2026/05/03-12:37:30.654 4d9c Delete type=2 #8
-2026/05/03-12:37:30.654 4d9c Delete type=0 #10
-2026/05/03-12:37:30.654 4d9c Delete type=2 #11
-2026/05/03-12:37:30.654 4d9c Delete type=0 #13
-2026/05/03-12:37:30.654 4d9c Delete type=2 #14
-2026/05/03-12:37:30.655 4d9c Delete type=0 #16
-2026/05/03-12:37:30.655 4d9c Delete type=2 #17
-2026/05/03-12:37:30.655 4d9c Delete type=0 #17
-2026/05/03-12:37:30.655 4d9c Delete type=2 #19
-2026/05/03-12:37:30.655 4d9c Delete type=0 #21
-2026/05/03-12:37:30.675 4d9c Delete type=2 #22
-2026/05/03-12:37:30.675 4d9c Delete type=0 #24
-2026/05/03-12:37:30.675 4d9c Delete type=2 #25
-2026/05/03-12:37:30.675 4d9c Delete type=0 #27
-2026/05/03-12:37:30.675 4d9c Delete type=0 #28
-2026/05/03-12:37:30.675 4d9c Delete type=2 #30
-2026/05/03-12:37:30.675 4d9c Delete type=0 #32
-2026/05/03-12:37:30.676 4d9c Delete type=2 #33
-2026/05/03-12:37:30.676 4d9c Delete type=0 #35
-2026/05/03-12:37:30.676 4d9c Delete type=2 #36
-2026/05/03-12:37:30.676 4d9c Delete type=0 #38
-2026/05/03-12:37:30.676 4d9c Delete type=2 #39
-2026/05/03-12:37:30.676 4d9c Delete type=0 #41
-2026/05/03-12:37:30.676 4d9c Delete type=2 #43
-2026/05/03-12:37:30.677 4d9c Delete type=0 #45
-2026/05/03-12:37:30.677 4d9c Delete type=2 #46
-2026/05/03-12:37:30.690 4d9c Delete type=0 #48
-2026/05/03-12:37:30.690 4d9c Delete type=2 #49
-2026/05/03-12:37:30.691 4d9c Delete type=0 #51
-2026/05/03-12:37:30.691 4d9c Delete type=2 #52
-2026/05/03-12:37:30.721 4d9c Delete type=0 #54
-2026/05/03-12:37:30.721 4d9c Delete type=2 #56
-2026/05/03-12:37:30.721 4d9c Delete type=0 #58
-2026/05/03-12:37:30.721 4d9c Delete type=2 #59
-2026/05/03-12:37:30.721 4d9c Delete type=0 #61
-2026/05/03-12:37:30.736 4d9c Delete type=2 #62
-2026/05/03-12:37:30.736 4d9c Delete type=0 #64
-2026/05/03-12:37:30.736 4d9c Delete type=2 #65
-2026/05/03-12:37:30.752 4d9c Delete type=0 #67
-2026/05/03-12:37:30.752 4d9c Delete type=0 #71
-2026/05/03-12:37:30.753 4d9c Delete type=0 #74
-2026/05/03-12:37:31.067 3cec Level-0 table #81: started
-2026/05/03-12:37:31.070 3cec Level-0 table #81: 682232 bytes OK
-2026/05/03-12:37:31.071 3cec Delete type=0 #77
-2026/05/03-12:37:31.072 3cec Compacting 4@0 + 1@1 files
-2026/05/03-12:37:31.079 3cec Generated table #82@0: 3 keys, 682232 bytes
-2026/05/03-12:37:31.079 3cec Compacted 4@0 + 1@1 files => 682232 bytes
-2026/05/03-12:37:31.080 3cec compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/05/03-12:37:31.081 3cec Delete type=2 #69
-2026/05/03-12:37:31.081 3cec Delete type=2 #72
-2026/05/03-12:37:31.081 3cec Delete type=2 #75
-2026/05/03-12:37:31.081 3cec Delete type=2 #78
-2026/05/03-12:37:31.081 3cec Delete type=2 #81
+2026/05/03-18:15:16.965 42dc Reusing MANIFEST C:\Users\marca\AppData\Local\Temp\flutter_tools.92823f9b\flutter_tools_chrome_device.cbaf927c\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/05/03-18:15:16.968 42dc Recovering log #80
+2026/05/03-18:15:16.969 42dc Reusing old log C:\Users\marca\AppData\Local\Temp\flutter_tools.92823f9b\flutter_tools_chrome_device.cbaf927c\Default\EdgeCoupons/coupons_data.db/000080.log 
+2026/05/03-18:15:16.972 42dc Delete type=0 #4
+2026/05/03-18:15:16.972 42dc Delete type=0 #7
+2026/05/03-18:15:16.972 42dc Delete type=2 #8
+2026/05/03-18:15:16.972 42dc Delete type=0 #10
+2026/05/03-18:15:16.972 42dc Delete type=2 #11
+2026/05/03-18:15:16.972 42dc Delete type=0 #13
+2026/05/03-18:15:16.972 42dc Delete type=2 #14
+2026/05/03-18:15:16.977 42dc Delete type=0 #16
+2026/05/03-18:15:16.977 42dc Delete type=2 #17
+2026/05/03-18:15:16.990 42dc Delete type=0 #17
+2026/05/03-18:15:16.990 42dc Delete type=2 #19
+2026/05/03-18:15:16.990 42dc Delete type=0 #21
+2026/05/03-18:15:17.015 42dc Delete type=2 #22
+2026/05/03-18:15:17.015 42dc Delete type=0 #24
+2026/05/03-18:15:17.016 42dc Delete type=2 #25
+2026/05/03-18:15:17.016 42dc Delete type=0 #27
+2026/05/03-18:15:17.016 42dc Delete type=0 #28
+2026/05/03-18:15:17.016 42dc Delete type=2 #30
+2026/05/03-18:15:17.016 42dc Delete type=0 #32
+2026/05/03-18:15:17.017 42dc Delete type=2 #33
+2026/05/03-18:15:17.028 42dc Delete type=0 #35
+2026/05/03-18:15:17.028 42dc Delete type=2 #36
+2026/05/03-18:15:17.029 42dc Delete type=0 #38
+2026/05/03-18:15:17.029 42dc Delete type=2 #39
+2026/05/03-18:15:17.041 42dc Delete type=0 #41
+2026/05/03-18:15:17.041 42dc Delete type=2 #43
+2026/05/03-18:15:17.041 42dc Delete type=0 #45
+2026/05/03-18:15:17.042 42dc Delete type=2 #46
+2026/05/03-18:15:17.042 42dc Delete type=0 #48
+2026/05/03-18:15:17.042 42dc Delete type=2 #49
+2026/05/03-18:15:17.042 42dc Delete type=0 #51
+2026/05/03-18:15:17.042 42dc Delete type=2 #52
+2026/05/03-18:15:17.042 42dc Delete type=0 #54
+2026/05/03-18:15:17.043 42dc Delete type=2 #56
+2026/05/03-18:15:17.043 42dc Delete type=0 #58
+2026/05/03-18:15:17.043 42dc Delete type=2 #59
+2026/05/03-18:15:17.043 42dc Delete type=0 #61
+2026/05/03-18:15:17.043 42dc Delete type=2 #62
+2026/05/03-18:15:17.044 42dc Delete type=0 #64
+2026/05/03-18:15:17.044 42dc Delete type=2 #65
+2026/05/03-18:15:17.044 42dc Delete type=0 #67
+2026/05/03-18:15:17.044 42dc Delete type=2 #69
+2026/05/03-18:15:17.044 42dc Delete type=0 #71
+2026/05/03-18:15:17.044 42dc Delete type=2 #72
+2026/05/03-18:15:17.044 42dc Delete type=0 #74
+2026/05/03-18:15:17.045 42dc Delete type=2 #75
+2026/05/03-18:15:17.045 42dc Delete type=0 #77
+2026/05/03-18:15:17.058 42dc Delete type=2 #78
+2026/05/03-18:15:26.066 7320 Level-0 table #85: started
+2026/05/03-18:15:26.071 7320 Level-0 table #85: 682232 bytes OK
+2026/05/03-18:15:26.073 7320 Delete type=0 #80

@@ -1760,7 +1760,7 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
             'Haz preguntas en tiempo real sobre tus PDFs',
             Icons.chat_bubble,
             EstudIAColors.success,
-            () => _showAIChatDialog(),
+            () => _showAIChatDialog(context),
           ),
         ],
       ),
@@ -2280,7 +2280,7 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       color: EstudIAColors.success,
                       onTap: () {
                         Navigator.pop(context);
-                        _showAIChatDialog();
+                        _showAIChatDialog(context);
                       },
                     ),
                     const SizedBox(height: 24),
@@ -2607,6 +2607,211 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                       ),
                     ),
                   ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAIChatDialog(BuildContext context) {
+    final textController = TextEditingController();
+    final messages = <Map<String, dynamic>>[
+      {
+        'isAI': true,
+        'message': '¡Hola! Soy EstudIA. Puedo ayudarte a entender tus materiales. ¿Qué te gustaría saber?',
+      }
+    ];
+    bool isLoading = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [EstudIAColors.primary, EstudIAColors.secondary],
+                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.smart_toy,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'EstudIA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Asistente académico inteligente',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Messages
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index];
+                    return _buildChatBubble(
+                      msg['message'],
+                      isAI: msg['isAI'],
+                    );
+                  },
+                ),
+              ),
+              // Input
+              Container(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  top: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade200),
+                  ),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: textController,
+                          decoration: InputDecoration(
+                            hintText: 'Escribe tu pregunta...',
+                            hintStyle: TextStyle(color: Colors.grey.shade400),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: isLoading
+                            ? null
+                            : () async {
+                                final text = textController.text.trim();
+                                if (text.isEmpty) return;
+
+                                setState(() {
+                                  messages.add({
+                                    'isAI': false,
+                                    'message': text,
+                                  });
+                                  isLoading = true;
+                                });
+                                textController.clear();
+
+                                try {
+                                  final provider = context.read<StudyProvider>();
+                                  final response = await provider.askQuestion('general', text);
+                                  
+                                  setState(() {
+                                    messages.add({
+                                      'isAI': true,
+                                      'message': response?.content ?? 'Lo siento, no pude procesar tu pregunta.',
+                                    });
+                                    isLoading = false;
+                                  });
+                                } catch (e) {
+                                  setState(() {
+                                    messages.add({
+                                      'isAI': true,
+                                      'message': 'Lo siento, ocurrió un error. Inténtalo de nuevo.',
+                                    });
+                                    isLoading = false;
+                                  });
+                                }
+                              },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: isLoading
+                                  ? [Colors.grey.shade300, Colors.grey.shade400]
+                                  : [EstudIAColors.primary, EstudIAColors.secondary],
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.send,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
