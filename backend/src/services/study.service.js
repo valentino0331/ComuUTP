@@ -612,9 +612,15 @@ SOLO devuelve el JSON, sin texto adicional.`;
   // Respuesta de IA - Intenta múltiples proveedores
   async generateAIAnswer(courseId, question) {
     // ✅ GEMINI ES LA OPCIÓN PRINCIPAL
+    console.log('🔍 DEBUG: GEMINI_API_KEY exists?', !!GEMINI_API_KEY);
+    console.log('🔍 DEBUG: GEMINI_API_KEY length:', GEMINI_API_KEY ? GEMINI_API_KEY.length : 0);
+    console.log('🔍 DEBUG: GEMINI_API_KEY first 10 chars:', GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 10) + '...' : 'N/A');
+    
     if (GEMINI_API_KEY) {
       try {
         console.log('🚀 Using Gemini API...');
+        console.log('🚀 DEBUG: API URL:', GEMINI_API_URL);
+        
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
@@ -642,22 +648,34 @@ SOLO devuelve el JSON, sin texto adicional.`;
           const data = await response.json();
           console.log('📊 Gemini response structure:', Object.keys(data));
           
+          // Verificar si hay error en la respuesta de Gemini
+          if (data.error) {
+            console.log('❌ Gemini returned error:', JSON.stringify(data.error));
+          }
+          
+          // Verificar candidates
+          if (!data.candidates || data.candidates.length === 0) {
+            console.log('⚠️ Gemini no candidates. Full response:', JSON.stringify(data).slice(0, 500));
+          }
+          
           const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (answer && answer.trim()) {
             console.log('✅ Gemini responded with:', answer.slice(0, 100) + '...');
             return answer.trim();
           } else {
             console.log('⚠️ Gemini returned empty response');
+            console.log('⚠️ Full response:', JSON.stringify(data).slice(0, 500));
           }
         } else {
           const errorText = await response.text();
-          console.log('❌ Gemini API error:', response.status, errorText.slice(0, 200));
+          console.log('❌ Gemini API error:', response.status, errorText.slice(0, 500));
         }
       } catch (error) {
         console.log('❌ Gemini failed:', error.message);
+        console.log('❌ Gemini error stack:', error.stack);
       }
     } else {
-      console.log('⚠️ No Gemini API key configured');
+      console.log('⚠️ No Gemini API key configured - using fallback');
     }
 
     // Intentar Hugging Face (gratis sin API key, pero con límites)
