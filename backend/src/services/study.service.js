@@ -4,12 +4,14 @@ const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
 // Google Gemini API (OPCIÓN PRINCIPAL - más potente)
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+// Usar gemini-pro (modelo estable) o gemini-1.5-flash-latest
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 // Usar API key proporcionada o de environment
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAVBC0vj95d3P4fWQJFmjjSDmB9J8thhuc';
 
 // Fallback a Hugging Face si Gemini falla
-const HF_API_URL = 'https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill';
+// Usar modelo que sí funcione: facebook/bart-large-cnn o google/flan-t5-base
+const HF_API_URL = 'https://api-inference.huggingface.co/models/google/flan-t5-base';
 const HF_API_KEY = process.env.HF_API_KEY || null;
 
 // Configuración de prompts mejorados para EstudIA
