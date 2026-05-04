@@ -6,8 +6,8 @@ const { v4: uuidv4 } = require('uuid');
 // Google Gemini API (OPCIÓN PRINCIPAL - más potente)
 // Usar gemini-pro (modelo estable) o gemini-1.5-flash-latest
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-// API key hardcodeada (también se puede sobreescribir con variable de entorno)
-const GEMINI_API_KEY = 'AIzaSyAVBC0vj95d3P4fWQJFmjjSDmB9J8thhuc';
+// API key hardcodeada - NO usar process.env para evitar que Railway lo busque como secret
+const GEMINI_KEY = 'AIzaSyAVBC0vj95d3P4fWQJFmjjSDmB9J8thhuc';
 
 // Fallback a Hugging Face si Gemini falla
 // Usar modelo que sí funcione: facebook/bart-large-cnn o google/flan-t5-base
@@ -388,10 +388,10 @@ class StudyService {
     console.log('📝 Generando resumen para:', material.name);
     
     // ✅ INTENTAR GEMINI PRIMERO
-    if (GEMINI_API_KEY) {
+    if (GEMINI_KEY) {
       try {
         console.log('🚀 Usando Gemini para resumen...');
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -490,7 +490,7 @@ Revisa este material junto con tus apuntes de clase para reforzar el aprendizaje
     console.log(`🎯 Generando ${count} preguntas (${difficulty}) sobre:`, materialNames);
     
     // ✅ INTENTAR GEMINI PRIMERO
-    if (GEMINI_API_KEY) {
+    if (GEMINI_KEY) {
       try {
         console.log('🚀 Usando Gemini para cuestionario...');
         
@@ -521,7 +521,7 @@ FORMATO REQUERIDO (JSON):
 
 SOLO devuelve el JSON, sin texto adicional.`;
 
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -614,16 +614,16 @@ SOLO devuelve el JSON, sin texto adicional.`;
   // Respuesta de IA - Intenta múltiples proveedores
   async generateAIAnswer(courseId, question) {
     // ✅ GEMINI ES LA OPCIÓN PRINCIPAL
-    console.log('🔍 DEBUG: GEMINI_API_KEY exists?', !!GEMINI_API_KEY);
-    console.log('🔍 DEBUG: GEMINI_API_KEY length:', GEMINI_API_KEY ? GEMINI_API_KEY.length : 0);
-    console.log('🔍 DEBUG: GEMINI_API_KEY first 10 chars:', GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 10) + '...' : 'N/A');
+    console.log('🔍 DEBUG: GEMINI_KEY exists?', !!GEMINI_KEY);
+    console.log('🔍 DEBUG: GEMINI_KEY length:', GEMINI_KEY ? GEMINI_KEY.length : 0);
+    console.log('🔍 DEBUG: GEMINI_KEY first 10 chars:', GEMINI_KEY ? GEMINI_KEY.substring(0, 10) + '...' : 'N/A');
     
-    if (GEMINI_API_KEY) {
+    if (GEMINI_KEY) {
       try {
         console.log('🚀 Using Gemini API...');
         console.log('🚀 DEBUG: API URL:', GEMINI_API_URL);
         
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
