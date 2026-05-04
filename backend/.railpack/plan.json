@@ -1,0 +1,11 @@
+{
+  "name": "comuutp-backend",
+  "version": "0.1.0",
+  "secrets": [],
+  "build": {
+    "commands": ["npm install"]
+  },
+  "deploy": {
+    "startCommand": "node server.js"
+  }
+}
