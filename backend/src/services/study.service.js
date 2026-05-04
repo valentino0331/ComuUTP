@@ -1402,7 +1402,6 @@ Como EstudIA, te ayudo a explorar este tema. Para darte la mejor respuesta, cué
 Si tienes material de estudio cargado en la app, ¡puedo usarlo para respuestas más específicas! 📚
 
 ¿Qué información exacta necesitas sobre "${qClean}"? ✨`;
-    }
   }
 
   // Eliminar curso y todos sus materiales
