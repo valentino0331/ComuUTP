@@ -917,21 +917,472 @@ Toma un descanso si lo necesitas, respira hondo y vuelve con todo. ¡Tú puedes!
 
 ¿Cuál quieres que te explique más a fondo? 🤓`;
     }
+
+    // MATEMÁTICAS - Respuestas específicas
+    if (/matemática|matematica|mate|álgebra|algebra|calculo|cálculo|ecuación|geometría|trigonometría|aritmética|estadística|probabilidad|números|función|derivada|integral|límite|vector|matriz/i.test(q)) {
+      return `📐 **Matemáticas** - El lenguaje del universo
+
+Las matemáticas son fundamentales para entender el mundo. Aquí tienes información clave:
+
+🔢 **Áreas principales:**
+• **Aritmética**: Operaciones básicas, fracciones, porcentajes
+• **Álgebra**: Ecuaciones, polinomios, funciones (lineal, cuadrática)
+• **Geometría**: Figuras, áreas, volúmenes, teorema de Pitágoras
+• **Trigonometría**: Seno, coseno, tangente, identidades
+• **Cálculo**: Derivadas (tasa de cambio), integrales (áreas bajo curvas)
+• **Estadística**: Media, mediana, desviación estándar, probabilidad
+
+💡 **Conceptos fundamentales:**
+- Ecuación lineal: ax + b = 0 → x = -b/a
+- Teorema de Pitágoras: a² + b² = c²
+- Derivada de xⁿ: n·x^(n-1)
+- Probabilidad: casos favorables / casos posibles
+
+📝 **¿Necesitas resolver un problema específico?** 
+Dime: "Resuelve 2x + 5 = 13" o "Explica derivadas" y te ayudo paso a paso.
+
+¿Qué tema de matemáticas quieres profundizar? 🔢`;
+    }
+
+    // FÍSICA - Respuestas específicas
+    if (/física|fisica|mecánica|electricidad|termodinámica|óptica|ondas|cuántica|relatividad|movimiento|velocidad|aceleración|fuerza|energía|trabajo|potencia/i.test(q)) {
+      return `⚛️ **Física** - Entendiendo las leyes del universo
+
+La física estudia la materia, energía y sus interacciones.
+
+🔧 **Mecánica Clásica:**
+• **Primera Ley (Inercia)**: Un objeto en reposo permanece en reposo
+• **Segunda Ley**: F = m·a (Fuerza = masa × aceleración)
+• **Tercera Ley**: Acción-reacción
+• **Energía cinética**: Ec = ½mv²
+• **Energía potencial**: Ep = mgh
+
+⚡ **Electricidad y Magnetismo:**
+• Ley de Ohm: V = I·R (Voltaje = Corriente × Resistencia)
+• Potencia eléctrica: P = V·I
+• Campo eléctrico: E = F/q
+
+🌡️ **Termodinámica:**
+• Primera Ley: ΔU = Q - W (conservación de energía)
+• Temperatura: Celsius, Kelvin, Fahrenheit
+• Transferencia de calor: conducción, convección, radiación
+
+🌊 **Ondas y Óptica:**
+• v = λ·f (velocidad = longitud de onda × frecuencia)
+• Ley de Snell: n₁sinθ₁ = n₂sinθ₂
+
+¿Qué ley física o problema necesitas entender? 🚀`;
+    }
+
+    // QUÍMICA - Respuestas específicas
+    if (/química|quimica|elemento|átomo|molécula|enlace|reacción|química orgánica|estequiometría|ácido|base|ph|tabla periódica|gas|sólido|líquido/i.test(q)) {
+      return `⚗️ **Química** - La ciencia de la materia y sus transformaciones
+
+La química estudia la composición, estructura y propiedades de la materia.
+
+🧪 **Conceptos fundamentales:**
+• **Átomo**: Protones (+), neutrones (0), electrones (-)
+• **Molécula**: Dos o más átomos unidos
+• **Elemento**: Sustancia pura (H, O, C, Fe...)
+• **Compuesto**: Dos o más elementos (H₂O, CO₂, NaCl)
+
+🔗 **Enlaces químicos:**
+• **Iónico**: Transferencia de electrones (NaCl)
+• **Covalente**: Compartición de electrones (H₂O)
+• **Metálico**: Electrones libres entre átomos metálicos
+
+⚖️ **Estequiometría:**
+• Mol: 6.022 × 10²³ partículas (número de Avogadro)
+• Masa molar: g/mol
+• Balanceo de ecuaciones: conservación de masa
+
+🧫 **Reacciones comunes:**
+• Combustión: CH₄ + 2O₂ → CO₂ + 2H₂O
+• Neutralización: Ácido + Base → Sal + Agua
+• Oxidación-reducción: Transferencia de electrones
+
+📊 **pH**: Escala 0-14 (0-6 ácido, 7 neutro, 8-14 básico)
+
+¿Qué reacción o concepto químico necesitas entender? 🧪`;
+    }
+
+    // BIOLOGÍA - Respuestas específicas
+    if (/biología|biologia|biologica|celula|célula|adn|arn|genética|evolución|ecosistema|fotosíntesis|respiración|anatomía|sistema|órgano|tejido|microorganismo|virus|bacteria/i.test(q)) {
+      return `🧬 **Biología** - La ciencia de la vida
+
+La biología estudia los seres vivos y sus procesos vitales.
+
+🦠 **La Célula** (unidad básica de la vida):
+• **Procariota**: Sin núcleo (bacterias)
+• **Eucariota**: Con núcleo (animales, plantas, hongos)
+• **Orgánulos**: Mitocondrias (energía), ribosomas (proteínas), núcleo (ADN)
+
+🧬 **Genética:**
+• **ADN**: Ácido desoxirribonucleico (doble hélice)
+• **Gen**: Segmento de ADN que codifica una proteína
+• **Cromosomas**: Estructuras que llevan genes
+• **Herencia**: Dominante vs recesivo, genotipo vs fenotipo
+
+🌿 **Fotosíntesis**: 6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂
+🫁 **Respiración celular**: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + ATP
+
+🐾 **Evolución** (Darwin):
+• Selección natural: supervivencia del más apto
+• Adaptación: cambios para sobrevivir en el ambiente
+• Especiación: formación de nuevas especies
+
+🌍 **Ecología:**
+• Ecosistema: biótico (vivos) + abiótico (físico)
+• Cadenas alimentarias: productores → consumidores → descomponedores
+• Biodiversidad: variedad de especies
+
+¿Qué proceso biológico o sistema te interesa? 🌱`;
+    }
+
+    // HISTORIA - Respuestas específicas
+    if (/historia|historia universal|historia del peru|historia del perú|civilización|imperio|guerra|revolución|independencia|edad|antigua|medieval|moderna|contemporánea|prehistoria|inca|incaico|colonial|republica/i.test(q)) {
+      return `📜 **Historia** - Nuestro pasado colectivo
+
+La historia estudia los eventos humanos a través del tiempo.
+
+🏛️ **Eras principales:**
+• **Prehistoria**: Antes de la escritura (Paleolítico, Neolítico)
+• **Edad Antigua**: 3500 a.C. - 476 d.C. (Egipto, Mesopotamia, Grecia, Roma)
+• **Edad Media**: 476 - 1492 (Feudalismo, Cruzadas, Islam)
+• **Edad Moderna**: 1492 - 1789 (Renacimiento, Descubrimiento de América)
+• **Edad Contemporánea**: 1789 - hoy (Revolución Francesa, Industrial)
+
+🌎 **Civilizaciones antiguas:**
+• **Mesopotamia**: Código de Hammurabi, escritura cuneiforme
+• **Egipto**: Faraones, pirámides, jeroglíficos
+• **Grecia**: Democracia ateniense, filosofía (Sócrates, Platón, Aristóteles)
+• **Roma**: República, Imperio, derecho romano
+
+🇵🇪 **Historia del Perú:**
+• **Período preínca**: Culturas (Chavín, Paracas, Nazca, Moche, Tiahuanaco)
+• **Imperio Inca**: Tawantinsuyo, Pachacútec, Cusco
+• **Conquista**: 1532, Francisco Pizarro, Cajamarca
+• **Virreinato**: 1542-1824, explotación minera, rebeliones (Túpac Amaru)
+• **Independencia**: 1821 (San Martín), 1824 (Ayacucho - Bolívar/Sucre)
+• **República**: Guano, Guerra del Pacífic, 1968-1980 (gobierno militar)
+
+🔄 **Revoluciones importantes:**
+• Francesa (1789): Libertad, igualdad, fraternidad
+• Industrial (s.XVIII): Máquina de vapor, fábricas
+• Rusa (1917): Socialismo, Lenin
+
+¿Qué período histórico o evento te interesa? 🏺`;
+    }
+
+    // GEOGRAFÍA - Respuestas específicas
+    if (/geografía|geografia|pais|país|capital|continente|mapa|clima|relieve|montaña|río|océano|desierto|latitud|longitud|coordenada|gps|población|demografía/i.test(q)) {
+      return `🗺️ **Geografía** - Nuestro planeta Tierra
+
+La geografía estudia la Tierra, sus fenómenos y los seres vivos.
+
+🌍 **Planetas y continente:**
+• **7 continentes**: Asia, África, Norteamérica, Sudamérica, Antártida, Europa, Oceanía
+• **5 océanos**: Pacífico, Atlántico, Índico, Antártico, Ártico
+• **Perú**: Sudamérica, capital Lima, 33 millones de habitantes
+
+🏔️ **Relieve terrestre:**
+• **Montañas**: Everest (8,848 m), Andes (cordillera más larga)
+• **Mesetas**: Altiplano andino, Deccan (India)
+• **Llanuras**: Pampas (Argentina), Amazonas
+• **Desiertos**: Sahara, Atacama (el más seco del mundo)
+• **Ríos**: Amazonas (mayor caudal), Nilo (más largo)
+
+🌡️ **Clima y elementos:**
+• **Latitud**: distancia al ecuador (0° a 90° N/S)
+• **Longitud**: distancia al meridiano de Greenwich (0° a 180° E/W)
+• **Zonas climáticas**: tropical, templada, polar, árida
+• **Fenómenos**: El Niño, La Niña, efecto invernadero
+
+👥 **Población:**
+• 8,000 millones de habitantes (2024)
+• China e India: países más poblados
+• Tasa de natalidad, mortalidad, migración
+• Urbanización: 55% vive en ciudades
+
+¿Qué país, región o fenómeno geográfico te interesa? 🌎`;
+    }
+
+    // LENGUAJE/LITERATURA - Respuestas específicas
+    if (/lenguaje|literatura|literario|poema|poeta|novela|cuento|ensayo|figura literaria|metáfora|símil|personificación|autor|escritor|generación|movimiento|romanticismo|modernismo/i.test(q)) {
+      return `📚 **Literatura y Lenguaje** - El arte de las palabras
+
+La literatura es el arte de la expresión verbal.
+
+📝 **Géneros literarios:**
+• **Narrativa**: Cuento, novela, fábula, leyenda, mito
+• **Lírica**: Soneto, romance, oda, elegía
+• **Dramática**: Tragedia, comedia, drama
+• **Ensayo**: Argumentativo, expositivo
+
+🎨 **Figuras retóricas:**
+• **Metáfora**: "Juliet es el sol" (sin comparación explícita)
+• **Símil**: "brillas como el sol" (con "como")
+• **Personificación**: Dar características humanas a objetos
+• **Hipérbole**: Exageración ("mil veces te lo dije")
+• **Anáfora**: Repetición al inicio de versos/frases
+
+🇵🇪 **Literatura peruana:**
+• **Prehispánica**: Poesía quechua, drama quechua (Ollantay)
+• **Colonial**: Garcilaso de la Vega ("Comentarios Reales")
+• **Modernismo**: José Santos Chocano
+• **Indigenismo**: José María Arguedas ("Los ríos profundos")
+• **Mundial**: Mario Vargas Llosa (Nobel 2010)
+
+🌍 **Literatura universal:**
+• **Antigua**: Homero (Iliada, Odisea), Sófocles (Edipo Rey)
+• **Renacimiento**: Shakespeare, Cervantes (Don Quijote)
+• **Romanticismo**: Victor Hugo, Edgar Allan Poe
+• **Realismo**: Flaubert, Tolstoi, Dostoyevski
+• **Siglo XX**: Gabriel García Márquez, Kafka, Orwell
+
+¿Qué obra, autor o figura retórica te interesa? ✍️`;
+    }
+
+    // PROGRAMACIÓN/INFORMÁTICA - Respuestas específicas
+    if (/programación|programacion|codigo|código|software|computadora|algoritmo|python|javascript|java|c\+\+|php|html|css|base de datos|sql|variable|función|funcion|bucle|condicional/i.test(q)) {
+      return `💻 **Programación** - Creando con código
+
+La programación es el arte de instruir computadoras.
+
+🐍 **Lenguajes populares:**
+• **Python**: Simple, versátil, data science, AI (print("Hola"))
+• **JavaScript**: Web interactiva, frontend + backend (Node.js)
+• **Java**: Android, empresas (Android Studio)
+• **C/C++**: Sistemas, videojuegos, performance
+• **HTML/CSS**: Estructura y estilo web (no son lenguajes de programación)
+
+🔧 **Conceptos fundamentales:**
+• **Variable**: Contenedor de datos (x = 5)
+• **Función**: Bloque de código reutilizable (def suma(a,b): return a+b)
+• **Condicional**: if-else, switch (toma de decisiones)
+• **Bucle**: for, while (repetición)
+• **Array/Lista**: Colección de datos ([1, 2, 3])
+
+🧠 **Algoritmos básicos:**
+• **Ordenamiento**: Bubble sort, quick sort
+• **Búsqueda**: Lineal, binaria
+• **Complejidad**: O(1), O(n), O(n²), O(log n)
+
+🗄️ **Bases de datos:**
+• SQL: SELECT, INSERT, UPDATE, DELETE
+• Tablas: filas (registros) y columnas (campos)
+• Clave primaria: identificador único
+
+🌐 **Desarrollo web:**
+• Frontend: HTML, CSS, JS, frameworks (React, Vue)
+• Backend: Node.js, Python (Django/Flask), PHP
+• API: JSON, REST, endpoints
+
+¿Qué lenguaje o concepto de programación necesitas aprender? 🚀`;
+    }
+
+    // IDIOMAS/INGLÉS - Respuestas específicas
+    if (/inglés|ingles|español|idioma|gramática|gramatica|vocabulario|verbo|sustantivo|adjetivo|tiempo verbal|presente|pasado|futuro|condicional|pronombre|preposición/i.test(q)) {
+      return `🌍 **Idiomas** - Puentes de comunicación
+
+Los idiomas nos conectan con el mundo.
+
+🇬🇧 **Inglés - Nivel básico:**
+• **Pronombres**: I, you, he/she/it, we, they
+• **Verbo "to be"**: I am, you are, he is
+• **Present simple**: I work, He works (+s/es)
+• **Past simple**: I worked (regular), I went (irregular)
+• **Future**: I will work, I am going to work
+
+📝 **Gramática española:**
+• **Sustantivo**: Persona, lugar, cosa (género: masculino/femenino)
+• **Adjetivo**: Cualidad (concordancia en género y número)
+• **Verbo**: Acción (conjugación por persona y tiempo)
+• **Tiempos**: Presente, pretérito, imperfecto, futuro, condicional
+• **Subjuntivo**: Modo de duda, deseo, hipótesis
+
+💬 **Expresiones útiles:**
+• **Inglés**: How are you? / What's your name? / Thank you
+• **Francés**: Bonjour / Merci / Comment allez-vous?
+• **Portugués**: Olá / Obrigado / Como vai?
+
+🗣️ **Consejos para aprender:**
+• Inmersión: Películas, música, podcasts en el idioma
+• Práctica diaria: 15 minutos es mejor que 2 horas semanales
+• No tengas miedo de cometer errores
+• Habla desde el día 1
+
+¿Qué idioma necesitas practicar o qué regla gramática te confunde? 🗣️`;
+    }
+
+    // FILOSOFÍA - Respuestas específicas
+    if (/filosofía|filosofia|ética|moral|lógica|conocimiento|metafísica|socrates|platón|platon|aristóteles|aristoteles|descartes|kant|nietzsche|nietzche|existencialismo|empirismo|racionalismo/i.test(q)) {
+      return `🤔 **Filosofía** - Amor a la sabiduría
+
+La filosofía busca respuestas fundamentales sobre la existencia, conocimiento y valores.
+
+🏛️ **Filósofos clásicos:**
+• **Sócrates** (470-399 a.C.): "Solo sé que no sé nada", método mayéutico
+• **Platón** (428-348 a.C.): Teoría de las Ideas, alegoría de la caverna
+• **Aristóteles** (384-322 a.C.): Lógica, ética, política, biología
+
+🧠 **Corrientes modernas:**
+• **Empirismo**: Conocimiento por experiencia (Locke, Hume)
+• **Racionalismo**: Conocimiento por razón (Descartes, Leibniz)
+• **Idealismo**: La realidad es mental (Kant, Hegel)
+• **Materialismo**: La materia es primaria (Marx)
+• **Existencialismo**: Existencia precede a la esencia (Sartre, Camus)
+
+⚖️ **Ética:**
+• **Utilitarismo**: Mayor felicidad para mayor número (Mill, Bentham)
+• **Deontología**: El deber por encima de las consecuencias (Kant)
+• **Virtud**: Desarrollo del carácter moral (Aristóteles)
+
+🔍 **Ramas filosóficas:**
+• **Epistemología**: Teoría del conocimiento
+• **Metafísica**: Naturaleza de la realidad
+• **Ética**: Moral y valores
+• **Estética**: Arte y belleza
+• **Lógica**: Razonamiento válido
+
+¿Qué filósofo o corriente filosófica te interesa? 🏛️`;
+    }
+
+    // ECONOMÍA - Respuestas específicas
+    if (/economía|economia|microeconomía|macroeconomía|oferta|demanda|mercado|precio|dinero|inflación|pib|pib|desempleo|empleo|crédito|inversión|capitalismo|socialismo|comunismo/i.test(q)) {
+      return `💰 **Economía** - Gestión de recursos
+
+La economía estudia cómo se asignan recursos escasos.
+
+📈 **Microeconomía (individuos y empresas):**
+• **Oferta y demanda**: Ley del mercado
+  - Precio alto → más oferta, menos demanda
+  - Precio bajo → menos oferta, más demanda
+• **Elasticidad**: Sensibilidad del precio
+• **Costos**: Fijos, variables, marginales
+• **Competencia**: Perfecta, monopolio, oligopolio
+
+📊 **Macroeconomía (países):**
+• **PIB**: Producto Interno Bruto (riqueza anual)
+• **Inflación**: Aumento generalizado de precios
+• **Desempleo**: Tasa de personas sin trabajo activo
+• **Política fiscal**: Impuestos y gasto público
+• **Política monetaria**: Banco central, tasa de interés, dinero
+
+🏦 **Sistema financiero:**
+• **Bancos**: Intermediarios (reciben depósitos, dan créditos)
+• **Bolsa**: Mercado de valores (acciones)
+• **Tipo de cambio**: Valor de una moneda vs otra
+
+💱 **Monedas:**
+• Dólar estadounidense (USD)
+• Euro (EUR)
+• Sol peruano (PEN)
+• Peso mexicano (MXN)
+
+🌍 **Sistemas económicos:**
+• Capitalismo: Propiedad privada, libre mercado
+• Socialismo: Propiedad social, planificación
+• Mixto: Combina elementos de ambos
+
+¿Qué concepto económico o indicador te interesa? 💵`;
+    }
+
+    // PSICOLOGÍA - Respuestas específicas
+    if (/psicología|psicologia|mente|conducta|comportamiento|personalidad|aprendizaje|memoria|inteligencia|emoción|motivación|freud|jung|piaget|conductismo|cognitivismo|desarrollo/i.test(q)) {
+      return `🧠 **Psicología** - Ciencia de la mente
+
+La psicología estudia el comportamiento y los procesos mentales.
+
+🧒 **Desarrollo:**
+• **Piaget**: Etapas del desarrollo cognitivo
+  - Sensoriomotora (0-2 años): Reflejos, primeras acciones
+  - Preoperacional (2-7): Lenguaje, pensamiento egocéntrico
+  - Operaciones concretas (7-11): Lógica, conservación
+  - Operaciones formales (11+): Razonamiento abstracto, hipótesis
+
+🎓 **Aprendizaje:**
+• **Conductismo**: Pavlov (condicionamiento clásico), Skinner (operante)
+• **Cognitivismo**: Procesamiento de información
+• **Constructivismo**: Construimos conocimiento (Piaget, Vygotsky)
+• **Social**: Observacional (Bandura)
+
+😴 **Funciones mentales:**
+• **Memoria**: Sensorial, corto plazo, largo plazo
+• **Atención**: Selectiva, dividida, sostenida
+• **Percepción**: Interpretación de estímulos
+• **Inteligencia**: Factor g, múltiples inteligencias (Gardner)
+
+😊 **Personalidad:**
+• **Freud**: Id, ego, superego; instintos; etapas psicosexuales
+• **Jung**: Inconsciente colectivo, arquetipos
+• **Big Five**: Apertura, responsabilidad, extraversión, amabilidad, neuroticismo
+
+🧘 **Salud mental:**
+• Ansiedad, depresión: causas y tratamientos
+• Terapias: Cognitivo-conductual, psicoanálisis, humanista
+
+¿Qué proceso psicológico o teoría del desarrollo te interesa? 🌱`;
+    }
+
+    // ARTE - Respuestas específicas
+    if (/arte|artístico|pintura|escultura|música|teatro|cine|danza|arquitectura|renacimiento|barroco|impresionismo|cubismo|surrealismo|da vinci|picasso|van gogh|michelangelo/i.test(q)) {
+      return `🎨 **Arte** - Expresión creativa humana
+
+El arte es la expresión de la belleza, emociones e ideas.
+
+🖼️ **Movimientos artísticos:**
+• **Renacimiento** (s.XV-XVI): Da Vinci, Miguel Ángel, perspectiva, anatomía
+• **Barroco** (s.XVII): Luz y sombra dramática, Rubens, Velázquez
+• **Neoclasicismo** (s.XVIII): Orden, razón, referencias griegas
+• **Romanticismo** (s.XIX): Emoción, naturaleza, Goya, Delacroix
+• **Impresionismo** (s.XIX): Luz, color, Monet, Van Gogh
+• **Cubismo** (s.XX): Formas geométricas, Picasso, Braque
+• **Surrealismo** (s.XX): Inconsciente, sueños, Dalí, Magritte
+
+🎭 **Artes escénicas:**
+• **Teatro**: Tragedia, comedia, drama
+• **Danza**: Ballet, contemporánea, folclórica
+• **Ópera**: Canto dramático con orquesta
+
+🎬 **Cine:**
+• **Eras**: Mudo, sonoro, color, digital
+• **Directores**: Hitchcock, Kubrick, Spielberg, Tarantino
+• **Géneros**: Drama, comedia, acción, terror, ciencia ficción
+
+🏛️ **Arquitectura:**
+• **Clásica**: Griega (Partenón), Romana (Coliseo)
+• **Gótica**: Catedrales, arcos apuntados, vitrales
+• **Moderna**: Funcionalismo, vidrio y acero
+
+🎵 **Música:**
+• **Géneros**: Clásica, jazz, rock, pop, electrónica
+• **Compositores**: Beethoven, Mozart, Bach
+• **Notación**: Pentagrama, clave de sol/fa
+
+¿Qué movimiento artístico o artista te interesa? 🎭`;
+    }
     
-    // Respuesta genérica más conversacional y natural
-    return `¡Interesante pregunta! 🤔
+    // Respuesta genérica pero útil
+    return `🤔 **"${qClean}"** - ¡Interesante tema!
 
-Sobre "${qClean}"...
+Como EstudIA, te ayudo a explorar este tema. Para darte la mejor respuesta, cuéntame:
 
-Como asistente de estudio, puedo ayudarte a:
-• 📖 Buscar información sobre este tema
-• 🎯 Explicarte conceptos relacionados
-• 💡 Darte ejemplos prácticos
-• 📝 Crear ejercicios para practicar
+• ¿Es para una materia específica?
+• ¿Necesitas nivel básico o avanzado?
+• ¿Buscas teoría, ejemplos prácticos, o ejercicios?
 
-Si tienes material de estudio cargado en la app, ¡puedo usarlo para darte respuestas más específicas! 📚
+💡 **Lo que puedo hacer:**
+• 📖 Explicar conceptos paso a paso
+• 📝 Resolver ejercicios contigo
+• 🎯 Crear resúmenes personalizados
+• 💡 Dar tips de estudio específicos
+• 🧠 Generar preguntas de práctica
 
-¿Qué te gustaría saber exactamente sobre esto? ✨`;
+Si tienes material de estudio cargado en la app, ¡puedo usarlo para respuestas más específicas! 📚
+
+¿Qué información exacta necesitas sobre "${qClean}"? ✨`;
+    }
   }
 
   // Eliminar curso y todos sus materiales

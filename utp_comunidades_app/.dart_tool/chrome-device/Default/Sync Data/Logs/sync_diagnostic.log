@@ -574,3 +574,5 @@
 2026-05-03 23:15:03.432: [INFO][Sync] Stopped: Edge Wallet
 2026-05-03 23:15:03.432: [INFO][Sync] Stopped: Edge Workspace
 2026-05-03 23:19:24.146: [INFO][Sync] Reset engine, reason: 0
+2026-05-04 00:12:11.695: [INFO][Sync] SyncState after authenticated was: FeatureNotSetup
+2026-05-04 00:15:28.531: [INFO][Sync] Reset engine, reason: 0

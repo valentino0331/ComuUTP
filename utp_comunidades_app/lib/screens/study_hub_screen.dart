@@ -1373,39 +1373,54 @@ class _StudyCourseDetailScreenState extends State<StudyCourseDetailScreen>
                   tabs: [
                     Tab(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.folder_open, size: 18),
-                            SizedBox(width: 6),
-                            Text('Materiales'),
+                            Icon(Icons.folder_open, size: 16),
+                            SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'Materiales',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     Tab(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.quiz, size: 18),
-                            SizedBox(width: 6),
-                            Text('Quiz'),
+                            Icon(Icons.quiz, size: 16),
+                            SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'Quiz',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     Tab(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.auto_awesome, size: 18),
-                            SizedBox(width: 6),
-                            Text('IA'),
+                            Icon(Icons.auto_awesome, size: 16),
+                            SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'IA',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ),
