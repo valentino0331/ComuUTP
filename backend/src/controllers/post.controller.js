@@ -1,0 +1,214 @@
+const pool = require('../config/db');
+
+exports.create = async (req, res) => {
+  const { comunidad_id, contenido, imagen_url } = req.body;
+  console.log('=== CREATE POST DEBUG ===');
+  console.log('comunidad_id:', comunidad_id);
+  console.log('contenido length:', contenido?.length);
+  console.log('imagen_url length:', imagen_url?.length);
+  console.log('usuario_id:', req.user?.id);
+  
+  try {
+    if (!comunidad_id || !contenido) {
+      console.log('Error: Comunidad y contenido son requeridos');
+      return res.status(400).json({ error: 'Comunidad y contenido son requeridos' });
+    }
+
+    // Verificar que el usuario es miembro de la comunidad
+    console.log('Verificando membresía...');
+    const isMember = await pool.query(
+      'SELECT id FROM miembros_comunidad WHERE usuario_id = $1 AND comunidad_id = $2',
+      [req.user.id, comunidad_id]
+    );
+    console.log('Es miembro:', isMember.rows.length > 0);
+
+    if (isMember.rows.length === 0) {
+      console.log('Error: No eres miembro de esta comunidad');
+      return res.status(403).json({ error: 'No eres miembro de esta comunidad' });
+    }
+
+    console.log('Insertando post...');
+    const result = await pool.query(
+      'INSERT INTO publicaciones (usuario_id, comunidad_id, contenido, imagen_url, fecha) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      [req.user.id, comunidad_id, contenido, imagen_url || null]
+    );
+    console.log('Post insertado exitosamente:', result.rows[0]);
+    
+    await pool.query('INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)', [req.user.id, 'crear_post', `Post en comunidad ${comunidad_id}`]);
+    
+    res.status(201).json({ publicacion: result.rows[0] });
+  } catch (err) {
+    console.error('=== ERROR CREATING POST ===');
+    console.error('Error message:', err.message);
+    console.error('Error stack:', err.stack);
+    res.status(500).json({ error: 'Error al crear publicación', details: err.message });
+  }
+};
+
+exports.list = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const isAdmin = req.user.role === 'admin';
+
+    let result;
+    let countResult;
+
+    if (isAdmin) {
+      // Admins ven TODOS los posts de TODAS las comunidades
+      result = await pool.query(
+        `SELECT
+          p.id,
+          p.usuario_id,
+          p.comunidad_id,
+          p.contenido,
+          p.imagen_url,
+          p.fecha,
+          u.nombre as nombre_usuario,
+          c.nombre as nombre_comunidad,
+          c.usuario_creador_id as comunidad_creador_id,
+          (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
+          (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
+        FROM publicaciones p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN comunidades c ON p.comunidad_id = c.id
+        ORDER BY p.fecha DESC
+        LIMIT $1 OFFSET $2`,
+        [limit, offset]
+      );
+
+      countResult = await pool.query(
+        `SELECT COUNT(*) as total FROM publicaciones p`
+      );
+    } else {
+      // Usuarios normales solo ven posts de comunidades a las que están unidos
+      result = await pool.query(
+        `SELECT
+          p.id,
+          p.usuario_id,
+          p.comunidad_id,
+          p.contenido,
+          p.imagen_url,
+          p.fecha,
+          u.nombre as nombre_usuario,
+          c.nombre as nombre_comunidad,
+          c.usuario_creador_id as comunidad_creador_id,
+          (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
+          (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
+        FROM publicaciones p
+        JOIN usuarios u ON p.usuario_id = u.id
+        JOIN comunidades c ON p.comunidad_id = c.id
+        WHERE p.comunidad_id IN (
+          SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
+        )
+        ORDER BY p.fecha DESC
+        LIMIT $2 OFFSET $3`,
+        [req.user.id, limit, offset]
+      );
+
+      countResult = await pool.query(
+        `SELECT COUNT(*) as total FROM publicaciones p
+         WHERE p.comunidad_id IN (
+           SELECT comunidad_id FROM miembros_comunidad WHERE usuario_id = $1
+         )`,
+        [req.user.id]
+      );
+    }
+
+    const total = parseInt(countResult.rows[0].total);
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      publicaciones: result.rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    });
+  } catch (err) {
+    console.error('Error listing posts:', err.message);
+    res.status(500).json({ error: 'Error al listar publicaciones', details: err.message });
+  }
+};
+
+exports.listByCommunity = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT 
+        p.id,
+        p.usuario_id,
+        p.comunidad_id,
+        p.contenido,
+        p.imagen_url,
+        p.fecha,
+        u.nombre as nombre_usuario,
+        c.nombre as nombre_comunidad,
+        (SELECT COUNT(*) FROM likes WHERE publicacion_id = p.id) as likes,
+        (SELECT COUNT(*) FROM comentarios WHERE publicacion_id = p.id) as comentarios
+      FROM publicaciones p
+      JOIN usuarios u ON p.usuario_id = u.id
+      JOIN comunidades c ON p.comunidad_id = c.id
+      WHERE p.comunidad_id = $1
+      ORDER BY p.fecha DESC`,
+      [id]
+    );
+    
+    res.json({ publicaciones: result.rows });
+  } catch (err) {
+    console.error('Error listing posts:', err.message);
+    res.status(500).json({ error: 'Error al listar publicaciones', details: err.message });
+  }
+};
+
+exports.delete = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  
+  try {
+    // Verificar que el post existe
+    const post = await pool.query(
+      'SELECT p.*, c.usuario_creador_id as comunidad_creador_id FROM publicaciones p JOIN comunidades c ON p.comunidad_id = c.id WHERE p.id = $1',
+      [id]
+    );
+    
+    if (post.rows.length === 0) {
+      return res.status(404).json({ error: 'Publicación no encontrada' });
+    }
+    
+    const postData = post.rows[0];
+    const isAuthor = postData.usuario_id === userId;
+    const isAdmin = req.user.role === 'admin';
+    const isCommunityCreator = postData.comunidad_creador_id === userId;
+    
+    // Verificar permisos: autor, admin, o creador de comunidad
+    if (!isAuthor && !isAdmin && !isCommunityCreator) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta publicación' });
+    }
+    
+    // Eliminar likes asociados
+    await pool.query('DELETE FROM likes WHERE publicacion_id = $1', [id]);
+    
+    // Eliminar comentarios asociados
+    await pool.query('DELETE FROM comentarios WHERE publicacion_id = $1', [id]);
+    
+    // Eliminar la publicación
+    await pool.query('DELETE FROM publicaciones WHERE id = $1', [id]);
+    
+    // Log
+    await pool.query(
+      'INSERT INTO logs_sistema (usuario_id, accion, descripcion) VALUES ($1, $2, $3)',
+      [userId, 'eliminar_post', `Post ${id} eliminado`]
+    );
+    
+    res.status(200).json({ message: 'Publicación eliminada correctamente' });
+  } catch (err) {
+    console.error('Error deleting post:', err.message);
+    res.status(500).json({ error: 'Error al eliminar publicación', details: err.message });
+  }
+};

@@ -1,0 +1,399 @@
+{
+  "info": {
+    "_postman_id": "study-mode-api",
+    "name": "UTP Comunidades - Modo Estudio API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Study Courses",
+      "item": [
+        {
+          "name": "Get User Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/study/courses",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "study", "courses"]
+            }
+          }
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Programación en Python\",\n  \"course_code\": \"CS-2024-001\",\n  \"professor_name\": \"Dr. Juan Pérez\",\n  \"description\": \"Curso avanzado de Python\",\n  \"semester\": 1,\n  \"year\": 2024\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/study/courses",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "study", "courses"]
+            }
+          }
+        },
+        {
+          "name": "Get Course Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/study/courses/COURSE_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "study", "courses", "COURSE_ID"]
+            }
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Programación en Python - Updated\",\n  \"professor_name\": \"Dr. Carlos Martínez\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/study/courses/COURSE_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "study", "courses", "COURSE_ID"]
+            }
+          }
+        },
+        {
+          "name": "Archive Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/study/courses/COURSE_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "study", "courses", "COURSE_ID"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Materials",
+      "item": [
+        {
+          "name": "Upload Material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "courseId",
+                  "value": "COURSE_ID",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/your/file.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/materials/upload",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "materials", "upload"]
+            }
+          }
+        },
+        {
+          "name": "Get Material",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/materials/MATERIAL_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "materials", "MATERIAL_ID"]
+            }
+          }
+        },
+        {
+          "name": "Get Materials by Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/materials/course/COURSE_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "materials", "course", "COURSE_ID"]
+            }
+          }
+        },
+        {
+          "name": "Delete Material",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/materials/MATERIAL_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "materials", "MATERIAL_ID"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Features",
+      "item": [
+        {
+          "name": "Summarize Material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": \"MATERIAL_ID\",\n  \"forceRefresh\": false\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/ai/summarize",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "summarize"]
+            }
+          }
+        },
+        {
+          "name": "Explain Concept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": \"MATERIAL_ID\",\n  \"concept\": \"Herencia en programación orientada a objetos\",\n  \"level\": \"intermediate\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/ai/explain",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "explain"]
+            }
+          }
+        },
+        {
+          "name": "Generate Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"COURSE_ID\",\n  \"count\": 5,\n  \"difficulty\": \"medium\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/ai/generate-quiz",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "generate-quiz"]
+            }
+          }
+        },
+        {
+          "name": "Ask Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"COURSE_ID\",\n  \"question\": \"¿Cuál es la diferencia entre una lista y una tupla en Python?\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/ai/ask-question",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "ask-question"]
+            }
+          }
+        },
+        {
+          "name": "Get Cached Responses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/ai/responses/MATERIAL_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "responses", "MATERIAL_ID"]
+            }
+          }
+        },
+        {
+          "name": "Get Questions for Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/ai/questions/COURSE_ID",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "questions", "COURSE_ID"]
+            }
+          }
+        },
+        {
+          "name": "Submit Quiz Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"COURSE_ID\",\n  \"answers\": {\n    \"question_1\": \"option_a\",\n    \"question_2\": \"option_b\",\n    \"question_3\": \"option_c\"\n  },\n  \"timeSpent\": 600\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/ai/quiz-attempt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ai", "quiz-attempt"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

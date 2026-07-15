@@ -1,0 +1,1196 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../providers/post_provider.dart';
+import '../providers/auth_provider.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PostProvider>(context, listen: false).fetchAllPosts();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: _buildAppBar(),
+      body: Consumer<PostProvider>(
+        builder: (context, postProvider, _) {
+          if (postProvider.loading) {
+            return _buildLoadingState();
+          }
+          if (postProvider.posts.isEmpty) {
+            return _buildEmptyState();
+          }
+          return _buildFeedContent(context, postProvider);
+        },
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      backgroundColor: const Color(0xFFC8102E),
+      toolbarHeight: 56,
+      title: const Text(
+        'Inicio',
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(8),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            width: 80,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            PhosphorIcons.smileyXEyesFill,
+            size: 100,
+            color: const Color(0xFFC8102E).withOpacity(0.3),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No hay publicaciones aún',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey[700],
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '¡Sé el primero en compartir!',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+              fontFamily: 'Montserrat',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeedContent(
+      BuildContext context, PostProvider postProvider) {
+    return RefreshIndicator(
+      onRefresh: () => postProvider.fetchAllPosts(),
+      color: const Color(0xFFC8102E),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: postProvider.posts.length,
+        itemBuilder: (context, index) {
+          final post = postProvider.posts[index];
+          final authProvider = context.read<AuthProvider>();
+          final currentUser = authProvider.user;
+          final currentUserId = currentUser?.id;
+          final currentUserRole = currentUser?.role;
+          // Comparación numérica explícita
+          final postUserId = post.usuarioId is int ? post.usuarioId : int.tryParse(post.usuarioId.toString()) ?? 0;
+          final authUserId = currentUserId is int ? currentUserId : int.tryParse(currentUserId.toString()) ?? 0;
+          final comunidadCreadorId = post.comunidadCreadorId ?? 0;
+          // Verificar permisos: autor, admin, o creador de comunidad
+          final isAuthor = currentUserId != null && postUserId == authUserId;
+          final isAdmin = currentUserRole == 'admin';
+          final isCommunityCreator = comunidadCreadorId > 0 && comunidadCreadorId == authUserId;
+          final canDelete = isAuthor || isAdmin || isCommunityCreator;
+          // Debug
+          print('DEBUG Post ${post.id}: postUserId=$postUserId, authUserId=$authUserId, comunidadCreadorId=$comunidadCreadorId, isAuthor=$isAuthor, isAdmin=$isAdmin, isCommunityCreator=$isCommunityCreator, canDelete=$canDelete');
+          return PostCard(
+            post: post,
+            isAuthor: canDelete,
+            onLikeTap: () => postProvider.toggleLike(post.id),
+            onCommentTap: () => _showCommentSheet(context, post),
+            onShareTap: () => _showShareMessage(context),
+            onDeleteTap: canDelete
+                ? () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => Dialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        child: Container(
+                          padding: const EdgeInsets.all(28),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  color: Colors.red[50],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  PhosphorIcons.trashFill,
+                                  color: Colors.red,
+                                  size: 32,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                '¿Eliminar publicación?',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Esta acción no se puede deshacer.',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 28),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: () => Navigator.pop(context, false),
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.grey[100],
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(14),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cancelar',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () => Navigator.pop(context, true),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(14),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: const Text(
+                                        'Eliminar',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                    if (confirmed == true) {
+                      final success = await postProvider.deletePost(post.id);
+                      if (success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                Icon(
+                                  PhosphorIcons.checkCircleFill,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Publicación eliminada',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: Colors.green,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                : null,
+          ).animate().fadeIn(duration: 300.ms, delay: (index * 100).ms).slideY(begin: 0.1, end: 0);
+        },
+      ),
+    );
+  }
+
+  void _showShareMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              PhosphorIcons.shareNetworkFill,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            const Text('¡Compartido con éxito!'),
+          ],
+        ),
+        backgroundColor: const Color(0xFFC8102E),
+        duration: const Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  void _showCommentSheet(BuildContext context, dynamic post) {
+    final commentController = TextEditingController();
+    final currentUser = Provider.of<AuthProvider>(context, listen: false).user;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.7,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            children: [
+              Container(
+                height: 4,
+                width: 40,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          PhosphorIcons.chatCircleTextFill,
+                          color: const Color(0xFFC8102E),
+                          size: 24,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Comentarios',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          PhosphorIcons.xBold,
+                          color: Colors.grey[600],
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        PhosphorIcons.chatsFill,
+                        size: 60,
+                        color: Colors.grey[300],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Aún no hay comentarios',
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Colors.grey[300]!, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: commentController,
+                        decoration: InputDecoration(
+                          hintText: "Añade un comentario...",
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            color: Colors.grey[500],
+                            fontFamily: "Montserrat",
+                          ),
+                        ),
+                        style: const TextStyle(fontFamily: "Montserrat"),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        PhosphorIcons.paperPlaneRightFill,
+                        color: const Color(0xFFC8102E),
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        if (commentController.text.isNotEmpty &&
+                            currentUser != null) {
+                          Provider.of<PostProvider>(context, listen: false)
+                              .addComment(
+                            post.id,
+                            commentController.text,
+                            currentUser.nombre,
+                          );
+                          commentController.clear();
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class PostCard extends StatefulWidget {
+  final dynamic post;
+  final VoidCallback onLikeTap;
+  final VoidCallback onCommentTap;
+  final VoidCallback onShareTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
+
+  const PostCard({
+    required this.post,
+    required this.onLikeTap,
+    required this.onCommentTap,
+    required this.onShareTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
+  });
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  late bool _isLiked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _PostHeader(
+              post: widget.post,
+              onMenuTap: widget.onShareTap,
+              onDeleteTap: widget.onDeleteTap,
+              isAuthor: widget.isAuthor,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: Text(
+                widget.post.contenido ?? '',
+                style: const TextStyle(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: Colors.black87,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ),
+            if (widget.post.imagenUrl != null && widget.post.imagenUrl!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: widget.post.imagenUrl!.startsWith('data:')
+                      ? Image.memory(
+                          base64Decode(widget.post.imagenUrl!.split(',')[1]),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.shrink();
+                          },
+                        )
+                      : Image.network(
+                          widget.post.imagenUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                ),
+              ),
+            _PostStats(post: widget.post),
+            Divider(height: 1, color: Colors.grey[200]),
+            _PostActions(
+              isLiked: _isLiked,
+              onLikeTap: () {
+                setState(() => _isLiked = !_isLiked);
+                widget.onLikeTap();
+              },
+              onCommentTap: widget.onCommentTap,
+              onShareTap: widget.onShareTap,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PostHeader extends StatelessWidget {
+  final dynamic post;
+  final VoidCallback onMenuTap;
+  final VoidCallback? onDeleteTap;
+  final bool isAuthor;
+
+  const _PostHeader({
+    required this.post,
+    required this.onMenuTap,
+    this.onDeleteTap,
+    this.isAuthor = false,
+  });
+
+  String _getTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inSeconds < 60) {
+      return 'Hace poco';
+    } else if (difference.inMinutes < 60) {
+      return 'Hace ${difference.inMinutes}m';
+    } else if (difference.inHours < 24) {
+      return 'Hace ${difference.inHours}h';
+    } else if (difference.inDays < 7) {
+      return 'Hace ${difference.inDays}d';
+    } else {
+      return 'Hace ${(difference.inDays / 7).floor()}s';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print('DEBUG _PostHeader: post.id=${post.id}, isAuthor=$isAuthor, onDeleteTap=$onDeleteTap');
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFFC8102E),
+                  const Color(0xFFC8102E).withOpacity(0.7),
+                ],
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                (post.nombreUsuario ?? 'U').substring(0, 1).toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  post.nombreUsuario ?? 'Usuario',
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  _getTimeAgo(post.fecha),
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (context) => Container(
+                  margin: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 30,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 12),
+                      // Handle bar
+                      Container(
+                        width: 40,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      // Título
+                      const Text(
+                        'Opciones de publicación',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Compartir
+                      _buildBottomSheetOption(
+                        'Compartir',
+                        PhosphorIcons.shareNetwork,
+                        const Color(0xFFC8102E),
+                        () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    PhosphorIcons.checkCircleFill,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    'Enlace copiado',
+                                    style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Guardar
+                      _buildBottomSheetOption(
+                        'Guardar',
+                        PhosphorIcons.bookmark,
+                        Colors.blue,
+                        () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Guardado en tus favoritos',
+                                style: TextStyle(fontFamily: 'Montserrat'),
+                              ),
+                              duration: const Duration(milliseconds: 800),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Reportar
+                      _buildBottomSheetOption(
+                        'Reportar',
+                        PhosphorIcons.flag,
+                        Colors.orange,
+                        () {
+                          Navigator.pop(context);
+                          _showReportDialog(context);
+                        },
+                      ),
+
+                      // Eliminar (solo si es autor)
+                      if (isAuthor) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          child: Divider(height: 1, color: Colors.grey[200]),
+                        ),
+                        _buildBottomSheetOption(
+                          'Eliminar publicación',
+                          PhosphorIcons.trash,
+                          Colors.red,
+                          () {
+                            Navigator.pop(context);
+                            onDeleteTap?.call();
+                          },
+                        ),
+                      ],
+
+                      const SizedBox(height: 20),
+
+                      // Cancelar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.grey[100],
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                PhosphorIcons.dotsThreeVerticalBold,
+                color: Colors.grey[600],
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetOption(
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Montserrat',
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PostStats extends StatelessWidget {
+  final dynamic post;
+
+  const _PostStats({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      child: Row(
+        children: [
+          Icon(
+            PhosphorIcons.heartFill,
+            color: const Color(0xFFC8102E),
+            size: 14,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${post.likes ?? 0}',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 11,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Icon(
+            PhosphorIcons.chatCircleText,
+            color: Colors.grey[600],
+            size: 14,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${post.comentarios ?? 0}',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 11,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostActions extends StatelessWidget {
+  final bool isLiked;
+  final VoidCallback onLikeTap;
+  final VoidCallback onCommentTap;
+  final VoidCallback onShareTap;
+
+  const _PostActions({
+    required this.isLiked,
+    required this.onLikeTap,
+    required this.onCommentTap,
+    required this.onShareTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Expanded(
+            child: _ActionButton(
+              icon: isLiked
+                  ? PhosphorIcons.heartFill
+                  : PhosphorIcons.heart,
+              label: 'Me gusta',
+              color: isLiked ? const Color(0xFFC8102E) : Colors.grey[600]!,
+              onTap: onLikeTap,
+            ),
+          ),
+          Expanded(
+            child: _ActionButton(
+              icon: PhosphorIcons.chatCircleText,
+              label: 'Comentar',
+              color: Colors.grey[600]!,
+              onTap: onCommentTap,
+            ),
+          ),
+          Expanded(
+            child: _ActionButton(
+              icon: PhosphorIcons.shareNetwork,
+              label: 'Compartir',
+              color: Colors.grey[600]!,
+              onTap: onShareTap,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Icon(
+            icon,
+            color: color,
+            size: 18,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void _showReportDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Container(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: Colors.orange[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                PhosphorIcons.flagFill,
+                color: Colors.orange,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Reportar publicación',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '¿Por qué deseas reportar esta publicación?',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.grey[100],
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              Icon(
+                                PhosphorIcons.checkCircleFill,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'Reporte enviado',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: Colors.green,
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Reportar',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+
